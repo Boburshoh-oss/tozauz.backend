@@ -35,6 +35,11 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 # Application definition
 
+LOCAL_APPS = [
+    'account',
+    'garbage',
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-]
+] + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -73,7 +78,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
-
+AUTH_USER_MODEL = 'account.User'
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
