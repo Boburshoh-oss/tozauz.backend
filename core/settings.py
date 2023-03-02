@@ -39,6 +39,7 @@ LOCAL_APPS = [
     'account',
     'garbage',
     'bank',
+    'ecopacket',
 ]
 
 INSTALLED_APPS = [
@@ -49,6 +50,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'rest_framework',
+    'rest_framework.authtoken',
+
 ] + LOCAL_APPS
 
 MIDDLEWARE = [
