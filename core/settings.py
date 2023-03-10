@@ -37,9 +37,9 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 LOCAL_APPS = [
     'account',
-    'garbage',
     'bank',
     'ecopacket',
+    'packet',
 ]
 
 INSTALLED_APPS = [
@@ -52,18 +52,28 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
+    'debug_toolbar',
 
 ] + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# CORS ORIGIN
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'core.urls'
 
@@ -92,9 +102,9 @@ AUTH_USER_MODEL = 'account.User'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'gis',
-        'USER': 'user001',
-        'PASSWORD': '123456789',
+        'NAME': 'geodjango',
+        'USER': 'geodjango',
+        'PASSWORD': '12345',
         'HOST': 'localhost',
         'PORT': '5432'
     }
@@ -143,3 +153,9 @@ STATIC_ROOT = BASE_DIR / 'static'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]

@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class GarbageConfig(AppConfig):
+class PacketConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'garbage'
+    name = 'packet'

@@ -3,7 +3,7 @@ from django.db import models
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, phone_number, password=None, first_name=None, last_name=None, role=None, categories=None):
+    def create_user(self, phone_number, password=None, first_name=None, last_name=None, role=None, categories=None, car_number=None):
         if not phone_number:
             raise ValueError('Users must have a phone number')
 
@@ -12,6 +12,7 @@ class UserManager(BaseUserManager):
             first_name=first_name,
             last_name=last_name,
             role=role,
+            car_number=car_number
         )
 
         user.set_password(password)
@@ -34,17 +35,20 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+
 class RoleOptions(models.TextChoices):
-        EMPLOYER = "EMP", "Employer"
-        POPULATION = 'POP', 'Population'
-       
+    EMPLOYE = "EMP", "Employer"
+    POPULATION = 'POP', 'Population'
+
 
 class User(AbstractBaseUser):
     phone_number = models.CharField(max_length=20, unique=True)
     first_name = models.CharField(max_length=50, blank=True)
-    last_name = models.CharField(max_length=50, blank=True,null=True)
-    role = models.CharField(max_length=50, choices=RoleOptions.choices, default=RoleOptions.POPULATION, blank=True, null=True)
-    categories = models.ManyToManyField('garbage.Category', blank=True)
+    last_name = models.CharField(max_length=50, blank=True, null=True)
+    role = models.CharField(max_length=50, choices=RoleOptions.choices,
+                            default=RoleOptions.POPULATION, blank=True, null=True)
+    categories = models.ManyToManyField("packet.Category")
+    car_number = models.CharField(max_length=10, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
@@ -71,5 +75,3 @@ class User(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.is_admin
-
-

@@ -46,13 +46,12 @@ class UserAdminRetrieveSerializer(serializers.ModelSerializer):
 class UserAdminRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'phone_number', 'email',
-                  'username', 'password', 'last_login', 'date_joined', 'role', 'is_active')
+        fields = ('id', 'first_name', 'last_name', 'phone_number',
+                  'password', 'last_login',  'role', 'categories', 'car_number', 'is_admin')
         extra_kwargs = {
             'id': {'read_only': True},
             'password': {'write_only': True},
             'last_login': {'read_only': True},
-            'date_joined': {'read_only': True}
         }
 
     def create(self, validated_data):
