@@ -3,4 +3,4 @@ environs==9.5.0
 djangorestframework==3.14.0
 django-cors-headers
 django-filter==22.1
-drf-yasg
+django-debug-toolbar
