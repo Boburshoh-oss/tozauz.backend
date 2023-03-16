@@ -7,7 +7,7 @@ from utils import get_uid
 class Box(models.Model):
     name = models.CharField(max_length=200)
     sim_module = models.CharField(max_length=20,unique=True)
-    qr_code = models.CharField(default=get_uid('ecobox'), max_length=50)
+    qr_code = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(
         "packet.Category", on_delete=models.SET_NULL, null=True)
@@ -34,7 +34,7 @@ class LifeCycle(models.Model):
 
 
 class EcoPacketQrCode(models.Model):
-    qr_code = models.CharField(default=get_uid('ecopacket'), max_length=50)
+    qr_code = models.CharField(max_length=50)
     user = models.ForeignKey(
         to='account.User',
         on_delete=models.SET_NULL,

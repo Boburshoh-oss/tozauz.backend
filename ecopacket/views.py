@@ -1,16 +1,22 @@
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from utils.save_to_database import create_ecopacket_qr_codes
-from .models import EcoPacketQrCode, Box
+from .models import EcoPacketQrCode, Box, LifeCycle
 # from account.models import User
-from .serializers import BoxSerializer
+from .serializers import (
+    BoxSerializer,
+    LifeCycleSerializer,
+    EcoPacketQrCodeSerializer
+)
 from bank.models import Earning
 from django.contrib.gis.geos import Point
+from utils.pagination import MyPagination
+
 
 @api_view(['POST'])
 # @permission_classes([IsAuthenticated, IsAdminUser])
@@ -108,10 +114,22 @@ class QrCodeScanerView(APIView):
         return Response({'message': 'Qr code was successfully scanned.'}, status=status.HTTP_202_ACCEPTED)
 
 
-#CRUD DEVELOPER
 
+#CRUD DEVELOPER
 class BoxModelViewSet(viewsets.ModelViewSet):
     serializer_class = BoxSerializer
     queryset = Box.objects.all()
-    
 
+
+class LifeCycleListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LifeCycleSerializer
+    queryset = LifeCycle.objects.all().order_by('-id')
+    pagination_class = MyPagination
+
+
+class EcoPacketQrCodeListAPIView(generics.ListAPIView):
+    # permission_classes = [IsAuthenticated]
+    serializer_class = EcoPacketQrCodeSerializer
+    queryset = EcoPacketQrCode.objects.all().order_by('-id')
+    pagination_class = MyPagination

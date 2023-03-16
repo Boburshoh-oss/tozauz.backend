@@ -39,8 +39,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class UserAdminRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'username', 'email', 'phone_number',
-                  'role', 'is_active']
+        fields = ['id', 'first_name', 'last_name', 'phone_number',
+                  'role', 'is_active', 'categories', 'car_number', 'is_admin']
 
 
 class UserAdminRegisterSerializer(serializers.ModelSerializer):
@@ -70,11 +70,23 @@ class UserAdminRegisterSerializer(serializers.ModelSerializer):
 class UserAdminUpdateSerializer(UserAdminRegisterSerializer):
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'phone_number', 'email',
-                  'username', 'password', 'last_login', 'date_joined', 'role', 'is_active')
+        fields = ('id', 'first_name', 'last_name',
+                  'phone_number',
+                  'password', 'role',  
+                  'categories', 'car_number', 'is_admin')
         extra_kwargs = {
             'id': {'read_only': True},
             'password': {'write_only': True, 'required': False},
-            'last_login': {'read_only': True},
-            'date_joined': {'read_only': True}
         }
+
+    def create(self, validated_data):
+        if "password" in validated_data:
+            validated_data["password"] = make_password(
+                validated_data["password"])
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        if "password" in validated_data:
+            validated_data["password"] = make_password(
+                validated_data["password"])
+        return super().update(instance, validated_data)

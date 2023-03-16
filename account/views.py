@@ -1,12 +1,21 @@
-from rest_framework import generics, views
+from django_filters import rest_framework as filters
+from rest_framework import filters as rf_filters
+from rest_framework import generics
 from rest_framework.authtoken.models import Token
 from rest_framework import generics, permissions
 from .models import User, RoleOptions
-from .serializers import UserRegisterSerializer, UserLoginSerializer, UserAdminRegisterSerializer, UserAdminRetrieveSerializer
+from .serializers import (
+    UserRegisterSerializer,
+    UserLoginSerializer,
+    UserAdminRegisterSerializer,
+    UserAdminRetrieveSerializer,
+    UserAdminUpdateSerializer
+)
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_403_FORBIDDEN
+from utils.pagination import MyPagination
 
 
 class GetAuthToken(ObtainAuthToken):
@@ -22,14 +31,27 @@ class GetAuthToken(ObtainAuthToken):
                 'detail': 'User not found'
             }, status=HTTP_404_NOT_FOUND)
         token, created = Token.objects.get_or_create(user=user)
+
         return Response({
             'token': token.key,
             'id': user.id,
             'phone_number': user.phone_number,
             'first_name': user.first_name,
+            'role': user.role
         })
 
 
+class UserRegisterView(generics.CreateAPIView):
+    permission_classes = [permissions.AllowAny]
+    queryset = User.objects.all()
+    serializer_class = UserRegisterSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(role=RoleOptions.POPULATION)
+        return super().perform_create(serializer)
+
+
+# Admin
 class AdminGetAuthToken(ObtainAuthToken):
     serializer_class = UserLoginSerializer
 
@@ -57,46 +79,26 @@ class AdminGetAuthToken(ObtainAuthToken):
         }, status=HTTP_403_FORBIDDEN)
 
 
-class UserListRegisterView(generics.ListCreateAPIView):
-    permission_classes = [permissions.AllowAny]
-    queryset = User.objects.all()
-    serializer_class = UserRegisterSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(role=RoleOptions.POPULATION)
-        return super().perform_create(serializer)
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_anonymous:
-            return []
-        if user.is_admin:
-            return User.objects.all()
-        return [user]
-
-
+# Admin
 class UserAdminRegisterView(generics.ListCreateAPIView):
-    permission_classes = [permissions.AllowAny]
-    queryset = User.objects.all()
+    permission_classes = [permissions.IsAdminUser]
     serializer_class = UserAdminRegisterSerializer
+    queryset = User.objects.all().order_by("-id")
+    filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
+    filterset_fields = ['is_admin', 'role', 'categories']
+    search_fields = ['first_name', 'last_name', 'phone_number', 'car_number']
+    pagination_class = MyPagination
 
     def perform_create(self, serializer):
         serializer.save(role=RoleOptions.EMPLOYE)
         return super().perform_create(serializer)
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_anonymous:
-            return []
-        if user.is_admin:
-            return User.objects.all()
-        return [user]
 
-
+# Admin
 class UserAdmninRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAdminUser]
     queryset = User.objects.all()
-    serializer_class = UserAdminRetrieveSerializer
+    serializer_class = UserAdminUpdateSerializer
 
 
 # class UserLoginView(views.APIView):

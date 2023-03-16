@@ -6,9 +6,12 @@ from utils.save_to_database import create_packet_qr_codes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import authentication
 from django.utils import timezone
-from .models import Packet
+from .models import Packet, Category
 from bank.models import Earning
 from ecopacket.models import Box, LifeCycle
+from rest_framework import viewsets, generics
+from .serializers import CategorySerializer, PacketSerializer
+from utils.pagination import MyPagination
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminUser])
@@ -90,3 +93,14 @@ class EmployeeQrCodeScanerView(APIView):
 
         # Return a success response
         return Response({'message': "Okay"}, status=status.HTTP_202_ACCEPTED)
+
+
+class CategoryModelViewSet(viewsets.ModelViewSet):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+    
+
+class PacketListAPIView(generics.ListAPIView):
+    pagination_class = MyPagination
+    serializer_class = PacketSerializer
+    queryset = Packet.objects.all().order_by('-id')
