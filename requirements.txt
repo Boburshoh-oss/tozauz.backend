@@ -4,3 +4,4 @@ djangorestframework==3.14.0
 django-cors-headers
 django-filter==22.1
 django-debug-toolbar
+gunicorn
