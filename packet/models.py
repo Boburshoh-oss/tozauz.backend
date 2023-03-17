@@ -9,7 +9,7 @@ class Category(models.Model):
 
     def __str__(self) -> str:
         return self.name
-    
+
     @property
     def count_user(self):
         return self.user.all().count()
@@ -30,5 +30,3 @@ class Packet(models.Model):
 
     def __str__(self) -> str:
         return f"{self.id} {self.category.name}"
-
-    

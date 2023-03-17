@@ -13,6 +13,7 @@ from rest_framework import viewsets, generics
 from .serializers import CategorySerializer, PacketSerializer
 from utils.pagination import MyPagination
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def create_packet_qr_code(request):
@@ -44,26 +45,25 @@ class EmployeeQrCodeScanerView(APIView):
         box_qr_code = Box.objects.filter(qr_code=qr_code)
         packet_qr_code = Packet.objects.filter(qr_code=qr_code)
         bank_account = employer.bankaccount
-        #for ecopacket box
+        # for ecopacket box
         if box_qr_code.first() is not None:
             box = box_qr_code.first()
             last_lifecycle = box.lifecycle.last()
             filled = last_lifecycle.state
             cat = box.category
-            
-            if filled > 90 and cat in employer.categories.all():
-                last_lifecycle.employee=employer
+
+            if filled > 80 and cat in employer.categories.all():
+                last_lifecycle.employee = employer
                 last_lifecycle.filled_at = timezone.now()
                 last_lifecycle.save()
                 LifeCycle.objects.create(
                     box=box
                 )
-                money = box.category.summa
-                
-                
+                money = box.category.summa * filled/100
+
                 bank_account.capital += money
                 bank_account.save()
-                
+
                 Earning.objects.create(
                     bank_account=bank_account,
                     amount=money,
@@ -71,8 +71,8 @@ class EmployeeQrCodeScanerView(APIView):
                 )
             else:
                 return Response({'message': "The box is empty or your level is not suitable"},
-                         status=status.HTTP_403_FORBIDDEN)
-                
+                                status=status.HTTP_403_FORBIDDEN)
+        # for simple packets
         elif packet_qr_code.first() is not None:
             packet = packet_qr_code.first()
             cat = packet.category
@@ -80,11 +80,11 @@ class EmployeeQrCodeScanerView(APIView):
                 packet.employee = employer
                 packet.scannered_at = timezone.now()
                 packet.save()
-               
+
                 money = packet.category.summa
                 bank_account.capital += money
                 bank_account.save()
-                
+
                 Earning.objects.create(
                     bank_account=bank_account,
                     amount=money,
@@ -98,7 +98,7 @@ class EmployeeQrCodeScanerView(APIView):
 class CategoryModelViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
-    
+
 
 class PacketListAPIView(generics.ListAPIView):
     pagination_class = MyPagination

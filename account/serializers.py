@@ -72,7 +72,7 @@ class UserAdminUpdateSerializer(UserAdminRegisterSerializer):
         model = User
         fields = ('id', 'first_name', 'last_name',
                   'phone_number',
-                  'password', 'role',  
+                  'password', 'role',
                   'categories', 'car_number', 'is_admin')
         extra_kwargs = {
             'id': {'read_only': True},

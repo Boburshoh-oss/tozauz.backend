@@ -6,7 +6,7 @@ from utils import get_uid
 
 class Box(models.Model):
     name = models.CharField(max_length=200)
-    sim_module = models.CharField(max_length=20,unique=True)
+    sim_module = models.CharField(max_length=20, unique=True)
     qr_code = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(
@@ -17,7 +17,8 @@ class Box(models.Model):
 
 
 class LifeCycle(models.Model):
-    box = models.ForeignKey(Box, on_delete=models.CASCADE,related_name="lifecycle")
+    box = models.ForeignKey(
+        Box, on_delete=models.CASCADE, related_name="lifecycle")
     location = models.PointField(blank=True, null=True)
     employee = models.ForeignKey(
         to='account.User',
