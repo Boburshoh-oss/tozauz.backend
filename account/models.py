@@ -39,6 +39,7 @@ class UserManager(BaseUserManager):
 class RoleOptions(models.TextChoices):
     EMPLOYE = "EMP", "Employer"
     POPULATION = 'POP', 'Population'
+    ADMIN = 'ADMIN', 'Admin'
 
 
 class User(AbstractBaseUser):
@@ -75,3 +76,11 @@ class User(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.is_admin
+
+    def save(self, *args, **kwargs):
+        if self.role == RoleOptions.ADMIN:
+            self.is_admin = True
+        else:
+            self.is_admin = False
+            
+        super(User, self).save(*args, **kwargs)
