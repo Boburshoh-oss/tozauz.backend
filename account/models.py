@@ -1,6 +1,10 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 
+class RoleOptions(models.TextChoices):
+    EMPLOYE = "EMP", "Employer"
+    POPULATION = 'POP', 'Population'
+    ADMIN = 'ADMIN', 'Admin'
 
 class UserManager(BaseUserManager):
     def create_user(self, phone_number, password=None, first_name=None, last_name=None, role=None, categories=None, car_number=None):
@@ -22,13 +26,13 @@ class UserManager(BaseUserManager):
             user.categories.set(categories)
         return user
 
-    def create_superuser(self, phone_number, password, first_name=None, last_name=None, role=None, categories=None):
+    def create_superuser(self, phone_number, password, first_name=None, last_name=None, categories=None):
         user = self.create_user(
             phone_number=phone_number,
             password=password,
             first_name=first_name,
             last_name=last_name,
-            role=role,
+            role=RoleOptions.ADMIN,
             categories=categories,
         )
         user.is_admin = True
@@ -36,18 +40,13 @@ class UserManager(BaseUserManager):
         return user
 
 
-class RoleOptions(models.TextChoices):
-    EMPLOYE = "EMP", "Employer"
-    POPULATION = 'POP', 'Population'
-    ADMIN = 'ADMIN', 'Admin'
-
 
 class User(AbstractBaseUser):
     phone_number = models.CharField(max_length=20, unique=True)
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True, null=True)
     role = models.CharField(max_length=50, choices=RoleOptions.choices,
-                            default=RoleOptions.POPULATION, blank=True, null=True)
+                            blank=True, null=True)
     categories = models.ManyToManyField("packet.Category", related_name="user")
     car_number = models.CharField(max_length=10, blank=True, null=True)
     is_active = models.BooleanField(default=True)
@@ -80,7 +79,9 @@ class User(AbstractBaseUser):
     def save(self, *args, **kwargs):
         if self.role == RoleOptions.ADMIN:
             self.is_admin = True
-        else:
+        elif self.role == RoleOptions.POPULATION:
+            self.is_admin = False
+        elif self.role == RoleOptions.EMPLOYE:
             self.is_admin = False
             
         super(User, self).save(*args, **kwargs)
