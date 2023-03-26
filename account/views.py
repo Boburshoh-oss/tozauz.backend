@@ -100,6 +100,7 @@ class UserAdmninRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserAdminUpdateSerializer
 
+    
 
 # class UserLoginView(views.APIView):
 #     def post(self, request):

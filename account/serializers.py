@@ -66,8 +66,7 @@ class UserAdminRegisterSerializer(serializers.ModelSerializer):
                 validated_data["password"])
         return super().update(instance, validated_data)
 
-
-class UserAdminUpdateSerializer(UserAdminRegisterSerializer):
+class UserAdminUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name',
@@ -79,6 +78,7 @@ class UserAdminUpdateSerializer(UserAdminRegisterSerializer):
             'password': {'write_only': True, 'required': False},
         }
 
+ 
     def create(self, validated_data):
         if "password" in validated_data:
             validated_data["password"] = make_password(
@@ -90,3 +90,4 @@ class UserAdminUpdateSerializer(UserAdminRegisterSerializer):
             validated_data["password"] = make_password(
                 validated_data["password"])
         return super().update(instance, validated_data)
+
