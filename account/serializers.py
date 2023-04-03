@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import User
 from django.contrib.auth.hashers import make_password
 from django.utils.translation import gettext_lazy as _
+from bank.serializers import BankAccountSerializer
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -44,10 +45,11 @@ class UserAdminRetrieveSerializer(serializers.ModelSerializer):
 
 
 class UserAdminRegisterSerializer(serializers.ModelSerializer):
+    bankaccount = BankAccountSerializer(read_only=True)
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name', 'phone_number',
-                  'password', 'last_login',  'role', 'categories', 'car_number', 'is_admin')
+                  'password', 'last_login',  'role', 'categories', 'car_number', 'is_admin','bankaccount')
         extra_kwargs = {
             'id': {'read_only': True},
             'password': {'write_only': True},
