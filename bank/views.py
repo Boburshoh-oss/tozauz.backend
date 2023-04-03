@@ -1,4 +1,5 @@
-from rest_framework import generics, response
+from rest_framework import generics, response, authentication, permissions
+from rest_framework.views import APIView
 from .serializers import (
     BankAccountSerializer,
     EarningSerializer,
@@ -11,6 +12,20 @@ class BankAccountListAPIView(generics.ListAPIView):
     serializer_class = BankAccountSerializer
     queryset = BankAccount.objects.all()
 
+
+class MeBankAccountAPIView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        user = request.user
+        try:
+            bank_account = BankAccount.objects.get(user=user)
+        except:
+            response.Response({"error":"user not found"})
+            
+        serializer = BankAccountSerializer(bank_account)
+        return response.Response(serializer.data)
 
 class EarningListAPIView(generics.ListAPIView):
     serializer_class = EarningSerializer
