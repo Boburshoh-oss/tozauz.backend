@@ -8,6 +8,10 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = "__all__"
 
+class PacketSerializerCreate(serializers.ModelSerializer):
+    class Meta:
+        model = Packet
+        fields = ("qr_code",)
 
 class PacketSerializer(serializers.ModelSerializer):
     class Meta:

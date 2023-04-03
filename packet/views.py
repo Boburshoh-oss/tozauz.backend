@@ -10,7 +10,7 @@ from .models import Packet, Category
 from bank.models import Earning
 from ecopacket.models import Box, LifeCycle
 from rest_framework import viewsets, generics
-from .serializers import CategorySerializer, PacketSerializer
+from .serializers import CategorySerializer, PacketSerializer, PacketSerializerCreate
 from utils.pagination import MyPagination
 
 
@@ -29,7 +29,7 @@ def create_packet_qr_code(request):
     qrcodes = create_packet_qr_codes(num_of_qrcodes, category)
     
     if qrcodes:
-        serializer = PacketSerializer(qrcodes,many=True)
+        serializer = PacketSerializerCreate(qrcodes,many=True)
         return Response({'success': f'{num_of_qrcodes} QR codes created', 'qr_codes': serializer.data})
     else:
         return Response({'error': 'QR code creation failed'})

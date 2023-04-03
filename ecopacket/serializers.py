@@ -19,6 +19,10 @@ class LifeCycleSerializer(serializers.ModelSerializer):
         model = LifeCycle
         fields = '__all__'
 
+class EcoPacketQrCodeSerializerCreate(serializers.ModelSerializer):
+    class Meta:
+        model = EcoPacketQrCode
+        fields = ('qr_code',)
 
 class EcoPacketQrCodeSerializer(serializers.ModelSerializer):
     class Meta:

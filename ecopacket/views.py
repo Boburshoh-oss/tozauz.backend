@@ -12,7 +12,8 @@ from .models import EcoPacketQrCode, Box, LifeCycle
 from .serializers import (
     BoxSerializer,
     LifeCycleSerializer,
-    EcoPacketQrCodeSerializer
+    EcoPacketQrCodeSerializer,
+    EcoPacketQrCodeSerializerCreate
 )
 from bank.models import Earning
 from django.contrib.gis.geos import Point
@@ -34,7 +35,7 @@ def create_ecopacket_qr_code(request):
     qr_codes = create_ecopacket_qr_codes(num_of_qrcodes, category)
 
     if qr_codes:
-        serializer = EcoPacketQrCodeSerializer(qr_codes,many=True)
+        serializer = EcoPacketQrCodeSerializerCreate(qr_codes,many=True)
         return Response({'success': f'{num_of_qrcodes} QR codes created','qr_codes':serializer.data})
     else:
         return Response({'error': 'QR code creation failed'})
