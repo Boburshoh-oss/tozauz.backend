@@ -2,4 +2,4 @@ from uuid import uuid4
 
 
 def get_uid(section_name):
-    return f'{section_name}_{uuid4()}'
+    return f'{section_name}{uuid4().hex[:10]}'

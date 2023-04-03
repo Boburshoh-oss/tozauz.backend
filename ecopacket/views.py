@@ -31,10 +31,11 @@ def create_ecopacket_qr_code(request):
     if num_of_qrcodes <= 0 or num_of_qrcodes > 10000:
         return Response({'error': 'Number of QR codes must be between 1 and 10,000'})
 
-    success = create_ecopacket_qr_codes(num_of_qrcodes, category)
+    qr_codes = create_ecopacket_qr_codes(num_of_qrcodes, category)
 
-    if success:
-        return Response({'success': f'{num_of_qrcodes} QR codes created'})
+    if qr_codes:
+        serializer = EcoPacketQrCodeSerializer(qr_codes,many=True)
+        return Response({'success': f'{num_of_qrcodes} QR codes created','qr_codes':serializer.data})
     else:
         return Response({'error': 'QR code creation failed'})
 

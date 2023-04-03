@@ -15,13 +15,13 @@ def create_ecopacket_qr_codes(num_of_qrcodes, category):
     for qr in qrcodes:
         qr.created_at = now
         qr.category = cat
-        qr.qr_code = get_uid("ecopacket")
+        qr.qr_code = get_uid("eco")
     try:
         # use bulk_create to create all the objects in a single query
-        EcoPacketQrCode.objects.bulk_create(qrcodes)
-        return True
+        qr_codes = EcoPacketQrCode.objects.bulk_create(qrcodes)
+        return qr_codes
     except (IntegrityError, ValidationError):
-        return False
+        return []
 
 
 def create_packet_qr_codes(num_of_qrcodes, category):
@@ -40,7 +40,7 @@ def create_packet_qr_codes(num_of_qrcodes, category):
 
     try:
         # use bulk_create to create all the objects in a single query
-        Packet.objects.bulk_create(qrcodes)
-        return True
+        qr_codes = Packet.objects.bulk_create(qrcodes)
+        return qr_codes
     except (IntegrityError, ValidationError):
-        return False
+        return []
