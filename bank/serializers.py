@@ -12,7 +12,8 @@ class EarningSerializer(serializers.ModelSerializer):
 class BankAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = BankAccount
-        fields = ("capital",)
+        fields = "__all__"
+
 
 
 class PayOutSerializer(serializers.ModelSerializer):

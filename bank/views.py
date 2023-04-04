@@ -27,10 +27,6 @@ class MeBankAccountAPIView(APIView):
         serializer = BankAccountSerializer(bank_account)
         return response.Response(serializer.data)
 
-# class EarningListAPIView(generics.ListAPIView):
-#     serializer_class = EarningSerializer
-#     queryset = Earning.objects.all()
-
 
 class EarningListAPIView(APIView):
     authentication_classes = [authentication.TokenAuthentication]
