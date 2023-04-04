@@ -22,7 +22,7 @@ class AdminBankAccountAPIView(APIView):
         try:
             bank_account = BankAccount.objects.get(user=user_id)
         except:
-            response.Response({"error": "Bank accaount not found"})
+            return response.Response({"error": "Bank accaount not found"})
 
         serializer = BankAccountSerializer(bank_account)
         return response.Response(serializer.data)
