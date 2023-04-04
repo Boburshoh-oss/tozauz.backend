@@ -19,7 +19,7 @@ class BankAccountSerializer(serializers.ModelSerializer):
 
 class PayOutSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
-    admin = serializers.PrimaryKeyRelatedField(read_only=True)
+    admin = UserAdminRetrieveSerializer(read_only=True)
     class Meta:
         model = PayOut
         fields = "__all__"
