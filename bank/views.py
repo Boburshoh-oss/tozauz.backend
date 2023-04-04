@@ -27,10 +27,31 @@ class MeBankAccountAPIView(APIView):
         serializer = BankAccountSerializer(bank_account)
         return response.Response(serializer.data)
 
-class EarningListAPIView(generics.ListAPIView):
-    serializer_class = EarningSerializer
-    queryset = Earning.objects.all()
+# class EarningListAPIView(generics.ListAPIView):
+#     serializer_class = EarningSerializer
+#     queryset = Earning.objects.all()
 
+
+class EarningListAPIView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request,pk, format=None):
+        earning_list = Earning.objects.filter(bank_account__user=pk)
+        serializer = EarningSerializer(earning_list,many=True)
+        
+        return response.Response(serializer.data)
+
+
+class PayOutListAPIView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk, format=None):
+        payout_list = PayOut.objects.filter(user=pk)
+        serializer = PayOutSerializer(payout_list, many=True)
+
+        return response.Response(serializer.data)
 
 class PayOutListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = PayOutSerializer
