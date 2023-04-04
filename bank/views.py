@@ -13,6 +13,23 @@ class BankAccountListAPIView(generics.ListAPIView):
     queryset = BankAccount.objects.all()
 
 
+class AdminBankAccountAPIView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, user_id, format=None):
+        
+        try:
+            bank_account = BankAccount.objects.get(user=user_id)
+        except:
+            response.Response({"error": "Bank accaount not found"})
+
+        serializer = BankAccountSerializer(bank_account)
+        return response.Response(serializer.data)
+
+
+
+
 class MeBankAccountAPIView(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
