@@ -47,7 +47,7 @@ class UserAdminRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name', 'phone_number',
-                  'password', 'last_login',  'role', 'categories', 'car_number', 'is_admin','bankaccount')
+                  'password', 'last_login',  'role', 'categories', 'car_number', 'is_admin')
         extra_kwargs = {
             'id': {'read_only': True},
             'password': {'write_only': True},

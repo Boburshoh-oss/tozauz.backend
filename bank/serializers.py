@@ -8,7 +8,8 @@ class EarningSerializer(serializers.ModelSerializer):
         model = Earning
         fields = "__all__"
 
-
+    
+    
 class BankAccountSerializer(serializers.ModelSerializer):
     user = UserAdminRetrieveSerializer(read_only=True)
     class Meta:

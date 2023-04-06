@@ -7,16 +7,22 @@ from .serializers import (
 )
 from .models import BankAccount, Earning, PayOut
 from bank.models import BankAccount
+from utils.pagination import MyPagination
+from rest_framework.pagination import LimitOffsetPagination
+from django.db.models import Sum
+
 
 class BankAccountListAPIView(generics.ListAPIView):
     serializer_class = BankAccountSerializer
     queryset = BankAccount.objects.all()
+    pagination_class = MyPagination
 
 
 class AdminBankAccountAPIView(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-
+    
+    
     def get(self, request, user_id, format=None):
         
         try:
@@ -45,15 +51,19 @@ class MeBankAccountAPIView(APIView):
         return response.Response(serializer.data)
 
 
-class EarningListAPIView(APIView):
+class EarningListAPIView(APIView, LimitOffsetPagination):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-
+    
     def get(self, request,pk, format=None):
-        earning_list = Earning.objects.filter(bank_account__user=pk)
-        serializer = EarningSerializer(earning_list,many=True)
-        
-        return response.Response(serializer.data)
+        earning_list = Earning.objects.filter(bank_account__user=pk).order_by('-id')
+        summa = earning_list.aggregate(Sum('amount'))
+        paginator = MyPagination()
+        result_page = paginator.paginate_queryset(earning_list, request)
+        serializer = EarningSerializer(result_page,many=True)
+        res = paginator.get_paginated_response(serializer.data)
+        res.data.update(summa)
+        return res
 
 
 class PayOutListAPIView(APIView):
@@ -61,14 +71,19 @@ class PayOutListAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk, format=None):
-        payout_list = PayOut.objects.filter(user=pk)
-        serializer = PayOutSerializer(payout_list, many=True)
-
-        return response.Response(serializer.data)
+        payout_list = PayOut.objects.filter(user=pk).order_by('-id')
+        paginator = MyPagination()
+        result_page = paginator.paginate_queryset(payout_list, request)
+        serializer = PayOutSerializer(result_page, many=True)
+        summa = payout_list.aggregate(Sum('amount'))
+        res = paginator.get_paginated_response(serializer.data)
+        res.data.update(summa)
+        return res
 
 class PayOutListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = PayOutSerializer
     queryset = PayOut.objects.all()
+    pagination_class = MyPagination
 
     def perform_create(self, serializer):
         serializer.save(admin=self.request.user)
