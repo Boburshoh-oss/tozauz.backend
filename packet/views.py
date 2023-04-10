@@ -68,7 +68,9 @@ class EmployeeQrCodeScanerView(APIView):
                 Earning.objects.create(
                     bank_account=bank_account,
                     amount=money,
-                    tarrif=cat
+                    tarrif=cat,
+                    box=box,
+                    
                 )
             else:
                 return Response({'message': "The box is empty or your level is not suitable"},
@@ -89,7 +91,8 @@ class EmployeeQrCodeScanerView(APIView):
                 Earning.objects.create(
                     bank_account=bank_account,
                     amount=money,
-                    tarrif=cat
+                    tarrif=cat,
+                    packet = packet
                 )
 
         # Return a success response

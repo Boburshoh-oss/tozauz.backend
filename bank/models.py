@@ -18,7 +18,8 @@ class Earning(models.Model):
     tarrif = models.ForeignKey(
         "packet.Category", on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    box = models.ForeignKey("ecopacket.Box",on_delete=models.SET_NULL, null=True)
+    packet = models.ForeignKey("packet.Packet",on_delete=models.SET_NULL, null=True)
     def __str__(self) -> str:
         return f"{self.bank_account.user} {self.amount} {self.tarrif}"
 
