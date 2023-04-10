@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from .serializers import (
     BankAccountSerializer,
     EarningSerializer,
-    PayOutSerializer
+    PayOutSerializer,
 )
 from .models import BankAccount, Earning, PayOut
 from bank.models import BankAccount
@@ -78,6 +78,27 @@ class EarningListAPIView(generics.ListAPIView):
     search_fields = ['bank_account__user__first_name','bank_account__user__last_name',
                      'bank_account__user__phone_number','box__name','box__sim_module']
 
+    def get_queryset(self):
+        # get the start_date and end_date from the request parameters
+        start_date = self.request.query_params.get('start_date')
+        end_date = self.request.query_params.get('end_date')
+
+        # filter the queryset based on the date range
+        if start_date and end_date:
+            queryset = Earning.objects.filter(
+                created_at__date__range=[start_date, end_date]
+            ).order_by('-id')
+        else:
+            queryset = Earning.objects.all().order_by('-id')
+
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        res = super().get(request, *args, **kwargs)
+        summa = self.filter_queryset(self.get_queryset()).aggregate(Sum('amount'))        
+        res.data.update(summa)
+        return res
+    
 class PayOutListAPIView(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
