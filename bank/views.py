@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from .serializers import (
     BankAccountSerializer,
     EarningSerializer,
+    EarningListSerializer,
     PayOutSerializer,
 )
 from .models import BankAccount, Earning, PayOut
@@ -62,7 +63,7 @@ class EarningUserAPIView(APIView, LimitOffsetPagination):
         summa = earning_list.aggregate(Sum('amount'))
         paginator = MyPagination()
         result_page = paginator.paginate_queryset(earning_list, request)
-        serializer = EarningSerializer(result_page,many=True)
+        serializer = EarningSerializer(result_page, many=True)
         res = paginator.get_paginated_response(serializer.data)
         res.data.update(summa)
         return res
@@ -70,7 +71,7 @@ class EarningUserAPIView(APIView, LimitOffsetPagination):
 
 class EarningListAPIView(generics.ListAPIView):
     # permission_classes = [IsAuthenticated]
-    serializer_class = EarningSerializer
+    serializer_class = EarningListSerializer
     queryset = Earning.objects.all().order_by('-id')
     pagination_class = MyPagination
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]

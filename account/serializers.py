@@ -4,6 +4,12 @@ from django.contrib.auth.hashers import make_password
 from django.utils.translation import gettext_lazy as _
 
 
+class UserEarningSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id','first_name','phone_number','role']
+
+
 class UserLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
