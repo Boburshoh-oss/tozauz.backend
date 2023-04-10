@@ -12,6 +12,9 @@ from ecopacket.models import Box, LifeCycle
 from rest_framework import viewsets, generics
 from .serializers import CategorySerializer, PacketSerializer, PacketSerializerCreate
 from utils.pagination import MyPagination
+from django_filters import rest_framework as filters
+from rest_framework import filters as rf_filters
+
 
 
 @api_view(['POST'])
@@ -108,3 +111,6 @@ class PacketListAPIView(generics.ListAPIView):
     pagination_class = MyPagination
     serializer_class = PacketSerializer
     queryset = Packet.objects.all().order_by('-id')
+    filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
+    filterset_fields = ['scannered_at', 'employee', 'life_cycle','category']
+    search_fields = ['employee']

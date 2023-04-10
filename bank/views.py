@@ -10,6 +10,8 @@ from bank.models import BankAccount
 from utils.pagination import MyPagination
 from rest_framework.pagination import LimitOffsetPagination
 from django.db.models import Sum
+from django_filters import rest_framework as filters
+from rest_framework import filters as rf_filters
 
 
 class BankAccountListAPIView(generics.ListAPIView):
@@ -51,7 +53,7 @@ class MeBankAccountAPIView(APIView):
         return response.Response(serializer.data)
 
 
-class EarningListAPIView(APIView, LimitOffsetPagination):
+class EarningUserAPIView(APIView, LimitOffsetPagination):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     
@@ -65,6 +67,16 @@ class EarningListAPIView(APIView, LimitOffsetPagination):
         res.data.update(summa)
         return res
 
+
+class EarningListAPIView(generics.ListAPIView):
+    # permission_classes = [IsAuthenticated]
+    serializer_class = EarningSerializer
+    queryset = Earning.objects.all().order_by('-id')
+    pagination_class = MyPagination
+    filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
+    filterset_fields = ['tarrif', 'packet', 'box']
+    search_fields = ['bank_account__user__first_name','bank_account__user__last_name',
+                     'bank_account__user__phone_number','box__name','box__sim_module']
 
 class PayOutListAPIView(APIView):
     authentication_classes = [authentication.TokenAuthentication]

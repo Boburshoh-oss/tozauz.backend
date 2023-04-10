@@ -1,5 +1,7 @@
 from django.utils import timezone
 from rest_framework import status
+from django_filters import rest_framework as filters
+from rest_framework import filters as rf_filters
 from rest_framework.views import APIView
 from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -208,7 +210,10 @@ class LifeCycleListAPIView(generics.ListAPIView):
 
 
 class EcoPacketQrCodeListAPIView(generics.ListAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = EcoPacketQrCodeSerializer
     queryset = EcoPacketQrCode.objects.all().order_by('-id')
     pagination_class = MyPagination
+    filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
+    filterset_fields = ['scannered_at', 'user', 'life_cycle','category']
+    search_fields = ['user']
