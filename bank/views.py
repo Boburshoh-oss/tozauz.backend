@@ -5,8 +5,10 @@ from .serializers import (
     EarningSerializer,
     EarningListSerializer,
     PayOutSerializer,
+    PayMeSerializer,
+    PayMeListSerializer,
 )
-from .models import BankAccount, Earning, PayOut
+from .models import BankAccount, Earning, PayOut, PayMe
 from bank.models import BankAccount
 from utils.pagination import MyPagination
 from rest_framework.pagination import LimitOffsetPagination
@@ -116,7 +118,7 @@ class PayOutListAPIView(APIView):
 
 class PayOutListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = PayOutSerializer
-    queryset = PayOut.objects.all()
+    queryset = PayOut.objects.all().order_by('-id')
     pagination_class = MyPagination
 
     def perform_create(self, serializer):
@@ -137,3 +139,22 @@ class PayOutListCreateAPIView(generics.ListCreateAPIView):
             bank_account.save()
             return super().post(request, *args, **kwargs)
         return response.Response({"error":"The user's capital is insufficient. Please try paying less"})
+    
+
+class PayMeCreateAPIView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PayMeSerializer
+    queryset = PayMe.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
+
+
+class PayMeListAPIView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PayMeListSerializer
+    queryset = PayMe.objects.all().order_by('-id')
+    pagination_class = MyPagination
+
+    

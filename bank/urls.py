@@ -7,6 +7,8 @@ from .views import (BankAccountListAPIView,
                     PayOutListAPIView,
                     MeBankAccountAPIView,
                     AdminBankAccountAPIView,
+                    PayMeCreateAPIView,
+                    PayMeListAPIView
                     )
 urlpatterns = [
     path('bank-accounts/', BankAccountListAPIView.as_view(),
@@ -16,5 +18,7 @@ urlpatterns = [
     path('earning-list/<int:pk>/', EarningUserAPIView.as_view()),
     path('earning-list/', EarningListAPIView.as_view()),
     path('payout-list/<int:pk>/', PayOutListAPIView.as_view()),
-    path('payout-list-create/', PayOutListCreateAPIView.as_view())
+    path('payout-list-create/', PayOutListCreateAPIView.as_view()),
+    path('payme-create/', PayMeCreateAPIView.as_view()),
+    path('payme-list/', PayMeListAPIView.as_view()),
 ]

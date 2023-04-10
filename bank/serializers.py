@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import Earning, BankAccount, PayOut
-from account.serializers import UserAdminRetrieveSerializer, UserEarningSerializer
+from .models import Earning, BankAccount, PayOut, PayMe
+from account.serializers import UserAdminRetrieveSerializer, UserEarningSerializer, UserLoginSerializer
 
 
 class EarningSerializer(serializers.ModelSerializer):
@@ -33,4 +33,19 @@ class PayOutSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PayOut
+        fields = "__all__"
+
+
+class PayMeSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
+    class Meta:
+        model = PayMe
+        fields = "__all__"
+
+
+class PayMeListSerializer(serializers.ModelSerializer):
+    created_at = serializers.DateTimeField(read_only=True)
+    user = UserAdminRetrieveSerializer(read_only=True)
+    class Meta:
+        model = PayMe
         fields = "__all__"

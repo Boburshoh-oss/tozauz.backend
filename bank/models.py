@@ -30,6 +30,20 @@ class PayOut(models.Model):
     amount = models.PositiveBigIntegerField()
     admin = models.ForeignKey(
         "account.user", on_delete=models.CASCADE, related_name="payout_admin")
+    card = models.CharField(max_length=16, null=True, blank=True)
+    card_name = models.CharField(max_length=55, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self) -> str:
+        return f"{self.user.first_name} {self.amount}"
+    
+
+class PayMe(models.Model):
+    user = models.ForeignKey(
+        "account.user", on_delete=models.CASCADE, related_name="payme_user",null=True,blank=True)
+    amount = models.PositiveBigIntegerField()
+    card = models.CharField(max_length=16, null=True, blank=True)
+    card_name = models.CharField(max_length=55, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
