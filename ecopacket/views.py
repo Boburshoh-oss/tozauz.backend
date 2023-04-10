@@ -212,8 +212,9 @@ class LifeCycleListAPIView(generics.ListAPIView):
 class EcoPacketQrCodeListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = EcoPacketQrCodeSerializer
-    queryset = EcoPacketQrCode.objects.all().order_by('-id')
+    queryset = EcoPacketQrCode.objects.exclude(
+        scannered_at__isnull=True).order_by('-id')
     pagination_class = MyPagination
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
-    filterset_fields = ['scannered_at', 'user', 'life_cycle','category']
+    filterset_fields = ['category']
     search_fields = ['user__first_name','user__last_name','user__phone_number']
