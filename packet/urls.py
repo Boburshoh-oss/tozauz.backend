@@ -2,7 +2,8 @@ from django.urls import path, include
 from .views import (create_packet_qr_code,
                     EmployeeQrCodeScanerView,
                     CategoryModelViewSet,
-                    PacketListAPIView
+                    PacketListAPIView,
+                    ListOrBulkDeletePacket
                     )
 from rest_framework import routers
 router = routers.DefaultRouter()
@@ -14,5 +15,6 @@ urlpatterns = [
          name='create_packet_qr_codes'),
     path('employee-qr-code-scan/', EmployeeQrCodeScanerView.as_view()),
     path('', include(router.urls)),
-    path('packet-list/', PacketListAPIView.as_view())
+    path('packet-list/', PacketListAPIView.as_view()),
+    path('packet-list-delete/',ListOrBulkDeletePacket.as_view())
 ]

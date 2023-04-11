@@ -16,6 +16,9 @@ from utils.pagination import MyPagination
 from django_filters import rest_framework as filters
 from rest_framework import filters as rf_filters
 from rest_framework.pagination import LimitOffsetPagination
+from django.db import connection, reset_queries
+
+reset_queries()
 
 
 @api_view(['POST'])
@@ -112,7 +115,7 @@ class PacketListAPIView(generics.ListAPIView):
     pagination_class = MyPagination
     serializer_class = PacketSerializer
     queryset = Packet.objects.all().exclude(
-        scannered_at__isnull=True).order_by('-id')
+        scannered_at__isnull=True).only('scannered_at').order_by('-id')
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
     filterset_fields = ['category']
     search_fields = ['employee__first_name',
@@ -123,7 +126,7 @@ class ListOrBulkDeletePacket(APIView, LimitOffsetPagination):
     def get(self, request, *args, **kwargs):
         date = request.query_params.get('date', None)
         queryset = Packet.objects.filter(
-            scannered_at__isnull=True).filter(created_at__lte=date)
+            scannered_at__isnull=True).filter(created_at__lte=date).only("category", "created_at")
         paginator = MyPagination()
         result_page = paginator.paginate_queryset(queryset, request)
         serializer = PacketGarbageSerializer(result_page, many=True)
