@@ -20,7 +20,7 @@ class EcoPacketQrCodeAdmin(admin.ModelAdmin):
     readonly_fields = ('qr_code', 'created_at', 'scannered_at')
     list_display = ('qr_code', 'created_at', 'user',
                     'life_cycle', 'category', 'scannered_at')
-
+    list_filter = ('scannered_at',)
     def get_readonly_fields(self, request, obj=None):
         if obj:  # If the object exists, it's being edited
             # Add your read-only fields here
