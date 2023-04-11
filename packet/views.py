@@ -103,7 +103,8 @@ class EmployeeQrCodeScanerView(APIView):
                     tarrif=cat,
                     packet=packet
                 )
-            return Response({'message': "packet successfully scaned"}, status=status.HTTP_202_ACCEPTED)
+                return Response({'message': "packet successfully scaned"}, status=status.HTTP_202_ACCEPTED)
+            return Response({'message': "packet already scaned"}, status=status.HTTP_403_FORBIDDEN)
         # Return a success response
         return Response({'message': "Packet or Box doesn't exists"}, status=status.HTTP_404_NOT_FOUND)
 
