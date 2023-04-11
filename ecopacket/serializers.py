@@ -1,6 +1,13 @@
 # from drf_extra_fields.geo_fields import PointField
 from rest_framework import serializers
 from .models import Box, LifeCycle, EcoPacketQrCode
+from account.serializers import UserEarningSerializer
+
+
+class BoxEcoPacketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Box
+        fields = ('id', 'name')
 
 
 class BoxSerializer(serializers.ModelSerializer):
@@ -19,12 +26,17 @@ class LifeCycleSerializer(serializers.ModelSerializer):
         model = LifeCycle
         fields = '__all__'
 
+
 class EcoPacketQrCodeSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = EcoPacketQrCode
         fields = ('qr_code',)
 
+
 class EcoPacketQrCodeSerializer(serializers.ModelSerializer):
+    user = UserEarningSerializer()
+    box = BoxEcoPacketSerializer(source="life_cycle.box")
+
     class Meta:
         model = EcoPacketQrCode
         fields = '__all__'
