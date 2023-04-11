@@ -122,7 +122,8 @@ class PacketListAPIView(generics.ListAPIView):
 class ListOrBulkDeletePacket(APIView, LimitOffsetPagination):
     def get(self, request, *args, **kwargs):
         date = request.query_params.get('date', None)
-        queryset = Packet.objects.filter(created_at__lt=date).filter(scannered_at__isnull=True)
+        queryset = Packet.objects.filter(
+            scannered_at__isnull=True).filter(created_at__lte=date)
         paginator = MyPagination()
         result_page = paginator.paginate_queryset(queryset, request)
         serializer = PacketGarbageSerializer(result_page, many=True)
@@ -130,6 +131,7 @@ class ListOrBulkDeletePacket(APIView, LimitOffsetPagination):
 
     def delete(self, request, *args, **kwargs):
         date = request.query_params.get('date', None)
-        queryset = Packet.objects.filter(created_at__lt=date)
+        queryset = Packet.objects.filter(
+            scannered_at__isnull=True).filter(created_at__lte=date)
         queryset.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
