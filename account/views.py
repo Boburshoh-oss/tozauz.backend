@@ -8,7 +8,6 @@ from .serializers import (
     UserRegisterSerializer,
     UserLoginSerializer,
     UserAdminRegisterSerializer,
-    UserAdminRetrieveSerializer,
     UserAdminUpdateSerializer
 )
 from django.contrib.auth import authenticate

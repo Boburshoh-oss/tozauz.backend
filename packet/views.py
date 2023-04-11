@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.generics import GenericAPIView
 from utils.save_to_database import create_packet_qr_codes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import authentication
@@ -10,11 +11,11 @@ from .models import Packet, Category
 from bank.models import Earning
 from ecopacket.models import Box, LifeCycle
 from rest_framework import viewsets, generics
-from .serializers import CategorySerializer, PacketSerializer, PacketSerializerCreate
+from .serializers import CategorySerializer, PacketSerializer, PacketSerializerCreate, PacketGarbageSerializer
 from utils.pagination import MyPagination
 from django_filters import rest_framework as filters
 from rest_framework import filters as rf_filters
-
+from rest_framework.pagination import LimitOffsetPagination
 
 
 @api_view(['POST'])
@@ -30,9 +31,9 @@ def create_packet_qr_code(request):
         return Response({'error': 'Number of QR codes must be between 1 and 10,000'})
 
     qrcodes = create_packet_qr_codes(num_of_qrcodes, category)
-    
+
     if qrcodes:
-        serializer = PacketSerializerCreate(qrcodes,many=True)
+        serializer = PacketSerializerCreate(qrcodes, many=True)
         return Response({'success': f'{num_of_qrcodes} QR codes created', 'qr_codes': serializer.data})
     else:
         return Response({'error': 'QR code creation failed'})
@@ -73,7 +74,7 @@ class EmployeeQrCodeScanerView(APIView):
                     amount=money,
                     tarrif=cat,
                     box=box,
-                    
+
                 )
             else:
                 return Response({'message': "The box is empty or your level is not suitable"},
@@ -95,7 +96,7 @@ class EmployeeQrCodeScanerView(APIView):
                     bank_account=bank_account,
                     amount=money,
                     tarrif=cat,
-                    packet = packet
+                    packet=packet
                 )
 
         # Return a success response
@@ -110,7 +111,25 @@ class CategoryModelViewSet(viewsets.ModelViewSet):
 class PacketListAPIView(generics.ListAPIView):
     pagination_class = MyPagination
     serializer_class = PacketSerializer
-    queryset = Packet.objects.all().order_by('-id')
+    queryset = Packet.objects.all().exclude(
+        scannered_at__isnull=True).order_by('-id')
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
-    filterset_fields = ['scannered_at', 'employee', 'life_cycle','category']
-    search_fields = ['employee']
+    filterset_fields = ['category']
+    search_fields = ['employee__first_name',
+                     'employee__phone_number', 'employee__car_number']
+
+
+class ListOrBulkDeletePacket(APIView, LimitOffsetPagination):
+    def get(self, request, *args, **kwargs):
+        date = request.query_params.get('date', None)
+        queryset = Packet.objects.filter(created_at__lt=date).filter(scannered_at__isnull=True)
+        paginator = MyPagination()
+        result_page = paginator.paginate_queryset(queryset, request)
+        serializer = PacketGarbageSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    def delete(self, request, *args, **kwargs):
+        date = request.query_params.get('date', None)
+        queryset = Packet.objects.filter(created_at__lt=date)
+        queryset.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

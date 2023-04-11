@@ -17,3 +17,9 @@ class PacketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Packet
         fields = "__all__"
+
+
+class PacketGarbageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Packet
+        fields = ("category", "qr_code", "created_at")
