@@ -73,8 +73,8 @@ class IOTView(APIView):
         qr_code = request.data["qr_code"]
         sim_module = request.data["sim_module"]
         
-        if qr_code is None or sim_module:
-            return Response({'error': 'Please send me scannered qr code via' 
+        if qr_code is None or sim_module is None:
+            return Response({'error': 'Please send me scannered qr code via'
                             'mobile phone send me, or sim module was missed!'}, status=status.HTTP_404_NOT_FOUND)
         try:
             ecopacket_qr = EcoPacketQrCode.objects.get(qr_code=qr_code)
@@ -114,7 +114,7 @@ class IOTView(APIView):
         qr_code = request.GET.get("qr_code",None)
         sim_module = request.GET.get("sim_module",None)
         
-        if qr_code is None or sim_module:
+        if qr_code is None or sim_module is None:
             return Response({'error': 'Please send me scannered qr code via' 
                             'mobile phone send me, or sim module was missed!'}, status=status.HTTP_404_NOT_FOUND)
         
