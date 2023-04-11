@@ -79,9 +79,11 @@ class EmployeeQrCodeScanerView(APIView):
                     box=box,
 
                 )
-            else:
-                return Response({'message': "The box is empty or your level is not suitable"},
-                                status=status.HTTP_403_FORBIDDEN)
+                return Response({'message': "box successfully scaned"}, status=status.HTTP_202_ACCEPTED)
+            
+            return Response({'message': "The box is empty or your level is not suitable"},
+                            status=status.HTTP_403_FORBIDDEN)
+            
         # for simple packets
         elif packet_qr_code.first() is not None:
             packet = packet_qr_code.first()
@@ -101,9 +103,9 @@ class EmployeeQrCodeScanerView(APIView):
                     tarrif=cat,
                     packet=packet
                 )
-
+            return Response({'message': "packet successfully scaned"}, status=status.HTTP_202_ACCEPTED)
         # Return a success response
-        return Response({'message': "Okay"}, status=status.HTTP_202_ACCEPTED)
+        return Response({'message': "Packet or Box doesn't exists"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CategoryModelViewSet(viewsets.ModelViewSet):
