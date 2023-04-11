@@ -88,12 +88,12 @@ class EarningListAPIView(generics.ListAPIView):
         # filter the queryset based on the date range
         if start_date:
             queryset = queryset.filter(
-                created_at__gte=start_date
+                created_at__date__gte=start_date
             ).order_by('-id')
         
         if end_date:
             queryset = queryset.filter(
-                created_at__lte=end_date
+                created_at__date__lte=end_date
             ).order_by('-id')
     
 
