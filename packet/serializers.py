@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Category, Packet
-
+from account.serializers import UserEarningSerializer
 
 class CategorySerializer(serializers.ModelSerializer):
     count_user = serializers.IntegerField(read_only=True)
@@ -14,6 +14,7 @@ class PacketSerializerCreate(serializers.ModelSerializer):
         fields = ("qr_code",)
 
 class PacketSerializer(serializers.ModelSerializer):
+    employee = UserEarningSerializer()
     class Meta:
         model = Packet
         fields = "__all__"
