@@ -17,8 +17,12 @@ class Box(models.Model):
     
     @property
     def state(self):
-        return self.lifecycle.last().state, self.lifecycle.last().started_at
-
+        return self.lifecycle.last().state
+    
+    @property
+    def cycle_created_at(self):
+        return self.lifecycle.last().started_at
+    
     def save(self,*args, **kwargs) -> None:
         self.qr_code = self.sim_module
         return super().save(*args, **kwargs)
