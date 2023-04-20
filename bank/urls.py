@@ -3,12 +3,13 @@ from django.urls import path
 from .views import (BankAccountListAPIView,
                     EarningListAPIView,
                     EarningUserAPIView,
+                    MobileEarningListAPIView,
                     PayOutListCreateAPIView,
                     PayOutListAPIView,
                     MeBankAccountAPIView,
                     AdminBankAccountAPIView,
                     PayMeCreateAPIView,
-                    PayMeListAPIView
+                    PayMeListAPIView,
                     )
 urlpatterns = [
     path('bank-accounts/', BankAccountListAPIView.as_view(),
@@ -17,6 +18,7 @@ urlpatterns = [
     path('admin-bank-account/<int:user_id>/', AdminBankAccountAPIView.as_view()),
     path('earning-list/<int:pk>/', EarningUserAPIView.as_view()),
     path('earning-list/', EarningListAPIView.as_view()),
+    path('mobile-earning-list/', MobileEarningListAPIView.as_view()),
     path('payout-list/<int:pk>/', PayOutListAPIView.as_view()),
     path('payout-list-create/', PayOutListCreateAPIView.as_view()),
     path('payme-create/', PayMeCreateAPIView.as_view()),

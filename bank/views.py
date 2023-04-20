@@ -4,6 +4,7 @@ from .serializers import (
     BankAccountSerializer,
     EarningSerializer,
     EarningListSerializer,
+    MobileEarningListSerializer,
     PayOutSerializer,
     PayMeSerializer,
     PayMeListSerializer,
@@ -28,7 +29,6 @@ class AdminBankAccountAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, user_id, format=None):
-
         try:
             bank_account = BankAccount.objects.get(user=user_id)
         except:
@@ -58,9 +58,8 @@ class EarningUserAPIView(APIView, LimitOffsetPagination):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk, format=None):
-        earning_list = Earning.objects.filter(
-            bank_account__user=pk).order_by('-id')
-        summa = earning_list.aggregate(Sum('amount'))
+        earning_list = Earning.objects.filter(bank_account__user=pk).order_by("-id")
+        summa = earning_list.aggregate(Sum("amount"))
         paginator = MyPagination()
         result_page = paginator.paginate_queryset(earning_list, request)
         serializer = EarningSerializer(result_page, many=True)
@@ -70,42 +69,53 @@ class EarningUserAPIView(APIView, LimitOffsetPagination):
 
 
 class EarningListAPIView(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
     serializer_class = EarningListSerializer
-    queryset = Earning.objects.all().order_by('-id')
+    queryset = Earning.objects.all().order_by("-id")
     pagination_class = MyPagination
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
-    filterset_fields = ['tarrif']
-    search_fields = ['bank_account__user__first_name', 'bank_account__user__last_name',
-                     'bank_account__user__phone_number', 'box__name', 'box__sim_module']
+    filterset_fields = ["tarrif"]
+    search_fields = [
+        "bank_account__user__first_name",
+        "bank_account__user__last_name",
+        "bank_account__user__phone_number",
+        "box__name",
+        "box__sim_module",
+    ]
 
     def get_queryset(self):
         # get the start_date and end_date from the request parameters
-        start_date = self.request.query_params.get('start_date')
-        end_date = self.request.query_params.get('end_date')
+        start_date = self.request.query_params.get("start_date")
+        end_date = self.request.query_params.get("end_date")
 
-        queryset = Earning.objects.all().order_by('-id')
+        queryset = Earning.objects.all().order_by("-id")
         # filter the queryset based on the date range
         if start_date:
-            queryset = queryset.filter(
-                created_at__date__gte=start_date
-            ).order_by('-id')
-        
+            queryset = queryset.filter(created_at__date__gte=start_date).order_by("-id")
+
         if end_date:
-            queryset = queryset.filter(
-                created_at__date__lte=end_date
-            ).order_by('-id')
-    
+            queryset = queryset.filter(created_at__date__lte=end_date).order_by("-id")
 
         return queryset
 
     def get(self, request, *args, **kwargs):
         res = super().get(request, *args, **kwargs)
-        summa = self.filter_queryset(
-            self.get_queryset()).aggregate(Sum('amount'))
+        summa = self.filter_queryset(self.get_queryset()).aggregate(Sum("amount"))
         res.data.update(summa)
         return res
 
+
+class MobileEarningListAPIView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = MobileEarningListSerializer
+    queryset = Earning.objects.all().order_by("-id")
+    pagination_class = MyPagination
+
+    def get_queryset(self):
+        queryset = Earning.objects.filter(bank_account__user=self.request.user).order_by("-id")
+
+        return queryset
+    
 
 class PayOutListAPIView(APIView):
     authentication_classes = [authentication.TokenAuthentication]
@@ -113,11 +123,11 @@ class PayOutListAPIView(APIView):
     pagination_class = MyPagination
 
     def get(self, request, pk, format=None):
-        payout_list = PayOut.objects.filter(user=pk).order_by('-id')
+        payout_list = PayOut.objects.filter(user=pk).order_by("-id")
         paginator = MyPagination()
         result_page = paginator.paginate_queryset(payout_list, request)
         serializer = PayOutSerializer(result_page, many=True)
-        summa = payout_list.aggregate(Sum('amount'))
+        summa = payout_list.aggregate(Sum("amount"))
         res = paginator.get_paginated_response(serializer.data)
         res.data.update(summa)
         return res
@@ -125,7 +135,7 @@ class PayOutListAPIView(APIView):
 
 class PayOutListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = PayOutSerializer
-    queryset = PayOut.objects.all().order_by('-id')
+    queryset = PayOut.objects.all().order_by("-id")
     pagination_class = MyPagination
 
     def perform_create(self, serializer):
@@ -145,7 +155,9 @@ class PayOutListCreateAPIView(generics.ListCreateAPIView):
             bank_account.capital -= money
             bank_account.save()
             return super().post(request, *args, **kwargs)
-        return response.Response({"error": "The user's capital is insufficient. Please try paying less"})
+        return response.Response(
+            {"error": "The user's capital is insufficient. Please try paying less"}
+        )
 
 
 class PayMeCreateAPIView(generics.CreateAPIView):
@@ -161,5 +173,5 @@ class PayMeCreateAPIView(generics.CreateAPIView):
 class PayMeListAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = PayMeListSerializer
-    queryset = PayMe.objects.all().order_by('-id')
+    queryset = PayMe.objects.all().order_by("-id")
     pagination_class = MyPagination

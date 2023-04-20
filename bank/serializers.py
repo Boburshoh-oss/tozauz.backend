@@ -1,6 +1,13 @@
 from rest_framework import serializers
 from .models import Earning, BankAccount, PayOut, PayMe
-from account.serializers import UserAdminRetrieveSerializer, UserEarningSerializer, UserLoginSerializer
+from account.serializers import (
+    UserAdminRetrieveSerializer,
+    UserEarningSerializer,
+    UserLoginSerializer,
+)
+from ecopacket.models import Box
+from packet.models import Packet
+from packet.models import Category
 
 
 class EarningSerializer(serializers.ModelSerializer):
@@ -18,6 +25,23 @@ class EarningListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Earning
         fields = "__all__"
+
+
+class MobileCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ("name",)
+
+
+class MobileEarningListSerializer(serializers.ModelSerializer):
+    # box = MobileBoxSerializer()
+    # packet = MobilePacketSerializer()
+    tarrif = MobileCategorySerializer()
+
+    class Meta:
+        model = Earning
+        fields = ("id", "tarrif", "amount", "created_at")
+
 
 class BankAccountSerializer(serializers.ModelSerializer):
     user = UserAdminRetrieveSerializer(read_only=True)
@@ -38,6 +62,7 @@ class PayOutSerializer(serializers.ModelSerializer):
 
 class PayMeSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
+
     class Meta:
         model = PayMe
         fields = "__all__"
@@ -46,6 +71,7 @@ class PayMeSerializer(serializers.ModelSerializer):
 class PayMeListSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
     user = UserAdminRetrieveSerializer(read_only=True)
+
     class Meta:
         model = PayMe
         fields = "__all__"
