@@ -33,7 +33,6 @@ class BoxSerializer(serializers.ModelSerializer):
 
 
 class LifeCycleSerializer(serializers.ModelSerializer):
-    box = BoxSerializer()
 
     class Meta:
         model = LifeCycle
