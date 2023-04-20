@@ -2,21 +2,33 @@
 from rest_framework import serializers
 from .models import Box, LifeCycle, EcoPacketQrCode
 from account.serializers import UserEarningSerializer
+from packet.serializers import CategorySerializer
+from packet.models import Category
 
 
 class BoxEcoPacketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Box
-        fields = ('id', 'name')
+        fields = ("id", "name")
 
 
 class BoxSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
     qr_code = serializers.CharField(read_only=True)
-
+    
     class Meta:
         model = Box
-        fields = '__all__'
+        fields = (
+            "id",
+            "name",
+            "state",
+            "sim_module",
+            "qr_code",
+            "created_at",
+            "category",
+        )
+
+    
 
 
 class LifeCycleSerializer(serializers.ModelSerializer):
@@ -24,13 +36,13 @@ class LifeCycleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LifeCycle
-        fields = '__all__'
+        fields = "__all__"
 
 
 class EcoPacketQrCodeSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = EcoPacketQrCode
-        fields = ('qr_code',)
+        fields = ("qr_code",)
 
 
 class EcoPacketQrCodeSerializer(serializers.ModelSerializer):
@@ -39,4 +51,4 @@ class EcoPacketQrCodeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EcoPacketQrCode
-        fields = '__all__'
+        fields = "__all__"

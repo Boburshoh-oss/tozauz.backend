@@ -14,7 +14,14 @@ class Box(models.Model):
 
     def __str__(self) -> str:
         return f'Box {self.sim_module}'
+    
+    @property
+    def state(self):
+        return self.lifecycle.last().state
 
+    def save(self,*args, **kwargs) -> None:
+        self.qr_code = self.sim_module
+        return super().save(*args, **kwargs)
 
 class LifeCycle(models.Model):
     box = models.ForeignKey(

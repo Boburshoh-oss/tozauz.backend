@@ -198,6 +198,7 @@ class BoxOrderAPIView(APIView):
 
 
 class BoxModelViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdminUser, IsAuthenticated]
     serializer_class = BoxSerializer
     queryset = Box.objects.all()
 
