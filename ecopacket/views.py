@@ -208,6 +208,8 @@ class LifeCycleListAPIView(generics.ListAPIView):
     serializer_class = LifeCycleSerializer
     queryset = LifeCycle.objects.all().order_by('-id')
     pagination_class = MyPagination
+    filter_backends = filters.DjangoFilterBackend,
+    filterset_fields = ['box']
 
 
 class EcoPacketQrCodeListAPIView(generics.ListAPIView):
