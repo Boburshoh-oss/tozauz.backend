@@ -22,6 +22,7 @@ class BoxSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "state",
+            'cycle_created_at',
             "sim_module",
             "qr_code",
             "created_at",
