@@ -110,11 +110,22 @@ class MobileEarningListAPIView(generics.ListAPIView):
     serializer_class = MobileEarningListSerializer
     queryset = Earning.objects.all().order_by("-id")
     pagination_class = MyPagination
-
+    
     def get_queryset(self):
+        # get the start_date and end_date from the request parameters
+        start_date = self.request.query_params.get("start_date")
+        end_date = self.request.query_params.get("end_date")
+
         queryset = Earning.objects.filter(bank_account__user=self.request.user).order_by("-id")
+        # filter the queryset based on the date range
+        if start_date:
+            queryset = queryset.filter(created_at__date__gte=start_date).order_by("-id")
+
+        if end_date:
+            queryset = queryset.filter(created_at__date__lte=end_date).order_by("-id")
 
         return queryset
+
     
 
 class PayOutListAPIView(APIView):
