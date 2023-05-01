@@ -1,5 +1,6 @@
 from rest_framework import generics, response, authentication, permissions
 from rest_framework.views import APIView
+from django.utils import timezone
 from .serializers import (
     BankAccountSerializer,
     EarningSerializer,
@@ -110,13 +111,15 @@ class MobileEarningListAPIView(generics.ListAPIView):
     serializer_class = MobileEarningListSerializer
     queryset = Earning.objects.all().order_by("-id")
     pagination_class = MyPagination
-    
+
     def get_queryset(self):
         # get the start_date and end_date from the request parameters
         start_date = self.request.query_params.get("start_date")
         end_date = self.request.query_params.get("end_date")
 
-        queryset = Earning.objects.filter(bank_account__user=self.request.user).order_by("-id")
+        queryset = Earning.objects.filter(
+            bank_account__user=self.request.user
+        ).order_by("-id")
         # filter the queryset based on the date range
         if start_date:
             queryset = queryset.filter(created_at__date__gte=start_date).order_by("-id")
@@ -126,7 +129,6 @@ class MobileEarningListAPIView(generics.ListAPIView):
 
         return queryset
 
-    
 
 class PayOutListAPIView(APIView):
     authentication_classes = [authentication.TokenAuthentication]
@@ -179,6 +181,21 @@ class PayMeCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
         return super().perform_create(serializer)
+
+    def create(self, request, *args, **kwargs):
+        # serializer = PayMeSerializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        user = request.user
+        payme = PayMe.objects.filter(user=user).last()
+        if payme:
+            time_difference = timezone.now() - payme.created_at
+            day = time_difference.days
+            if day >= 1:
+                return super().create(request, *args, **kwargs)
+            return response.Response(
+                {"message": "Sizning so'rovingiz ko'rib chiqilmoqda..."}, status=200
+            )
+        return super().create(request, *args, **kwargs)
 
 
 class PayMeListAPIView(generics.ListAPIView):
