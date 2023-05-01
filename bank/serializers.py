@@ -30,7 +30,7 @@ class EarningListSerializer(serializers.ModelSerializer):
 class MobileCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ("name",)
+        fields = ("id","name")
 
 
 class MobileEarningListSerializer(serializers.ModelSerializer):
