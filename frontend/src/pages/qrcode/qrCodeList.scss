@@ -1,0 +1,16 @@
+.qrcodes {
+    margin: 20px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+
+    .tableContainer {
+        flex: 1;
+
+        h3 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    }
+}

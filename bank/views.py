@@ -129,6 +129,20 @@ class MobileEarningListAPIView(generics.ListAPIView):
 
         return queryset
 
+class PayOutUserMobileListAPIView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = MyPagination
+
+    def get(self, request, format=None):
+        payout_list = PayOut.objects.filter(user=request.user).order_by("-id")
+        paginator = MyPagination()
+        result_page = paginator.paginate_queryset(payout_list, request)
+        serializer = PayOutSerializer(result_page, many=True)
+        summa = payout_list.aggregate(Sum("amount"))
+        res = paginator.get_paginated_response(serializer.data)
+        res.data.update(summa)
+        return res
 
 class PayOutListAPIView(APIView):
     authentication_classes = [authentication.TokenAuthentication]

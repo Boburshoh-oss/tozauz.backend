@@ -8,13 +8,15 @@ from .serializers import (
     UserRegisterSerializer,
     UserLoginSerializer,
     UserAdminRegisterSerializer,
-    UserAdminUpdateSerializer
+    UserAdminUpdateSerializer,
+    UserUpdateSerializer
 )
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_403_FORBIDDEN
 from utils.pagination import MyPagination
+from rest_framework import views
 
 
 class GetAuthToken(ObtainAuthToken):
@@ -94,15 +96,26 @@ class UserAdminRegisterView(generics.ListCreateAPIView):
 
 
 # Admin
-class UserAdmninRetrieveView(generics.RetrieveUpdateDestroyAPIView):
+class UserAdminRetrieveView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAdminUser]
     queryset = User.objects.all()
     serializer_class = UserAdminUpdateSerializer
 
-    
+class UserUpdateRetrieveView(generics.RetrieveUpdateDestroyAPIView):
+    # permission_classes = [permissions.IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = UserUpdateSerializer    
 
-# class UserLoginView(views.APIView):
-#     def post(self, request):
-#         serializer = UserLoginSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         return Response(serializer.data)
+
+
+class UserChangePasswordView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request):
+        old_password=request.data.get("old_password",None)
+        new_password=request.data.get("new_password",None)
+        user = request.user
+        if user.check_password(old_password):
+            user.set_password(new_password)
+            user.save()
+            return Response({"message":"Parolingiz muvaffaqiyatli o'zgardi"},status=200)
+        return Response({"message":"Avvalgi parol to'g'ri kelmadi"},status=400)

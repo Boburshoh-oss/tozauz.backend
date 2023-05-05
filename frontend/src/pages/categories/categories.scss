@@ -1,0 +1,16 @@
+.categories {
+    .title {
+        margin: 20px;
+    }
+
+    .cards-list {
+        margin: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+
+        * {
+            flex: 1 1 250px;
+        }
+    }
+}

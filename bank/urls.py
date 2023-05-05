@@ -10,6 +10,7 @@ from .views import (BankAccountListAPIView,
                     AdminBankAccountAPIView,
                     PayMeCreateAPIView,
                     PayMeListAPIView,
+                    PayOutUserMobileListAPIView
                     )
 urlpatterns = [
     path('bank-accounts/', BankAccountListAPIView.as_view(),
@@ -21,6 +22,7 @@ urlpatterns = [
     path('mobile-earning-list/', MobileEarningListAPIView.as_view()),
     path('payout-list/<int:pk>/', PayOutListAPIView.as_view()),
     path('payout-list-create/', PayOutListCreateAPIView.as_view()),
+    path('payout-list-user/', PayOutUserMobileListAPIView.as_view()),
     path('payme-create/', PayMeCreateAPIView.as_view()),
     path('payme-list/', PayMeListAPIView.as_view()),
 ]

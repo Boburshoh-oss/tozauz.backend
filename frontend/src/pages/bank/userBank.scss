@@ -1,0 +1,59 @@
+.userBank {
+    .header {
+        margin: 20px;
+        padding: 20px;
+        border-radius: 10px;
+
+        .content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            flex-wrap: wrap;
+
+            .item {
+                .label {
+                    font-size: 14px;
+                    color: #999;
+                }
+
+                .value {
+                    font-size: 18px;
+                    color: #111;
+                    font-weight: bold;
+                }
+            }
+
+            .divider {
+                height: 50px;
+                width: 1px;
+                background-color: #111;
+            }
+        }
+    }
+
+    .body {
+        margin: 20px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+
+        .title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .green {
+            color: green;
+        }
+
+        .red {
+            color: red;
+        }
+
+        .tableContainer {
+            flex: 1;
+        }
+    }
+}

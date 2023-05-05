@@ -1,0 +1,14 @@
+.tableHeader {
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+
+    .tableFilter {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        z-index: 10;
+    }
+}

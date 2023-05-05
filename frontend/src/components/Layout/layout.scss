@@ -1,0 +1,21 @@
+.admin {
+    display: flex;
+    align-items: center;
+
+    .info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+
+        margin-right: 10px;
+        font-size: medium;
+
+        .name {
+            font-weight: bold;
+        }
+    }
+
+    .logout {
+        margin-left: 20px;
+    }
+}

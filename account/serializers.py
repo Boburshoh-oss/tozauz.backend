@@ -15,7 +15,15 @@ class UserLoginSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'phone_number', 'password')
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'phone_number','first_name','last_name')
 
+        extra_kwargs = {
+            'id': {'read_only': True},
+        }
+        
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
