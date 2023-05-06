@@ -1,11 +1,11 @@
 from django.contrib import admin
-from django.contrib.gis.admin import OSMGeoAdmin
+# from django.contrib.gis.admin import OSMGeoAdmin
 from .models import LifeCycle, Box, EcoPacketQrCode
 # Register your models here.
 
 
 @admin.register(LifeCycle)
-class BoxFillCycleAdmin(OSMGeoAdmin):
+class BoxFillCycleAdmin(admin.ModelAdmin):
     list_display = ('box', 'location', 'employee',
                     'state', 'started_at', 'filled_at')
 
