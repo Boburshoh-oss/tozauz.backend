@@ -115,7 +115,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "tozauzuz_geodjango",
-        "USER": "Boburshoh",
+        "USER": "tozauzuz_Boburshoh",
         "PASSWORD": "Boburshoh777!",
         "HOST": "localhost",
         "PORT": "5432",
