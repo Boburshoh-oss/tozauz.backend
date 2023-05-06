@@ -1,4 +1,4 @@
-from django.contrib.gis.db import models
+from django.db import models
 from utils import get_uid
 
 # Create your models here.
@@ -31,7 +31,7 @@ class Box(models.Model):
 
 class LifeCycle(models.Model):
     box = models.ForeignKey(Box, on_delete=models.CASCADE, related_name="lifecycle")
-    location = models.PointField(blank=True, null=True)
+    location = models.CharField(blank=True, null=True,max_length=255)
     employee = models.ForeignKey(
         to="account.User", on_delete=models.SET_NULL, null=True, blank=True
     )

@@ -18,7 +18,7 @@ from .serializers import (
     EcoPacketQrCodeSerializerCreate
 )
 from bank.models import Earning
-from django.contrib.gis.geos import Point
+# from django.contrib.gis.geos import Point
 from utils.pagination import MyPagination
 
 
@@ -47,8 +47,8 @@ class IOTLocationStateView(APIView):
 
     def post(self, request):
         # Extract location data from request data
-        lat = request.data.get('lat')
-        lng = request.data.get('lng')
+        lat = request.data.get('lat',None)
+        lng = request.data.get('lng',None)
         sim_module = request.data.get('sim_module')
         state = request.data.get('state')
 
@@ -59,9 +59,7 @@ class IOTLocationStateView(APIView):
 
         last_lifecycle = box.lifecycle.last()
         # Create a Point object from location data
-        point = Point(float(lng), float(lat))
-        # Create a new model instance with the PointField set to the Point object
-        last_lifecycle.location = point
+        last_lifecycle.location = f"{float(lng), float(lat)}"
         last_lifecycle.state = state
         last_lifecycle.save()
         return Response({'message': "Your data has been saved successfully!"}, status=201)
