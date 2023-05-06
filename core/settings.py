@@ -100,12 +100,23 @@ AUTH_USER_MODEL = "account.User"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.contrib.gis.db.backends.postgis",
+#         "NAME": "geodjango",
+#         "USER": "geodjango",
+#         "PASSWORD": "12345",
+#         "HOST": "localhost",
+#         "PORT": "5432",
+#     }
+# }
+
 DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": "geodjango",
-        "USER": "geodjango",
-        "PASSWORD": "12345",
+        "NAME": "tozauzuz_geodjango",
+        "USER": "Boburshoh",
+        "PASSWORD": "Boburshoh777!",
         "HOST": "localhost",
         "PORT": "5432",
     }
@@ -151,10 +162,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
+# /home/tozauzuz/tozauz.uz/django
+# STATIC_ROOT = BASE_DIR / "static"
+# STATICFILES_DIRS = [BASE_DIR / "frontend/build/static"]
 
-STATIC_ROOT = BASE_DIR / "static"
-STATICFILES_DIRS = [BASE_DIR / "frontend/build/static"]
-
+STATICFILES_DIRS = '/home/tozauzuz/tozauz.uz/django/static_files',
+STATIC_ROOT = '/home/tozauzuz/tozauz.uz/django/static'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = '/home/tozauzuz/tozauz.uz/django/media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
