@@ -113,7 +113,7 @@ AUTH_USER_MODEL = "account.User"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": "tozauzuz_geodjango",
         "USER": "Boburshoh",
         "PASSWORD": "Boburshoh777!",
