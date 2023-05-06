@@ -168,8 +168,8 @@ STATIC_URL = "static/"
 
 STATICFILES_DIRS = '/home/tozauzuz/tozauz.uz/django/static_files',
 STATIC_ROOT = '/home/tozauzuz/tozauz.uz/django/static'
-MEDIA_URL = 'media/'
-MEDIA_ROOT = '/home/tozauzuz/tozauz.uz/django/media'
+# MEDIA_URL = 'media/'
+# MEDIA_ROOT = '/home/tozauzuz/tozauz.uz/django/media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
