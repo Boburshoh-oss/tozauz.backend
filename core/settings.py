@@ -115,14 +115,15 @@ AUTH_USER_MODEL = "account.User"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "tozauz",
         "USER": "tozauz",
-        "PASSWORD": "7889",
+        "PASSWORD": "tozauz",
         "HOST": "localhost",
-        "PORT": "5432",
+        "PORT": "",
     }
 }
+
 
 
 # Password validation
