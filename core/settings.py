@@ -68,6 +68,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 # CORS ORIGIN
@@ -165,7 +166,7 @@ STATIC_URL = "static/"
 # /home/tozauzuz/tozauz.uz/django
 
 import os
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = BASE_DIR / 'productionfiles'
 # STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
