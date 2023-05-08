@@ -13,8 +13,9 @@ urlpatterns = [
     path('api/v1/ecopacket/', include('ecopacket.urls')),
     path('api/v1/packet/', include('packet.urls')),
     path('api/v1/bank/', include('bank.urls')),
-    re_path(r'^(?!\/api\/).*', TemplateView.as_view(template_name='index.html')),
+    
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += swaggerurlpatterns
+urlpatterns.append(re_path(r'^(?!\/api\/).*', TemplateView.as_view(template_name='index.html')))
