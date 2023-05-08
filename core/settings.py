@@ -166,12 +166,10 @@ STATIC_URL = "static/"
 
 import os
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-# STATICFILES_DIRS = [BASE_DIR / "frontend/build/static"]
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
-# STATICFILES_DIRS = '/home/tozauzuz/tozauz.uz/django/static_files',
-# STATIC_ROOT = '/home/tozauzuz/tozauz.uz/django/static'
-# MEDIA_URL = 'media/'
-# MEDIA_ROOT = '/home/tozauzuz/tozauz.uz/django/media'
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
