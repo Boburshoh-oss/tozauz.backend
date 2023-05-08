@@ -156,3 +156,4 @@ cython_debug/
 .idea/
 upload/
 static
+/frontend
