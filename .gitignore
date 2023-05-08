@@ -155,4 +155,4 @@ cython_debug/
 # PyCharm
 .idea/
 upload/
-/static
+static
