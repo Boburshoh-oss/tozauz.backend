@@ -163,9 +163,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 # /home/tozauzuz/tozauz.uz/django
-import os
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-# STATICFILES_DIRS = [BASE_DIR / "frontend/build/static"]
+
+STATIC_ROOT = BASE_DIR / "static"
+STATICFILES_DIRS = [BASE_DIR / "frontend/build/static"]
 
 # STATICFILES_DIRS = '/home/tozauzuz/tozauz.uz/django/static_files',
 # STATIC_ROOT = '/home/tozauzuz/tozauz.uz/django/static'
