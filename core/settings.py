@@ -168,7 +168,7 @@ STATIC_URL = "static/"
 # /home/tozauzuz/tozauz.uz/django
 
 import os
-STATIC_ROOT = BASE_DIR / 'productionfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
