@@ -1,8 +1,8 @@
-Django==4.1.7
-environs==9.5.0
-djangorestframework==3.14.0
+Django
+environs
+djangorestframework
 django-cors-headers
-django-filter==22.1
+django-filter
 django-debug-toolbar
 gunicorn
 psycopg

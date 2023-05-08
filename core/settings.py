@@ -114,9 +114,9 @@ AUTH_USER_MODEL = "account.User"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "tozauzuz_geodjango",
-        "USER": "tozauzuz_Boburshoh",
-        "PASSWORD": "Boburshoh777!",
+        "NAME": "tozauz",
+        "USER": "tozauz",
+        "PASSWORD": "7889",
         "HOST": "localhost",
         "PORT": "5432",
     }
