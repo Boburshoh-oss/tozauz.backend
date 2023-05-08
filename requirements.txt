@@ -6,3 +6,4 @@ django-filter
 django-debug-toolbar
 gunicorn
 psycopg
+drf-yasg
