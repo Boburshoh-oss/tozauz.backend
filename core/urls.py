@@ -18,4 +18,4 @@ urlpatterns = [
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += swaggerurlpatterns
-urlpatterns.append(re_path(r'^(?!\/api\/).*', TemplateView.as_view(template_name='index.html')))
+# urlpatterns.append(re_path(r'^(?!\/api\/).*', TemplateView.as_view(template_name='index.html')))
