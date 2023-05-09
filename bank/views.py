@@ -81,6 +81,7 @@ class EarningListAPIView(generics.ListAPIView):
         "bank_account__user__last_name",
         "bank_account__user__phone_number",
         "box__name",
+        "packet__qr_code"
         "box__sim_module",
     ]
 

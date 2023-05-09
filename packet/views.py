@@ -127,7 +127,12 @@ class EmployeeQrCodeScanerView(APIView):
                 )
             serializer = UserEarningSerializer(user)
             return Response(
-                {"message": "paket allaqachon skanerlangan!","user":serializer.data}, status=status.HTTP_403_FORBIDDEN
+                {
+                    "message": "paket allaqachon skanerlangan!",
+                    "user": serializer.data,
+                    "scannered_date": packet.scannered_at,
+                },
+                status=status.HTTP_403_FORBIDDEN,
             )
         # Return a success response
         return Response(
