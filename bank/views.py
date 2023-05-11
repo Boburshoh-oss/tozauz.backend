@@ -134,7 +134,7 @@ class MobileEarningListAPIView(generics.ListAPIView):
     
     def get(self, request, *args, **kwargs):
         res = super().get(request, *args, **kwargs)
-        total = Earning.objects.values('tarrif').annotate(count=Count('tarrif'))
+        total = Earning.objects.filter(bank_account__user=request.user).values('tarrif').annotate(count=Count('tarrif'))
         res.data.update({"total_cat":total})
         return res
 
