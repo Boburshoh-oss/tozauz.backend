@@ -37,7 +37,9 @@ class MobileEarningListSerializer(serializers.ModelSerializer):
     # box = MobileBoxSerializer()
     # packet = MobilePacketSerializer()
     tarrif = MobileCategorySerializer()
-
+    # tarrif = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
+    # total = serializers.IntegerField(read_only=True)
+    
     class Meta:
         model = Earning
         fields = ("id", "tarrif", "amount", "created_at")

@@ -1,4 +1,5 @@
 from rest_framework import generics, response, authentication, permissions
+from django.db.models import Count
 from rest_framework.views import APIView
 from django.utils import timezone
 from .serializers import (
@@ -121,14 +122,21 @@ class MobileEarningListAPIView(generics.ListAPIView):
         queryset = Earning.objects.filter(
             bank_account__user=self.request.user
         ).order_by("-id")
+        
         # filter the queryset based on the date range
         if start_date:
             queryset = queryset.filter(created_at__date__gte=start_date).order_by("-id")
 
         if end_date:
             queryset = queryset.filter(created_at__date__lte=end_date).order_by("-id")
-
+        
         return queryset
+    
+    def get(self, request, *args, **kwargs):
+        res = super().get(request, *args, **kwargs)
+        total = Earning.objects.values('tarrif').annotate(count=Count('tarrif'))
+        res.data.update({"total_cat":total})
+        return res
 
 class PayOutUserMobileListAPIView(APIView):
     authentication_classes = [authentication.TokenAuthentication]

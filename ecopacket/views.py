@@ -174,23 +174,35 @@ class BoxOrderAPIView(APIView):
 
     def post(self, request, format=None):
         # Extract the data from the request
-        lifecycle_id = request.data["lifecycle_id"]
-
+        lifecycle_id = request.data.get("lifecycle_id",None)
+        cancel_lifecycle_id = request.data.get("cancel_lifecycle_id",None)
+        if lifecycle_id is not None:
+            try:
+                lifecycle = LifeCycle.objects.get(pk=lifecycle_id)
+            except:
+                return Response({"error": "Bunday yashik mavjud emas ilitmos tekshirib ko'ring!"}, status=status.HTTP_404_NOT_FOUND)
+            lifecycle.employee = request.user
+            lifecycle.save()
+            serializer = BoxSerializer(lifecycle.box)
+            # Return a success response
+            return Response({'message': 'Buyurtma sizga biriktirildi', "order": serializer.data}, status=status.HTTP_202_ACCEPTED)
+        
         try:
-            lifecycle = LifeCycle.objects.get(pk=lifecycle_id)
-
+            lifecycle = LifeCycle.objects.get(pk=cancel_lifecycle_id)
         except:
-            return Response({"error": "Bunday lifecycle mavjud emas ilitmos tekshirib ko'ring!"}, status=status.HTTP_404_NOT_FOUND)
-        lifecycle.employee = request.user
+            return Response({"error": "Bunday yashik mavjud emas ilitmos tekshirib ko'ring!"}, status=status.HTTP_404_NOT_FOUND)
+        lifecycle.employee = None
         lifecycle.save()
         serializer = BoxSerializer(lifecycle.box)
         # Return a success response
-        return Response({'message': 'Buyurtma sizga biriktirildi', "order": serializer.data}, status=status.HTTP_202_ACCEPTED)
+        return Response({'message': 'Buyurtma sizdan bekor qilindi', "order": serializer.data}, status=status.HTTP_202_ACCEPTED)
 
     def get(self, request):
         orders = LifeCycle.objects.filter(employee=None).filter(state__gte=80)
+        ordered = LifeCycle.objects.exclude(employee=None).filter(filled_at=None)
         serializer = LifeCycleSerializer(orders, many=True)
-        return Response(data={'orders': serializer.data}, status=status.HTTP_200_OK)
+        ordered_serializer = LifeCycleSerializer(ordered, many=True)
+        return Response(data={'orders': serializer.data,'ordered':ordered_serializer.data}, status=status.HTTP_200_OK)
 
 # CRUD DEVELOPER
 
