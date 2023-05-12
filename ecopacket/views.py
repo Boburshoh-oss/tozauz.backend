@@ -15,79 +15,99 @@ from .serializers import (
     BoxSerializer,
     LifeCycleSerializer,
     EcoPacketQrCodeSerializer,
-    EcoPacketQrCodeSerializerCreate
+    EcoPacketQrCodeSerializerCreate,
 )
 from bank.models import Earning
+
 # from django.contrib.gis.geos import Point
 from utils.pagination import MyPagination
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 # @permission_classes([IsAuthenticated, IsAdminUser])
 def create_ecopacket_qr_code(request):
     try:
-        num_of_qrcodes = int(request.data['num_of_qrcodes'])
+        num_of_qrcodes = int(request.data["num_of_qrcodes"])
     except (KeyError, TypeError, ValueError):
-        return Response({'error': 'Invalid input'})
-    category = request.data['category']
+        return Response({"error": "Invalid input"})
+    category = request.data["category"]
 
     if num_of_qrcodes <= 0 or num_of_qrcodes > 10000:
-        return Response({'error': 'Number of QR codes must be between 1 and 10,000'})
+        return Response({"error": "Number of QR codes must be between 1 and 10,000"})
 
     qr_codes = create_ecopacket_qr_codes(num_of_qrcodes, category)
 
     if qr_codes:
-        serializer = EcoPacketQrCodeSerializerCreate(qr_codes,many=True)
-        return Response({'success': f'{num_of_qrcodes} QR codes created','qr_codes':serializer.data})
+        serializer = EcoPacketQrCodeSerializerCreate(qr_codes, many=True)
+        return Response(
+            {
+                "success": f"{num_of_qrcodes} QR codes created",
+                "qr_codes": serializer.data,
+            }
+        )
     else:
-        return Response({'error': 'QR code creation failed'})
+        return Response({"error": "QR code creation failed"})
 
 
 class IOTLocationStateView(APIView):
-
     def post(self, request):
         # Extract location data from request data
-        lat = request.data.get('lat',None)
-        lng = request.data.get('lng',None)
-        sim_module = request.data.get('sim_module')
-        state = request.data.get('state')
+        lat = request.data.get("lat", None)
+        lng = request.data.get("lng", None)
+        sim_module = request.data.get("sim_module")
+        state = request.data.get("state")
 
         try:
             box = Box.objects.get(sim_module=sim_module)
         except:
-            return Response({'error': "No box found with this sim module"}, status=404)
+            return Response({"error": "No box found with this sim module"}, status=404)
 
         last_lifecycle = box.lifecycle.last()
         # Create a Point object from location data
         last_lifecycle.location = f"{float(lng), float(lat)}"
         last_lifecycle.state = state
         last_lifecycle.save()
-        return Response({'message': "Your data has been saved successfully!"}, status=201)
+        return Response(
+            {"message": "Your data has been saved successfully!"}, status=201
+        )
 
 
 class IOTView(APIView):
-
     def post(self, request, format=None):
         qr_code = request.data["qr_code"]
         sim_module = request.data["sim_module"]
-        
+
         if qr_code is None or sim_module is None:
-            return Response({'error': 'Please send me scannered qr code via'
-                            'mobile phone send me, or sim module was missed!'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {
+                    "error": "Please send me scannered qr code via"
+                    "mobile phone send me, or sim module was missed!"
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
         try:
             ecopacket_qr = EcoPacketQrCode.objects.get(qr_code=qr_code)
             box = Box.objects.get(sim_module=sim_module)
         except:
-            return Response({'error': 'This qr code was not found or has been used before.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "This qr code was not found or has been used before."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         if ecopacket_qr.user is None:
-            return Response({'error': 'Please! Scan your mobile phone first!'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "Please! Scan your mobile phone first!"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
         if ecopacket_qr.scannered_at is not None:
-            return Response({'error': 'This Qr code has already been used'}, status=status.HTTP_409_CONFLICT)
+            return Response(
+                {"error": "This Qr code has already been used"},
+                status=status.HTTP_409_CONFLICT,
+            )
 
         last_lifecycle = box.lifecycle.last()
-        
+
         ecopacket_qr.scannered_at = timezone.now()
         ecopacket_qr.life_cycle = last_lifecycle
         ecopacket_qr.save()
@@ -103,33 +123,50 @@ class IOTView(APIView):
             bank_account=bank_account,
             amount=ecopakcet_money,
             tarrif=ecopakcet_catergory,
-            box = box
+            box=box,
         )
         # Return a success response
-        return Response({'message': 'Qr code was successfully scanned.'}, status=status.HTTP_202_ACCEPTED)
-    
-    def get(self, request,format=None):
-        qr_code = request.GET.get("qr_code",None)
-        sim_module = request.GET.get("sim_module",None)
-        
+        return Response(
+            {"message": "Qr code was successfully scanned."},
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+    def get(self, request, format=None):
+        qr_code = request.GET.get("qr_code", None)
+        sim_module = request.GET.get("sim_module", None)
+
         if qr_code is None or sim_module is None:
-            return Response({'error': 'Please send me scannered qr code via' 
-                            'mobile phone send me, or sim module was missed!'}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {
+                    "error": "Please send me scannered qr code via"
+                    "mobile phone send me, or sim module was missed!"
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
         try:
             ecopacket_qr = EcoPacketQrCode.objects.get(qr_code=qr_code)
             box = Box.objects.get(sim_module=sim_module)
         except:
-            return Response({'error': 'This qr code was not found or has been used before.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "This qr code was not found or has been used before."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         if ecopacket_qr.user is None:
-            return Response({'error': 'Please! Scan your mobile phone first!'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "Please! Scan your mobile phone first!"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
         if ecopacket_qr.scannered_at is not None:
-            return Response({'error': 'This Qr code has already been used'}, status=status.HTTP_409_CONFLICT)
+            return Response(
+                {"error": "This Qr code has already been used"},
+                status=status.HTTP_409_CONFLICT,
+            )
 
         last_lifecycle = box.lifecycle.last()
-        
+
         ecopacket_qr.scannered_at = timezone.now()
         ecopacket_qr.life_cycle = last_lifecycle
         ecopacket_qr.save()
@@ -145,10 +182,13 @@ class IOTView(APIView):
             bank_account=bank_account,
             amount=ecopakcet_money,
             tarrif=ecopakcet_catergory,
-            box = box
+            box=box,
         )
         # Return a success response
-        return Response({'message': 'Qr code was successfully scanned.'}, status=status.HTTP_202_ACCEPTED)
+        return Response(
+            {"message": "Qr code was successfully scanned."},
+            status=status.HTTP_202_ACCEPTED,
+        )
 
 
 class QrCodeScanerView(APIView):
@@ -163,10 +203,16 @@ class QrCodeScanerView(APIView):
                 ecopacket_qr.user = request.user
                 ecopacket_qr.save()
         except:
-            return Response({'error': 'This qr code was not found or has been used before.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "This qr code was not found or has been used before."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         # Return a success response
-        return Response({'message': 'Qr code was successfully scanned.'}, status=status.HTTP_202_ACCEPTED)
+        return Response(
+            {"message": "Qr code was successfully scanned."},
+            status=status.HTTP_202_ACCEPTED,
+        )
 
 
 class BoxOrderAPIView(APIView):
@@ -174,35 +220,61 @@ class BoxOrderAPIView(APIView):
 
     def post(self, request, format=None):
         # Extract the data from the request
-        lifecycle_id = request.data.get("lifecycle_id",None)
-        cancel_lifecycle_id = request.data.get("cancel_lifecycle_id",None)
+        lifecycle_id = request.data.get("lifecycle_id", None)
+        cancel_lifecycle_id = request.data.get("cancel_lifecycle_id", None)
+
         if lifecycle_id is not None:
             try:
                 lifecycle = LifeCycle.objects.get(pk=lifecycle_id)
             except:
-                return Response({"error": "Bunday yashik mavjud emas ilitmos tekshirib ko'ring!"}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"error": "Bunday yashik mavjud emas ilitmos tekshirib ko'ring!"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            if lifecycle.filled_at is not None or lifecycle.user is not None:
+                return Response(
+                    {
+                        "error": "Bu yashik allaqachon bo'shatilgan yoki buyurtma qilingan!"
+                    },
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
             lifecycle.employee = request.user
             lifecycle.save()
             serializer = BoxSerializer(lifecycle.box)
             # Return a success response
-            return Response({'message': 'Buyurtma sizga biriktirildi', "order": serializer.data}, status=status.HTTP_202_ACCEPTED)
-        
+            return Response(
+                {"message": "Buyurtma sizga biriktirildi", "order": serializer.data},
+                status=status.HTTP_202_ACCEPTED,
+            )
+
         try:
             lifecycle = LifeCycle.objects.get(pk=cancel_lifecycle_id)
         except:
-            return Response({"error": "Bunday yashik mavjud emas ilitmos tekshirib ko'ring!"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Bunday yashik mavjud emas ilitmos tekshirib ko'ring!"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         lifecycle.employee = None
         lifecycle.save()
         serializer = BoxSerializer(lifecycle.box)
         # Return a success response
-        return Response({'message': 'Buyurtma sizdan bekor qilindi', "order": serializer.data}, status=status.HTTP_202_ACCEPTED)
+        return Response(
+            {"message": "Buyurtma sizdan bekor qilindi", "order": serializer.data},
+            status=status.HTTP_202_ACCEPTED,
+        )
 
     def get(self, request):
         orders = LifeCycle.objects.filter(employee=None).filter(state__gte=80)
         ordered = LifeCycle.objects.exclude(employee=None).filter(filled_at=None)
         serializer = LifeCycleSerializer(orders, many=True)
         ordered_serializer = LifeCycleSerializer(ordered, many=True)
-        return Response(data={'orders': serializer.data,'ordered':ordered_serializer.data}, status=status.HTTP_200_OK)
+        return Response(
+            data={"orders": serializer.data, "ordered": ordered_serializer.data},
+            status=status.HTTP_200_OK,
+        )
+
 
 # CRUD DEVELOPER
 
@@ -216,18 +288,19 @@ class BoxModelViewSet(viewsets.ModelViewSet):
 class LifeCycleListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = LifeCycleSerializer
-    queryset = LifeCycle.objects.all().order_by('-id')
+    queryset = LifeCycle.objects.all().order_by("-id")
     pagination_class = MyPagination
-    filter_backends = filters.DjangoFilterBackend,
-    filterset_fields = ['box']
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ["box"]
 
 
 class EcoPacketQrCodeListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = EcoPacketQrCodeSerializer
-    queryset = EcoPacketQrCode.objects.exclude(
-        scannered_at__isnull=True).order_by('-id')
+    queryset = EcoPacketQrCode.objects.exclude(scannered_at__isnull=True).order_by(
+        "-id"
+    )
     pagination_class = MyPagination
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
-    filterset_fields = ['category']
-    search_fields = ['user__first_name','user__last_name','user__phone_number']
+    filterset_fields = ["category"]
+    search_fields = ["user__first_name", "user__last_name", "user__phone_number"]

@@ -26,10 +26,7 @@ class Earning(models.Model):
     def __str__(self) -> str:
         return f"{self.bank_account.user} {self.amount} {self.tarrif}"
     
-    @property
-    def total(self):
-        total = Earning.objects.values('tarrif').annotate(total=Count('tarrif'))
-        return total
+    
 
 class PayOut(models.Model):
     user = models.ForeignKey(
