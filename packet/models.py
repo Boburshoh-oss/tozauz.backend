@@ -28,5 +28,5 @@ class Packet(models.Model):
     scannered_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self) -> str:
-        return f"{self.id} {self.category.name}"
+    # def __str__(self) -> str:
+    #     return f"{self.id} {self.category.name}"
