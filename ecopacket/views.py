@@ -256,6 +256,11 @@ class BoxOrderAPIView(APIView):
                 {"error": "Bunday yashik mavjud emas ilitmos tekshirib ko'ring!"},
                 status=status.HTTP_404_NOT_FOUND,
             )
+        if lifecycle.user != request.user:
+            return Response(
+                {"error": "Siz boshqaning buyurtmasini bekor qilolmaysiz!"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         lifecycle.employee = None
         lifecycle.save()
         serializer = BoxSerializer(lifecycle.box)
