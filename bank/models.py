@@ -14,7 +14,7 @@ class BankAccount(models.Model):
 class Earning(models.Model):
     bank_account = models.ForeignKey("bank.BankAccount", on_delete=models.CASCADE)
     amount = models.PositiveBigIntegerField()
-    tarrif = models.ForeignKey("packet.Category", on_delete=models.SET_NULL, null=True)
+    tarrif = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     box = models.ForeignKey(
         "ecopacket.Box", on_delete=models.SET_NULL, null=True, blank=True

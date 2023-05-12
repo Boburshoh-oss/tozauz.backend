@@ -84,7 +84,7 @@ class EmployeeQrCodeScanerView(APIView):
                 Earning.objects.create(
                     bank_account=bank_account,
                     amount=money,
-                    tarrif=cat,
+                    tarrif=cat.name,
                     box=box,
                 )
                 return Response(
@@ -112,7 +112,10 @@ class EmployeeQrCodeScanerView(APIView):
                 bank_account.save()
 
                 Earning.objects.create(
-                    bank_account=bank_account, amount=money, tarrif=cat, packet=packet
+                    bank_account=bank_account,
+                    amount=money,
+                    tarrif=cat.name,
+                    packet=packet,
                 )
                 return Response(
                     {"message": "packet successfully scaned"},

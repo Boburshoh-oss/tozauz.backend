@@ -84,6 +84,7 @@ class EarningListAPIView(generics.ListAPIView):
         "box__name",
         "packet__qr_code"
         "box__sim_module",
+        "tarrif"
     ]
 
     def get_queryset(self):

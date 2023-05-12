@@ -122,7 +122,7 @@ class IOTView(APIView):
         Earning.objects.create(
             bank_account=bank_account,
             amount=ecopakcet_money,
-            tarrif=ecopakcet_catergory,
+            tarrif=ecopakcet_catergory.name,
             box=box,
         )
         # Return a success response
@@ -181,7 +181,7 @@ class IOTView(APIView):
         Earning.objects.create(
             bank_account=bank_account,
             amount=ecopakcet_money,
-            tarrif=ecopakcet_catergory,
+            tarrif=ecopakcet_catergory.name,
             box=box,
         )
         # Return a success response

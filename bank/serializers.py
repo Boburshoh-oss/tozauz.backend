@@ -27,16 +27,15 @@ class EarningListSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class MobileCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ("id","name")
+# class MobileCategorySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Category
+#         fields = ("id","name")
 
 
 class MobileEarningListSerializer(serializers.ModelSerializer):
-    tarrif = MobileCategorySerializer()
-    
-    
+    # tarrif = MobileCategorySerializer()
+
     class Meta:
         model = Earning
         fields = ("id", "tarrif", "amount", "created_at")
