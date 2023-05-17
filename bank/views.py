@@ -75,14 +75,13 @@ class EarningListAPIView(generics.ListAPIView):
     serializer_class = EarningListSerializer
     queryset = Earning.objects.all().order_by("-id")
     pagination_class = MyPagination
-    filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
-    filterset_fields = ["tarrif"]
+    filter_backends = [rf_filters.SearchFilter]
     search_fields = [
         "bank_account__user__first_name",
         "bank_account__user__last_name",
         "bank_account__user__phone_number",
         "box__name",
-        "packet__qr_code"
+        "packet__qr_code",
         "box__sim_module",
         "tarrif"
     ]
