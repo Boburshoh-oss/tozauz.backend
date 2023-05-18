@@ -178,6 +178,7 @@ class PayOutListAPIView(APIView):
 
 
 class PayOutListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAdminUser]
     serializer_class = PayOutSerializer
     queryset = PayOut.objects.all().order_by("-id")
     pagination_class = MyPagination
@@ -230,7 +231,7 @@ class PayMeCreateAPIView(generics.CreateAPIView):
 
 
 class PayMeListAPIView(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
     serializer_class = PayMeListSerializer
     queryset = PayMe.objects.all().order_by("-id")
     pagination_class = MyPagination
@@ -249,30 +250,30 @@ class PayMeListAPIView(generics.ListAPIView):
 class PayMePayedView(generics.UpdateAPIView):
     queryset = PayMe.objects.all()
     serializer_class = PayMePayedSerializer
+    permission_classes = [permissions.IsAdminUser]
 
-    def partial_update(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         instance = self.get_object()
-        changed_fields = []
-
-        # Retrieve the updated data from the request
-        updated_data = request.data
-
-        for key, value in updated_data.items():
-            # Check if the field value has changed
-            if getattr(instance, key) != value:
-                changed_fields.append(key)
-                
-        if "payed" in changed_fields and instance.payed == False:
-            user_money = instance.user.bank_account.capital
+        if instance.payed == False:
+            user_money = instance.user.bankaccount.capital
             payme_money = instance.amount
             if user_money > payme_money:
                 PayOut.objects.create(
                     user=instance.user,
-                    amount=instance.payed,
+                    amount=payme_money,
                     admin=request.user,
                     card=instance.card,
                     card_name=instance.card_name,
                 )
-                user_money -= payme_money
-                user_money.save()
-        return super().partial_update(request, *args, **kwargs)
+                instance.user.bankaccount.capital -= payme_money
+                instance.user.bankaccount.save()
+                instance.payed = True
+                instance.save()
+
+                return super().patch(request, *args, **kwargs)
+            return response.Response(
+                {"message": "Foydalanuvchi mablag'i yetarli emas!"}, status=200
+            )
+        return response.Response(
+            {"message": "Foydalanuvchi pul o'tib bo'lgan"}, status=200
+        )
