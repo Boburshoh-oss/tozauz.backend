@@ -242,7 +242,7 @@ class PayMeListAPIView(generics.ListAPIView):
         "card_name",
         "user__phone_number",
         "user__first_name",
-        "last_name",
+        "user__last_name",
         "car_number",
     ]
 
