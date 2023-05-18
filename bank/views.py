@@ -121,23 +121,33 @@ class MobileEarningListAPIView(generics.ListAPIView):
         start_date = self.request.query_params.get("start_date")
         end_date = self.request.query_params.get("end_date")
 
-        queryset = Earning.objects.filter(
-            bank_account__user=self.request.user
-        ).order_by("-id")
+        queryset = Earning.objects.filter(bank_account__user=self.request.user)
 
         # filter the queryset based on the date range
         if start_date:
-            queryset = queryset.filter(created_at__date__gte=start_date).order_by("-id")
+            queryset = queryset.filter(created_at__date__gte=start_date)
 
         if end_date:
-            queryset = queryset.filter(created_at__date__lte=end_date).order_by("-id")
+            queryset = queryset.filter(created_at__date__lte=end_date)
 
-        return queryset
+        return queryset.order_by("-id")
 
     def get(self, request, *args, **kwargs):
         res = super().get(request, *args, **kwargs)
+        
+        start_date = request.query_params.get("start_date")
+        end_date = request.query_params.get("end_date")
+
+        queryset = Earning.objects.filter(bank_account__user=self.request.user)
+
+        # filter the queryset based on the date range
+        if start_date:
+            queryset = queryset.filter(created_at__date__gte=start_date)
+
+        if end_date:
+            queryset = queryset.filter(created_at__date__lte=end_date)
         total = (
-            Earning.objects.filter(bank_account__user=request.user)
+            queryset
             .values("tarrif")
             .annotate(count=Count("tarrif"))
         )
