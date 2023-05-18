@@ -308,4 +308,9 @@ class EcoPacketQrCodeListAPIView(generics.ListAPIView):
     pagination_class = MyPagination
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
     filterset_fields = ["category"]
-    search_fields = ["user__first_name", "user__last_name", "user__phone_number"]
+    search_fields = [
+        "user__first_name",
+        "user__last_name",
+        "user__phone_number",
+        "qr_code",
+    ]

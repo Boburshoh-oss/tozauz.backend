@@ -162,6 +162,7 @@ class PacketListAPIView(generics.ListAPIView):
     filterset_fields = ["category"]
     search_fields = [
         "employee__first_name",
+        'qr_code',
         "employee__phone_number",
         "employee__car_number",
     ]

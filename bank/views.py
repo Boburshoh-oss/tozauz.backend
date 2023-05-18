@@ -75,7 +75,8 @@ class EarningListAPIView(generics.ListAPIView):
     serializer_class = EarningListSerializer
     queryset = Earning.objects.all().order_by("-id")
     pagination_class = MyPagination
-    filter_backends = [rf_filters.SearchFilter]
+    filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
+    filterset_fields = ["tarrif"]
     search_fields = [
         "bank_account__user__first_name",
         "bank_account__user__last_name",
@@ -83,7 +84,6 @@ class EarningListAPIView(generics.ListAPIView):
         "box__name",
         "packet__qr_code",
         "box__sim_module",
-        "tarrif"
     ]
 
     def get_queryset(self):
@@ -122,21 +122,26 @@ class MobileEarningListAPIView(generics.ListAPIView):
         queryset = Earning.objects.filter(
             bank_account__user=self.request.user
         ).order_by("-id")
-        
+
         # filter the queryset based on the date range
         if start_date:
             queryset = queryset.filter(created_at__date__gte=start_date).order_by("-id")
 
         if end_date:
             queryset = queryset.filter(created_at__date__lte=end_date).order_by("-id")
-        
+
         return queryset
-    
+
     def get(self, request, *args, **kwargs):
         res = super().get(request, *args, **kwargs)
-        total = Earning.objects.filter(bank_account__user=request.user).values('tarrif').annotate(count=Count('tarrif'))
-        res.data.update({"total_cat":total})
+        total = (
+            Earning.objects.filter(bank_account__user=request.user)
+            .values("tarrif")
+            .annotate(count=Count("tarrif"))
+        )
+        res.data.update({"total_cat": total})
         return res
+
 
 class PayOutUserMobileListAPIView(APIView):
     authentication_classes = [authentication.TokenAuthentication]
@@ -152,6 +157,7 @@ class PayOutUserMobileListAPIView(APIView):
         res = paginator.get_paginated_response(serializer.data)
         res.data.update(summa)
         return res
+
 
 class PayOutListAPIView(APIView):
     authentication_classes = [authentication.TokenAuthentication]
