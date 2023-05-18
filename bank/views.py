@@ -76,7 +76,7 @@ class EarningListAPIView(generics.ListAPIView):
     queryset = Earning.objects.all().order_by("-id")
     pagination_class = MyPagination
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
-    filterset_fields = ["tarrif"]
+    filterset_fields = ["tarrif","bank_account__user__role"]
     search_fields = [
         "bank_account__user__first_name",
         "bank_account__user__last_name",
