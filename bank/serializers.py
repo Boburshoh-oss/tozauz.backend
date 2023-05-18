@@ -73,3 +73,9 @@ class PayMeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PayMe
         fields = "__all__"
+
+class PayMePayedSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PayMe
+        fields = ("payed",)

@@ -2,7 +2,6 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView
 from utils.save_to_database import create_packet_qr_codes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import authentication

@@ -56,6 +56,7 @@ class PayMe(models.Model):
     card = models.CharField(max_length=16, null=True, blank=True)
     card_name = models.CharField(max_length=55, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    payed = models.BooleanField(default=False)
+    
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.amount}"

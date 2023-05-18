@@ -10,6 +10,7 @@ from .serializers import (
     PayOutSerializer,
     PayMeSerializer,
     PayMeListSerializer,
+    PayMePayedSerializer,
 )
 from .models import BankAccount, Earning, PayOut, PayMe
 from bank.models import BankAccount
@@ -18,6 +19,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from django.db.models import Sum
 from django_filters import rest_framework as filters
 from rest_framework import filters as rf_filters
+from rest_framework.views import APIView
 
 
 class BankAccountListAPIView(generics.ListAPIView):
@@ -76,7 +78,7 @@ class EarningListAPIView(generics.ListAPIView):
     queryset = Earning.objects.all().order_by("-id")
     pagination_class = MyPagination
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
-    filterset_fields = ["tarrif","bank_account__user__role"]
+    filterset_fields = ["tarrif", "bank_account__user__role"]
     search_fields = [
         "bank_account__user__first_name",
         "bank_account__user__last_name",
@@ -232,3 +234,45 @@ class PayMeListAPIView(generics.ListAPIView):
     serializer_class = PayMeListSerializer
     queryset = PayMe.objects.all().order_by("-id")
     pagination_class = MyPagination
+    filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
+    filterset_fields = ["user__role", "user"]
+    search_fields = [
+        "card",
+        "card_name",
+        "user__phone_number",
+        "user__first_name",
+        "last_name",
+        "car_number",
+    ]
+
+
+class PayMePayedView(generics.UpdateAPIView):
+    queryset = PayMe.objects.all()
+    serializer_class = PayMePayedSerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        changed_fields = []
+
+        # Retrieve the updated data from the request
+        updated_data = request.data
+
+        for key, value in updated_data.items():
+            # Check if the field value has changed
+            if getattr(instance, key) != value:
+                changed_fields.append(key)
+                
+        if "payed" in changed_fields and instance.payed == False:
+            user_money = instance.user.bank_account.capital
+            payme_money = instance.amount
+            if user_money > payme_money:
+                PayOut.objects.create(
+                    user=instance.user,
+                    amount=instance.payed,
+                    admin=request.user,
+                    card=instance.card,
+                    card_name=instance.card_name,
+                )
+                user_money -= payme_money
+                user_money.save()
+        return super().partial_update(request, *args, **kwargs)
