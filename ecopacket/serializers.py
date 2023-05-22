@@ -47,7 +47,7 @@ class EcoPacketQrCodeSerializerCreate(serializers.ModelSerializer):
 
 class EcoPacketQrCodeSerializer(serializers.ModelSerializer):
     user = UserEarningSerializer()
-    box = BoxEcoPacketSerializer(source="box")
+    box = BoxEcoPacketSerializer()
 
     class Meta:
         model = EcoPacketQrCode
