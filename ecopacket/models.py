@@ -59,3 +59,10 @@ class EcoPacketQrCode(models.Model):
 
     def __str__(self) -> str:
         return self.qr_code
+
+    @property
+    def box(self):
+        if self.life_cycle is not None:
+            return self.life_cycle.box
+        
+        return None
