@@ -77,7 +77,7 @@ def get_header_info():
 
 
 class DashboardView(APIView):
-    def get(self):
+    def get(self, request):
         chart_data = get_monthly_sums()
         featured_data = chart_data[-1]
         return Response(
