@@ -81,16 +81,16 @@ def get_featured_data():
     payout = PayOut.objects.filter(
         created_at__year=current_datetime.year,
         created_at__month=current_datetime.month,
-    ).aggregate(sum=Sum("amount")["sum"])
+    ).aggregate(sum=Sum("amount"))["sum"]
     all = PayMe.objects.filter(
         created_at__year=current_datetime.year,
         created_at__month=current_datetime.month,
-    ).aggregate(sum=Sum("amount")["sum"])
+    ).aggregate(sum=Sum("amount"))["sum"]
     payed = PayMe.objects.filter(
         payed=True,
         created_at__year=current_datetime.year,
         created_at__month=current_datetime.month,
-    ).aggregate(sum=Sum("amount")["sum"])
+    ).aggregate(sum=Sum("amount"))["sum"]
     return {
         "payed_percentage": round(payed / all * 100),
         "needed_to_pay": all - payed,
