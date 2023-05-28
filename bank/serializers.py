@@ -5,9 +5,7 @@ from account.serializers import (
     UserEarningSerializer,
     UserLoginSerializer,
 )
-from ecopacket.models import Box
-from packet.models import Packet
-from packet.models import Category
+from packet.serializers import PacketSerializerCreate
 
 
 class EarningSerializer(serializers.ModelSerializer):
@@ -21,6 +19,7 @@ class EarningSerializer(serializers.ModelSerializer):
 class EarningListSerializer(serializers.ModelSerializer):
     user = UserEarningSerializer(source="bank_account.user")
     created_at = serializers.DateTimeField(read_only=True)
+    packet = PacketSerializerCreate()
 
     class Meta:
         model = Earning
@@ -74,8 +73,8 @@ class PayMeListSerializer(serializers.ModelSerializer):
         model = PayMe
         fields = "__all__"
 
-class PayMePayedSerializer(serializers.ModelSerializer):
 
+class PayMePayedSerializer(serializers.ModelSerializer):
     class Meta:
         model = PayMe
         fields = ("payed",)
