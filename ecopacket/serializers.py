@@ -15,24 +15,23 @@ class BoxEcoPacketSerializer(serializers.ModelSerializer):
 class BoxSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
     qr_code = serializers.CharField(read_only=True)
-    
+
     class Meta:
         model = Box
         fields = (
             "id",
             "name",
             "state",
-            'cycle_created_at',
+            "cycle_created_at",
             "sim_module",
             "qr_code",
             "created_at",
             "category",
         )
 
-    
-
 
 class LifeCycleSerializer(serializers.ModelSerializer):
+    employee = UserEarningSerializer()
 
     class Meta:
         model = LifeCycle
