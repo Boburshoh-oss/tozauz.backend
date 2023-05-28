@@ -76,20 +76,34 @@ def get_header_info():
     }
 
 
+def get_featured_data():
+    current_datetime = timezone.now()
+    payout = PayOut.objects.filter(
+        created_at__year=current_datetime.year,
+        created_at__month=current_datetime.month,
+    ).aggregate(sum=Sum("amount")["sum"])
+    all = PayMe.objects.filter(
+        created_at__year=current_datetime.year,
+        created_at__month=current_datetime.month,
+    ).aggregate(sum=Sum("amount")["sum"])
+    payed = PayMe.objects.filter(
+        payed=True,
+        created_at__year=current_datetime.year,
+        created_at__month=current_datetime.month,
+    ).aggregate(sum=Sum("amount")["sum"])
+    return {
+        "payed_percentage": round(payed / all * 100),
+        "needed_to_pay": all - payed,
+        "target": {"payme_request": all, "payme_payed": payed, "all_payed": payout},
+    }
+
+
 class DashboardView(APIView):
     def get(self, request):
-        chart_data = get_monthly_sums()
-        featured_data = chart_data[-1]
         return Response(
             {
                 "header_cards": get_header_info(),
-                "chart_data": chart_data,
-                "featured": {
-                    "percentage": round(
-                        featured_data["payout"] / featured_data["payme"] * 100
-                    ),
-                    "needed_to_pay": featured_data["payme"] - featured_data["payout"],
-                    "target": featured_data,
-                },
+                "chart_data": get_monthly_sums(),
+                "featured": get_featured_data(),
             }
         )
