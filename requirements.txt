@@ -7,3 +7,4 @@ django-debug-toolbar
 gunicorn
 psycopg
 drf-yasg
+python-dateutil
