@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from utils.save_to_database import create_ecopacket_qr_codes
 from .models import EcoPacketQrCode, Box, LifeCycle
 
-# from account.models import User
+from account.models import User
 from .serializers import (
     BoxSerializer,
     LifeCycleSerializer,
@@ -96,7 +96,9 @@ class IOTView(APIView):
 
         if ecopacket_qr.user is None:
             return Response(
-                {"error": "Please! Scan your mobile phone first!"},
+                {
+                    "error": "Please! Scan your mobile phone first or use another enpoint!"
+                },
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
@@ -155,7 +157,9 @@ class IOTView(APIView):
 
         if ecopacket_qr.user is None:
             return Response(
-                {"error": "Please! Scan your mobile phone first!"},
+                {
+                    "error": "Please! Scan your mobile phone first or use another enpoint!"
+                },
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
@@ -174,6 +178,143 @@ class IOTView(APIView):
         ecopakcet_money = ecopacket_qr.category.summa
         ecopakcet_catergory = ecopacket_qr.category
         user = ecopacket_qr.user
+        bank_account = user.bankaccount
+        bank_account.capital += ecopakcet_money
+        bank_account.save()
+
+        Earning.objects.create(
+            bank_account=bank_account,
+            amount=ecopakcet_money,
+            tarrif=ecopakcet_catergory.name,
+            box=box,
+        )
+        # Return a success response
+        return Response(
+            {"message": "Qr code was successfully scanned."},
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+
+class IOTManualView(APIView):
+    def post(self, request, format=None):
+        qr_code = request.data["qr_code"]
+        sim_module = request.data["sim_module"]
+        phone_number = request.data["phone_number"]
+        try:
+            user = User.objects.get(phone_number=phone_number)
+        except:
+            return Response(
+                {"error": "Phone number doesn't exists!"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if qr_code is None or sim_module is None:
+            return Response(
+                {
+                    "error": "Please send me scannered qr code via"
+                    "mobile phone send me, or sim module was missed!"
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        try:
+            ecopacket_qr = EcoPacketQrCode.objects.get(qr_code=qr_code)
+            box = Box.objects.get(sim_module=sim_module)
+        except:
+            return Response(
+                {"error": "This qr code was not found or has been used before."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if ecopacket_qr.user is not None:
+            return Response(
+                {"error": "Packet already scanned!"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        if ecopacket_qr.scannered_at is not None:
+            return Response(
+                {"error": "This Qr code has already been used"},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        last_lifecycle = box.lifecycle.last()
+
+        ecopacket_qr.scannered_at = timezone.now()
+        ecopacket_qr.life_cycle = last_lifecycle
+        ecopacket_qr.user = user
+        ecopacket_qr.save()
+
+        ecopakcet_money = ecopacket_qr.category.summa
+        ecopakcet_catergory = ecopacket_qr.category
+        # user = ecopacket_qr.user
+        bank_account = user.bankaccount
+        bank_account.capital += ecopakcet_money
+        bank_account.save()
+
+        Earning.objects.create(
+            bank_account=bank_account,
+            amount=ecopakcet_money,
+            tarrif=ecopakcet_catergory.name,
+            box=box,
+        )
+        # Return a success response
+        return Response(
+            {"message": "Qr code was successfully scanned."},
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+    def get(self, request, format=None):
+        qr_code = request.GET.get("qr_code", None)
+        sim_module = request.GET.get("sim_module", None)
+        phone_number = request.GET.get("phone_number", None)
+
+        try:
+            user = User.objects.get(phone_number=phone_number)
+        except:
+            return Response(
+                {"error": "Phone number doesn't exists!"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if qr_code is None or sim_module is None:
+            return Response(
+                {
+                    "error": "Please send me scannered qr code via"
+                    "mobile phone send me, or sim module was missed!"
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        try:
+            ecopacket_qr = EcoPacketQrCode.objects.get(qr_code=qr_code)
+            box = Box.objects.get(sim_module=sim_module)
+        except:
+            return Response(
+                {"error": "This qr code was not found or has been used before."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if ecopacket_qr.user is not None:
+            return Response(
+                {"error": "Packet already scanned!"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        if ecopacket_qr.scannered_at is not None:
+            return Response(
+                {"error": "This Qr code has already been used"},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        last_lifecycle = box.lifecycle.last()
+
+        ecopacket_qr.scannered_at = timezone.now()
+        ecopacket_qr.life_cycle = last_lifecycle
+        ecopacket_qr.user = user
+        ecopacket_qr.save()
+
+        ecopakcet_money = ecopacket_qr.category.summa
+        ecopakcet_catergory = ecopacket_qr.category
+        # user = ecopacket_qr.user
         bank_account = user.bankaccount
         bank_account.capital += ecopakcet_money
         bank_account.save()
