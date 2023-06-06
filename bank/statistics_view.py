@@ -91,11 +91,15 @@ def get_featured_data():
         created_at__year=current_datetime.year,
         created_at__month=current_datetime.month,
     ).aggregate(sum=Sum("amount"))["sum"]
-    return {
-        "payed_percentage": round(payed / all * 100),
-        "needed_to_pay": all - payed,
+    resp = {
+        
         "target": {"payme_request": all, "payme_payed": payed, "all_payed": payout},
     }
+    try:
+        resp.update({"payed_percentage": round(payed / all * 100),"needed_to_pay": all - payed})
+    except:
+        pass
+    return resp
 
 
 class DashboardView(APIView):
