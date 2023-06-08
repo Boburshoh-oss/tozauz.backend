@@ -63,10 +63,15 @@ class IOTLocationStateView(APIView):
             return Response({"error": "No box found with this sim module"}, status=404)
 
         last_lifecycle = box.lifecycle.last()
-        # Create a Point object from location data
-        last_lifecycle.location = f"{float(lng), float(lat)}"
-        last_lifecycle.state = state
-        last_lifecycle.save()
+        if last_lifecycle:
+            # Create a Point object from location data
+            last_lifecycle.location = f"{float(lng), float(lat)}"
+            last_lifecycle.state = state
+            last_lifecycle.save()
+        else:
+            LifeCycle.objects.create(
+                box=box, location=f"{float(lng), float(lat)}", state=state
+            )
         return Response(
             {"message": "Your data has been saved successfully!"}, status=201
         )
