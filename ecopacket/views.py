@@ -76,6 +76,32 @@ class IOTLocationStateView(APIView):
             {"message": "Your data has been saved successfully!"}, status=201
         )
 
+    def get(self, request):
+        # Extract location data from request data
+        lat = request.GET.get("lat", None)
+        lng = request.GET.get("lng", None)
+        sim_module = request.GET.get("sim_module")
+        state = request.GET.get("state")
+
+        try:
+            box = Box.objects.get(sim_module=sim_module)
+        except:
+            return Response({"error": "No box found with this sim module"}, status=404)
+
+        last_lifecycle = box.lifecycle.last()
+        if last_lifecycle:
+            # Create a Point object from location data
+            last_lifecycle.location = f"{float(lng), float(lat)}"
+            last_lifecycle.state = state
+            last_lifecycle.save()
+        else:
+            LifeCycle.objects.create(
+                box=box, location=f"{float(lng), float(lat)}", state=state
+            )
+        return Response(
+            {"message": "Your data has been saved successfully!"}, status=201
+        )
+
 
 class IOTView(APIView):
     def post(self, request, format=None):
