@@ -431,10 +431,17 @@ class IOTManualMultipleView(APIView):
         )
 
     def get(self, request, format=None):
-        qr_code = request.GET.get("qr_code", None)
+        qr_codies = request.GET.get("qr_code", None)
         sim_module = request.GET.get("sim_module", None)
         phone_number = request.GET.get("phone_number", None)
 
+        try:
+            box = Box.objects.get(sim_module=sim_module)
+        except:
+            return Response(
+                {"error": "Box doesn't exists!"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         try:
             user = User.objects.get(phone_number=phone_number)
         except:
@@ -443,7 +450,7 @@ class IOTManualMultipleView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if qr_code is None or sim_module is None:
+        if qr_codies is None or sim_module is None:
             return Response(
                 {
                     "error": "Please send me scannered qr code via"
@@ -451,50 +458,41 @@ class IOTManualMultipleView(APIView):
                 },
                 status=status.HTTP_404_NOT_FOUND,
             )
-        try:
-            ecopacket_qr = EcoPacketQrCode.objects.get(qr_code=qr_code)
-            box = Box.objects.get(sim_module=sim_module)
-        except:
-            return Response(
-                {"error": "This qr code was not found or has been used before."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
 
-        if ecopacket_qr.user is not None:
-            return Response(
-                {"error": "Packet already scanned!"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+        status_qr_code = {"success_qr_code": 0, "error_qr_code": 0}
+        for qc in qr_codies:
+            try:
+                ecopacket_qr = EcoPacketQrCode.objects.get(qr_code=qc)
+                if ecopacket_qr.scannered_at is not None:
+                    status_qr_code["error_qr_code"] += 1
 
-        if ecopacket_qr.scannered_at is not None:
-            return Response(
-                {"error": "This Qr code has already been used"},
-                status=status.HTTP_409_CONFLICT,
-            )
+                else:
+                    last_lifecycle = box.lifecycle.last()
+                    ecopacket_qr.scannered_at = timezone.now()
+                    ecopacket_qr.life_cycle = last_lifecycle
+                    ecopacket_qr.user = user
+                    ecopacket_qr.save()
 
-        last_lifecycle = box.lifecycle.last()
+                    ecopakcet_money = ecopacket_qr.category.summa
+                    ecopakcet_catergory = ecopacket_qr.category
+                    # user = ecopacket_qr.user
+                    bank_account = user.bankaccount
+                    bank_account.capital += ecopakcet_money
+                    bank_account.save()
 
-        ecopacket_qr.scannered_at = timezone.now()
-        ecopacket_qr.life_cycle = last_lifecycle
-        ecopacket_qr.user = user
-        ecopacket_qr.save()
+                    Earning.objects.create(
+                        bank_account=bank_account,
+                        amount=ecopakcet_money,
+                        tarrif=ecopakcet_catergory.name,
+                        box=box,
+                    )
+                    status_qr_code["success_qr_code"] += 1
+            except:
+                status_qr_code["error_qr_code"] += 1
 
-        ecopakcet_money = ecopacket_qr.category.summa
-        ecopakcet_catergory = ecopacket_qr.category
-        # user = ecopacket_qr.user
-        bank_account = user.bankaccount
-        bank_account.capital += ecopakcet_money
-        bank_account.save()
-
-        Earning.objects.create(
-            bank_account=bank_account,
-            amount=ecopakcet_money,
-            tarrif=ecopakcet_catergory.name,
-            box=box,
-        )
         # Return a success response
         return Response(
-            {"message": "Qr code was successfully scanned."},
+            status_qr_code,
             status=status.HTTP_202_ACCEPTED,
         )
 
