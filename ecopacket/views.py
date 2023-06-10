@@ -395,7 +395,7 @@ class IOTManualMultipleView(APIView):
 
         status_qr_code = {"success_qr_code": 0, "error_qr_code": 0}
         for qc in qr_codies:
-            ecopacket_qr = EcoPacketQrCode.objects.exists(qr_code=qc)
+            ecopacket_qr = EcoPacketQrCode.objects.filter(qr_code=qc).exists()
             if ecopacket_qr and ecopacket_qr.scannered_at is None:
                 last_lifecycle = box.lifecycle.last()
                 ecopacket_qr.scannered_at = timezone.now()
@@ -461,7 +461,7 @@ class IOTManualMultipleView(APIView):
 
         status_qr_code = {"success_qr_code": 0, "error_qr_code": 0}
         for qc in qr_codies:
-            ecopacket_qr = EcoPacketQrCode.objects.exists(qr_code=qc)
+            ecopacket_qr = EcoPacketQrCode.objects.filter(qr_code=qc).exists()
             if ecopacket_qr and ecopacket_qr.scannered_at is None:
                 last_lifecycle = box.lifecycle.last()
                 ecopacket_qr.scannered_at = timezone.now()
