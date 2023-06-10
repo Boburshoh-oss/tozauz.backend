@@ -445,6 +445,7 @@ class IOTManualMultipleView(APIView):
 
         if "+" not in phone_number:
             phone_number = f"+{phone_number}"
+            print(phone_number)
         try:
             user = User.objects.get(phone_number=phone_number)
         except:
