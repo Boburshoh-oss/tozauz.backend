@@ -395,33 +395,29 @@ class IOTManualMultipleView(APIView):
 
         status_qr_code = {"success_qr_code": 0, "error_qr_code": 0}
         for qc in qr_codies:
-            try:
-                ecopacket_qr = EcoPacketQrCode.objects.get(qr_code=qc)
-                if ecopacket_qr.scannered_at is not None:
-                    status_qr_code["error_qr_code"] += 1
+            ecopacket_qr = EcoPacketQrCode.objects.exists(qr_code=qc)
+            if ecopacket_qr and ecopacket_qr.scannered_at is None:
+                last_lifecycle = box.lifecycle.last()
+                ecopacket_qr.scannered_at = timezone.now()
+                ecopacket_qr.life_cycle = last_lifecycle
+                ecopacket_qr.user = user
+                ecopacket_qr.save()
 
-                else:
-                    last_lifecycle = box.lifecycle.last()
-                    ecopacket_qr.scannered_at = timezone.now()
-                    ecopacket_qr.life_cycle = last_lifecycle
-                    ecopacket_qr.user = user
-                    ecopacket_qr.save()
+                ecopakcet_money = ecopacket_qr.category.summa
+                ecopakcet_catergory = ecopacket_qr.category
+                # user = ecopacket_qr.user
+                bank_account = user.bankaccount
+                bank_account.capital += ecopakcet_money
+                bank_account.save()
 
-                    ecopakcet_money = ecopacket_qr.category.summa
-                    ecopakcet_catergory = ecopacket_qr.category
-                    # user = ecopacket_qr.user
-                    bank_account = user.bankaccount
-                    bank_account.capital += ecopakcet_money
-                    bank_account.save()
-
-                    Earning.objects.create(
-                        bank_account=bank_account,
-                        amount=ecopakcet_money,
-                        tarrif=ecopakcet_catergory.name,
-                        box=box,
-                    )
-                    status_qr_code["success_qr_code"] += 1
-            except:
+                Earning.objects.create(
+                    bank_account=bank_account,
+                    amount=ecopakcet_money,
+                    tarrif=ecopakcet_catergory.name,
+                    box=box,
+                )
+                status_qr_code["success_qr_code"] += 1
+            else:
                 status_qr_code["error_qr_code"] += 1
 
         # Return a success response
@@ -465,33 +461,29 @@ class IOTManualMultipleView(APIView):
 
         status_qr_code = {"success_qr_code": 0, "error_qr_code": 0}
         for qc in qr_codies:
-            try:
-                ecopacket_qr = EcoPacketQrCode.objects.get(qr_code=qc)
-                if ecopacket_qr.scannered_at is not None:
-                    status_qr_code["error_qr_code"] += 1
+            ecopacket_qr = EcoPacketQrCode.objects.exists(qr_code=qc)
+            if ecopacket_qr and ecopacket_qr.scannered_at is None:
+                last_lifecycle = box.lifecycle.last()
+                ecopacket_qr.scannered_at = timezone.now()
+                ecopacket_qr.life_cycle = last_lifecycle
+                ecopacket_qr.user = user
+                ecopacket_qr.save()
 
-                else:
-                    last_lifecycle = box.lifecycle.last()
-                    ecopacket_qr.scannered_at = timezone.now()
-                    ecopacket_qr.life_cycle = last_lifecycle
-                    ecopacket_qr.user = user
-                    ecopacket_qr.save()
+                ecopakcet_money = ecopacket_qr.category.summa
+                ecopakcet_catergory = ecopacket_qr.category
+                # user = ecopacket_qr.user
+                bank_account = user.bankaccount
+                bank_account.capital += ecopakcet_money
+                bank_account.save()
 
-                    ecopakcet_money = ecopacket_qr.category.summa
-                    ecopakcet_catergory = ecopacket_qr.category
-                    # user = ecopacket_qr.user
-                    bank_account = user.bankaccount
-                    bank_account.capital += ecopakcet_money
-                    bank_account.save()
-
-                    Earning.objects.create(
-                        bank_account=bank_account,
-                        amount=ecopakcet_money,
-                        tarrif=ecopakcet_catergory.name,
-                        box=box,
-                    )
-                    status_qr_code["success_qr_code"] += 1
-            except:
+                Earning.objects.create(
+                    bank_account=bank_account,
+                    amount=ecopakcet_money,
+                    tarrif=ecopakcet_catergory.name,
+                    box=box,
+                )
+                status_qr_code["success_qr_code"] += 1
+            else:
                 status_qr_code["error_qr_code"] += 1
 
         # Return a success response
