@@ -442,7 +442,9 @@ class IOTManualMultipleView(APIView):
                 {"error": "Box doesn't exists!"},
                 status=status.HTTP_404_NOT_FOUND,
             )
-        print(phone_number, "phone keldimi")
+
+        if "+" not in phone_number:
+            phone_number = f"+{phone_number}"
         try:
             user = User.objects.get(phone_number=phone_number)
         except:
