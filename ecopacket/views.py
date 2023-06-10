@@ -460,8 +460,10 @@ class IOTManualMultipleView(APIView):
             )
 
         status_qr_code = {"success_qr_code": 0, "error_qr_code": 0}
-        print(qr_codies,"what hekk")
+        print(qr_codies, "what hekk")
         for qc in qr_codies:
+            print(status_qr_code, "status qr code")
+            print(qc, "qr code")
             ecopacket_qr = EcoPacketQrCode.objects.filter(qr_code=qc).exists()
             if ecopacket_qr and ecopacket_qr.scannered_at is None:
                 last_lifecycle = box.lifecycle.last()
@@ -486,7 +488,6 @@ class IOTManualMultipleView(APIView):
                 status_qr_code["success_qr_code"] += 1
             else:
                 status_qr_code["error_qr_code"] += 1
-            
 
         # Return a success response
         return Response(
