@@ -460,10 +460,8 @@ class IOTManualMultipleView(APIView):
             )
 
         status_qr_code = {"success_qr_code": 0, "error_qr_code": 0}
-        print(qr_codies, "what hekk")
         for qc in qr_codies:
             print(status_qr_code, "status qr code")
-            print(qc, "qr code")
             ecopacket_qr = EcoPacketQrCode.objects.filter(qr_code=qc).exists()
             if ecopacket_qr and ecopacket_qr.scannered_at is None:
                 last_lifecycle = box.lifecycle.last()
@@ -608,7 +606,7 @@ class EcoPacketQrCodeListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = EcoPacketQrCodeSerializer
     queryset = EcoPacketQrCode.objects.exclude(scannered_at__isnull=True).order_by(
-        "-id"
+        "-scannered_at"
     )
     pagination_class = MyPagination
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]

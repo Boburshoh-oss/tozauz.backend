@@ -155,7 +155,7 @@ class PacketListAPIView(generics.ListAPIView):
         Packet.objects.all()
         .exclude(scannered_at__isnull=True)
         .only("scannered_at")
-        .order_by("-id")
+        .order_by("-scannered_at")
     )
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
     filterset_fields = ["category"]
