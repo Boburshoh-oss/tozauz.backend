@@ -369,6 +369,12 @@ class IOTManualMultipleView(APIView):
         sim_module = request.data["sim_module"]
         phone_number = request.data["phone_number"]
 
+        if not isinstance(qr_codies, list):
+            return Response(
+                {"error": "qr_code key must be list"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
             box = Box.objects.get(sim_module=sim_module)
         except:
@@ -395,83 +401,18 @@ class IOTManualMultipleView(APIView):
 
         status_qr_code = {"success_qr_code": 0, "error_qr_code": 0}
         for qc in qr_codies:
-            ecopacket_qr = EcoPacketQrCode.objects.filter(qr_code=qc).exists()
-            if ecopacket_qr and ecopacket_qr.scannered_at is None:
+            ecopacket_qr = EcoPacketQrCode.objects.filter(qr_code=qc)
+
+            if ecopacket_qr.exists() and ecopacket_qr.first().scannered_at is None:
+                ecopacket = ecopacket_qr.first()
                 last_lifecycle = box.lifecycle.last()
-                ecopacket_qr.scannered_at = timezone.now()
-                ecopacket_qr.life_cycle = last_lifecycle
-                ecopacket_qr.user = user
-                ecopacket_qr.save()
+                ecopacket.scannered_at = timezone.now()
+                ecopacket.life_cycle = last_lifecycle
+                ecopacket.user = user
+                ecopacket.save()
 
-                ecopakcet_money = ecopacket_qr.category.summa
-                ecopakcet_catergory = ecopacket_qr.category
-                # user = ecopacket_qr.user
-                bank_account = user.bankaccount
-                bank_account.capital += ecopakcet_money
-                bank_account.save()
-
-                Earning.objects.create(
-                    bank_account=bank_account,
-                    amount=ecopakcet_money,
-                    tarrif=ecopakcet_catergory.name,
-                    box=box,
-                )
-                status_qr_code["success_qr_code"] += 1
-            else:
-                status_qr_code["error_qr_code"] += 1
-
-        # Return a success response
-        return Response(
-            status_qr_code,
-            status=status.HTTP_202_ACCEPTED,
-        )
-
-    def get(self, request, format=None):
-        qr_codies = request.GET.get("qr_code", None)
-        sim_module = request.GET.get("sim_module", None)
-        phone_number = request.GET.get("phone_number", None)
-
-        try:
-            box = Box.objects.get(sim_module=sim_module)
-        except:
-            return Response(
-                {"error": "Box doesn't exists!"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        if "+" not in phone_number:
-            phone_number = f"+{phone_number}"
-            print(phone_number)
-        try:
-            user = User.objects.get(phone_number=phone_number)
-        except:
-            return Response(
-                {"error": "Phone number doesn't exists!"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        if qr_codies is None or sim_module is None:
-            return Response(
-                {
-                    "error": "Please send me scannered qr code via"
-                    "mobile phone send me, or sim module was missed!"
-                },
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        status_qr_code = {"success_qr_code": 0, "error_qr_code": 0}
-        for qc in qr_codies:
-            print(status_qr_code, "status qr code")
-            ecopacket_qr = EcoPacketQrCode.objects.filter(qr_code=qc).exists()
-            if ecopacket_qr and ecopacket_qr.scannered_at is None:
-                last_lifecycle = box.lifecycle.last()
-                ecopacket_qr.scannered_at = timezone.now()
-                ecopacket_qr.life_cycle = last_lifecycle
-                ecopacket_qr.user = user
-                ecopacket_qr.save()
-
-                ecopakcet_money = ecopacket_qr.category.summa
-                ecopakcet_catergory = ecopacket_qr.category
+                ecopakcet_money = ecopacket.category.summa
+                ecopakcet_catergory = ecopacket.category
                 # user = ecopacket_qr.user
                 bank_account = user.bankaccount
                 bank_account.capital += ecopakcet_money
