@@ -31,7 +31,7 @@ class Box(models.Model):
 
 class LifeCycle(models.Model):
     box = models.ForeignKey(Box, on_delete=models.CASCADE, related_name="lifecycle")
-    location = models.CharField(blank=True, null=True,max_length=255)
+    location = models.CharField(blank=True, null=True, max_length=255)
     employee = models.ForeignKey(
         to="account.User", on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -64,5 +64,5 @@ class EcoPacketQrCode(models.Model):
     def box(self):
         if self.life_cycle is not None:
             return self.life_cycle.box
-        
+
         return None

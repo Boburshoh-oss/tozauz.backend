@@ -399,7 +399,7 @@ class IOTManualMultipleView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        status_qr_code = {"success_qr_code": 0, "error_qr_code": 0}
+        status_qr_code = {"S": 0, "E": 0}
         for qc in qr_codies:
             ecopacket_qr = EcoPacketQrCode.objects.filter(qr_code=qc)
 
@@ -424,9 +424,9 @@ class IOTManualMultipleView(APIView):
                     tarrif=ecopakcet_catergory.name,
                     box=box,
                 )
-                status_qr_code["success_qr_code"] += 1
+                status_qr_code["S"] += 1
             else:
-                status_qr_code["error_qr_code"] += 1
+                status_qr_code["E"] += 1
 
         # Return a success response
         return Response(
