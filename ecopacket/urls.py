@@ -11,6 +11,7 @@ from .views import (
     BoxOrderAPIView,
     IOTManualView,
     IOTManualMultipleView,
+    BoxLocationAPIView
 )
 
 
@@ -32,7 +33,8 @@ urlpatterns = [
     path("", include(router.urls)),
     path("life-cycle-list/", LifeCycleListAPIView.as_view()),
     path("ecopacket-qr-code/", EcoPacketQrCodeListAPIView.as_view()),
-    path("fill-box-order/", BoxOrderAPIView.as_view())
+    path("fill-box-order/", BoxOrderAPIView.as_view()),
+    path("box-location/",BoxLocationAPIView.as_view())
     # path('box/', BoxModelViewSet.as_view({'get': 'list',
     #                                       'post': 'create',
     #                                       'put': 'update',

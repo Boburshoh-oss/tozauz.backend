@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    'whitenoise.runserver_nostatic',
+    "whitenoise.runserver_nostatic",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -65,7 +65,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.common.CommonMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -109,7 +109,7 @@ AUTH_USER_MODEL = "account.User"
 #         "USER": "geodjango",
 #         "PASSWORD": "12345",
 #         "HOST": "localhost",
-#         "PORT": "5432",
+#         "PORT": "",
 #     }
 # }
 
@@ -120,10 +120,9 @@ DATABASES = {
         "USER": "tozauz",
         "PASSWORD": "tozauz",
         "HOST": "localhost",
-        "PORT": "",
+        "PORT": "5432",
     }
 }
-
 
 
 # Password validation
@@ -168,9 +167,9 @@ STATIC_URL = "static/"
 # /home/tozauzuz/tozauz.uz/django
 
 import os
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# STATICFILES_DIRS = [BASE_DIR / "static"]
 
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+# STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
 # Default primary key field type

@@ -7,8 +7,11 @@ from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from django.db.models import OuterRef, Subquery
+
 from utils.save_to_database import create_ecopacket_qr_codes
 from .models import EcoPacketQrCode, Box, LifeCycle
+
 
 from account.models import User
 from .serializers import (
@@ -523,6 +526,21 @@ class BoxOrderAPIView(APIView):
             data={"orders": serializer.data, "ordered": ordered_serializer.data},
             status=status.HTTP_200_OK,
         )
+
+
+class BoxLocationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        lifecycle_subquery = LifeCycle.objects.filter(box=OuterRef("pk")).order_by(
+            "-started_at"
+        )
+        boxes_queryset = Box.objects.annotate(
+            last_lifecycle_location=Subquery(lifecycle_subquery.values("location")[:1])
+        ).values("name", "last_lifecycle_location")
+
+        # Return the response
+        return Response(list(boxes_queryset))
 
 
 # CRUD DEVELOPER
