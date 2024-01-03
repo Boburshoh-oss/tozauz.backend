@@ -134,7 +134,7 @@ class MobileEarningListAPIView(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs):
         res = super().get(request, *args, **kwargs)
-        
+
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
 
@@ -146,11 +146,7 @@ class MobileEarningListAPIView(generics.ListAPIView):
 
         if end_date:
             queryset = queryset.filter(created_at__date__lte=end_date)
-        total = (
-            queryset
-            .values("tarrif")
-            .annotate(count=Count("tarrif"))
-        )
+        total = queryset.values("tarrif").annotate(count=Count("tarrif"))
         res.data.update({"total_cat": total})
         return res
 
@@ -201,7 +197,6 @@ class PayOutListCreateAPIView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         employee = request.data["user"]
         money = int(request.data.get("amount"))
-        print(employee, money)
         try:
             bank_account = BankAccount.objects.get(user__id=employee)
         except:
@@ -264,26 +259,7 @@ class PayMePayedView(generics.UpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
-        if instance.payed == False:
-            user_money = instance.user.bankaccount.capital
-            payme_money = instance.amount
-            if user_money > payme_money:
-                PayOut.objects.create(
-                    user=instance.user,
-                    amount=payme_money,
-                    admin=request.user,
-                    card=instance.card,
-                    card_name=instance.card_name,
-                )
-                instance.user.bankaccount.capital -= payme_money
-                instance.user.bankaccount.save()
-                instance.payed = True
-                instance.save()
+        instance.payed = True
+        instance.save()
 
-                return super().patch(request, *args, **kwargs)
-            return response.Response(
-                {"message": "Foydalanuvchi mablag'i yetarli emas!"}, status=200
-            )
-        return response.Response(
-            {"message": "Foydalanuvchi pul o'tib bo'lgan"}, status=200
-        )
+        return super().patch(request, *args, **kwargs)
