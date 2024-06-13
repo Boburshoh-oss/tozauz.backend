@@ -8,3 +8,4 @@ gunicorn
 psycopg
 drf-yasg
 python-dateutil
+whitenoise

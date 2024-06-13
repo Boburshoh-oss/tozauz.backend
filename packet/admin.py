@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Category, Packet
+
 # Register your models here.
 
 admin.site.register(Category)
@@ -8,9 +9,14 @@ admin.site.register(Category)
 
 class PacketQrCodeAdmin(admin.ModelAdmin):
     # You can also specify read-only fields here
-    readonly_fields = ('created_at', 'qr_code', 'scannered_at')
-    list_display = ('qr_code', 'created_at',
-                    'scannered_at','employee',  'category', )
+    readonly_fields = ("created_at", "qr_code", "scannered_at")
+    list_display = (
+        "category",
+        "qr_code",
+        "created_at",
+        "scannered_at",
+        "employee",
+    )
 
     def get_readonly_fields(self, request, obj=None):
         if obj:  # If the object exists, it's being edited
