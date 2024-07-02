@@ -159,6 +159,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+ESKIZ_EMAIL = "christianadinejor@mail.ru"
+ESKIZ_PASSWORD = "Cbtf8ka48VJCHedfvDPm6BTRTNY7TRkj5B5xeS9I"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

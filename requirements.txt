@@ -9,3 +9,5 @@ psycopg
 drf-yasg
 python-dateutil
 whitenoise
+requests
+redis

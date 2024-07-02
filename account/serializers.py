@@ -105,3 +105,25 @@ class UserAdminUpdateSerializer(serializers.ModelSerializer):
                 validated_data["password"])
         return super().update(instance, validated_data)
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['phone_number', 'first_name', 'last_name', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User(
+            phone_number=validated_data['phone_number'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            is_active=False  # User will be activated after OTP verification
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+class OTPSerializer(serializers.Serializer):
+    phone_number = serializers.CharField()
+    otp = serializers.CharField()
+    new_password = serializers.CharField(write_only=True)
