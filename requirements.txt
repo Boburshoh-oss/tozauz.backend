@@ -5,9 +5,10 @@ django-cors-headers
 django-filter
 django-debug-toolbar
 gunicorn
-psycopg
+psycopg2-binary
 drf-yasg
 python-dateutil
 whitenoise
 requests
 redis
+python-decouple

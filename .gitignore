@@ -157,3 +157,8 @@ cython_debug/
 upload/
 static
 /frontend
+/backend/media/
+/backend/staticfiles/
+
+/static/
+staticfiles/
