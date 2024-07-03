@@ -11,7 +11,7 @@ from .serializers import (
     UserSerializer,
     UserUpdateSerializer,
 )
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, logout
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_403_FORBIDDEN
@@ -135,6 +135,25 @@ class UserChangePasswordView(views.APIView):
         return Response({"message": "Avvalgi parol to'g'ri kelmadi"}, status=400)
 
 
+class UserDeleteView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        password = request.data.get("password", None)
+        user = request.user
+        if user.check_password(password):
+            user.first_name = ''
+            user.last_name = ''
+            user.is_active = False
+            user.is_admin = False
+            user.save()
+            logout(user)
+            return Response(
+                {"message": "Ma'lumotlarningiz muvaffaqiyatli o'chirildi"}, status=202
+            )
+        return Response({"message": "Kiritgan parolingiz to'g'ri kelmadi"}, status=400)
+
+
 # version 2
 class RegisterView(views.APIView):
     def post(self, request):
@@ -166,7 +185,6 @@ class VerifyRegistrationOTPView(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         saved_otp = redis_client.get(f"otp_{phone_number}")
-        print(otp, saved_otp)
         if saved_otp and saved_otp == otp:
             user = User.objects.filter(phone_number=phone_number).first()
             if user:
