@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./devops/backend/Dockerfile
+    restart: always
+    entrypoint: /code/devops/backend/server-entrypoint.sh
+    env_file:
+      - ./.env
+    expose:
+      - 8000
+    volumes:
+      - static_volume:/code/backend/staticfiles
+      - media_volume:/code/backend/media
+    depends_on:
+      - db
+      
+  db:
+    image: postgres:16.2
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
