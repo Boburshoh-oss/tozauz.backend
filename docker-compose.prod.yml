@@ -9,6 +9,8 @@ services:
     entrypoint: /code/devops/backend/server-entrypoint.sh
     env_file:
       - ./.env
+    # ports:
+    #   - 8000:8000
     expose:
       - 8000
     volumes:
@@ -34,6 +36,20 @@ services:
       - "6379:6379"
     expose:
       - 6379
+  
+  nginx:
+    build:
+      context: .
+      dockerfile: ./devops/nginx/Dockerfile
+    restart: always
+    ports:
+      - ${NGINX_PORT}:80
+    volumes:
+      - static_volume:/code/backend/staticfiles
+      - media_volume:/code/backend/media
+
+    depends_on:
+      - web
 
 volumes:
   postgres_data:

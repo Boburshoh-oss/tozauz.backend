@@ -165,13 +165,14 @@ class VerifyRegistrationOTPView(views.APIView):
                 {"error": "Phone number and OTP are required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
         saved_otp = redis_client.get(f"otp_{phone_number}")
+        print(otp, saved_otp)
         if saved_otp and saved_otp == otp:
             user = User.objects.filter(phone_number=phone_number).first()
             if user:
                 user.is_active = True
                 user.save()
+                redis_client.delete(f"otp_{phone_number}")
                 return Response(
                     {"message": "OTP verified successfully."}, status=status.HTTP_200_OK
                 )
