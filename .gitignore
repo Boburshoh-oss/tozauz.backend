@@ -161,3 +161,4 @@ static
 /backend/staticfiles/
 
 /static/
+staticfiles/
