@@ -37,6 +37,11 @@ class LifeCycleSerializer(serializers.ModelSerializer):
         model = LifeCycle
         fields = "__all__"
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if 'location' in representation:
+            representation['location'] = representation['location'].replace('(', '').replace(')', '')
+        return representation
 
 class EcoPacketQrCodeSerializerCreate(serializers.ModelSerializer):
     class Meta:

@@ -532,15 +532,58 @@ class BoxLocationAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        lifecycle_subquery = LifeCycle.objects.filter(box=OuterRef("pk")).order_by(
+        # lifecycle_subquery = LifeCycle.objects.filter(box=OuterRef("pk")).order_by(
+        #     "-started_at"
+        # )
+        # last_lifecycle_location = Subquery(lifecycle_subquery.values("location")[:1])
+        # print(type(last_lifecycle_location), last_lifecycle_location)
+        # print(dir(last_lifecycle_location))
+        # boxes_queryset = Box.objects.annotate(
+        #     last_lifecycle_location=last_lifecycle_location
+        # ).values("name", "last_lifecycle_location")
+        # # ' '.join(str(item) for item in last_lifecycle_location
+        # print(boxes_queryset)
+        # # Return the response
+        # return Response(list(boxes_queryset))
+        try:
+            lifecycle_subquery = LifeCycle.objects.filter(box=OuterRef("pk")).order_by(
             "-started_at"
-        )
-        boxes_queryset = Box.objects.annotate(
-            last_lifecycle_location=Subquery(lifecycle_subquery.values("location")[:1])
-        ).values("name", "last_lifecycle_location")
+            )
+            
+            # Get the last lifecycle location as a subquery
+            last_lifecycle_location = Subquery(lifecycle_subquery.values("location")[:1])
+            # Annotate Box queryset with last_lifecycle_location
+            boxes_queryset = Box.objects.annotate(
+                last_lifecycle_location=last_lifecycle_location
+            ).values("name", "last_lifecycle_location")
 
-        # Return the response
-        return Response(list(boxes_queryset))
+            # Prepare a list to store results with parsed coordinates
+            results = []
+
+            # Iterate over queryset to extract and format coordinates
+            for box in boxes_queryset:
+                name = box['name']
+                location = box['last_lifecycle_location']
+
+                # If location is not None and has parentheses, extract coordinates
+                if location and isinstance(location, str) and location.startswith('(') and location.endswith(')'):
+                    coordinates = location.strip('()').split(',')
+                    coordinates = tuple(float(coord.strip()) for coord in coordinates)
+                else:
+                    coordinates = None
+
+                # Append formatted result to list
+                results.append({
+                    'name': name,
+                    'lang': coordinates[0] if coordinates else None,
+                    'lat': coordinates[1] if coordinates else None
+                })
+
+            # Return the formatted results as JSON response
+            return Response(results)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
 
 
 # CRUD DEVELOPER
