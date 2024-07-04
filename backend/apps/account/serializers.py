@@ -122,6 +122,18 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+    def update(self, instance, validated_data):
+        # Update only the fields that are present in validated_data
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        
+        # Set and hash the new password if present
+        password = validated_data.get('password')
+        if password:
+            instance.set_password(password)
+        
+        instance.save()
+        return instance
 
 class OTPSerializer(serializers.Serializer):
     phone_number = serializers.CharField()

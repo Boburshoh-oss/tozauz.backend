@@ -155,7 +155,7 @@ class UserDeleteView(views.APIView):
                 arg.save()
             except Exception as e:
                 return Response({"message": "Bank accountingizda muammo bor"}, status=400)
-            logout(user)
+            logout(request)
             return Response(
                 {"message": "Ma'lumotlarningiz muvaffaqiyatli o'chirildi"}, status=202
             )
@@ -165,7 +165,8 @@ class UserDeleteView(views.APIView):
 # version 2
 class RegisterView(views.APIView):
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        user = User.objects.filter(phone_number=request.data['phone_number']).first()
+        serializer = UserSerializer(instance=user, data=request.data) if user else UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             otp = generate_random_password(6)
