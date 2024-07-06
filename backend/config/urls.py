@@ -8,6 +8,7 @@ urlpatterns = [
     path("__debug__/", include("debug_toolbar.urls")),
     path("admin/", admin.site.urls),
     path("api/v1/", include("apps.urls")),
+    path("api/v2/", include("apps.urls2")),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -532,19 +532,22 @@ class BoxLocationAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # lifecycle_subquery = LifeCycle.objects.filter(box=OuterRef("pk")).order_by(
-        #     "-started_at"
-        # )
-        # last_lifecycle_location = Subquery(lifecycle_subquery.values("location")[:1])
-        # print(type(last_lifecycle_location), last_lifecycle_location)
-        # print(dir(last_lifecycle_location))
-        # boxes_queryset = Box.objects.annotate(
-        #     last_lifecycle_location=last_lifecycle_location
-        # ).values("name", "last_lifecycle_location")
-        # # ' '.join(str(item) for item in last_lifecycle_location
-        # print(boxes_queryset)
-        # # Return the response
-        # return Response(list(boxes_queryset))
+        lifecycle_subquery = LifeCycle.objects.filter(box=OuterRef("pk")).order_by(
+            "-started_at"
+        )
+        boxes_queryset = Box.objects.annotate(
+            last_lifecycle_location=Subquery(lifecycle_subquery.values("location")[:1])
+        ).values("name", "last_lifecycle_location")
+
+        # Return the response
+        return Response(list(boxes_queryset))
+
+
+# V2
+class BoxLocationAPIViewV2(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
         try:
             lifecycle_subquery = LifeCycle.objects.filter(box=OuterRef("pk")).order_by(
             "-started_at"
@@ -584,8 +587,6 @@ class BoxLocationAPIView(APIView):
 
         except Exception as e:
             return Response({'error': str(e)}, status=500)
-
-
 # CRUD DEVELOPER
 
 
