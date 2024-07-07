@@ -38,15 +38,15 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+        #     validated_data["password"] = make_password(
+        #         validated_data["password"])
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+        #     validated_data["password"] = make_password(
+        #         validated_data["password"])
         return super().update(instance, validated_data)
 
 
@@ -69,15 +69,15 @@ class UserAdminRegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+        #     validated_data["password"] = make_password(
+        #         validated_data["password"])
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+        #     validated_data["password"] = make_password(
+        #         validated_data["password"])
         return super().update(instance, validated_data)
 
 class UserAdminUpdateSerializer(serializers.ModelSerializer):
@@ -94,15 +94,15 @@ class UserAdminUpdateSerializer(serializers.ModelSerializer):
 
  
     def create(self, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+        #     validated_data["password"] = make_password(
+        #         validated_data["password"])
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+            # validated_data["password"] = make_password(
+            #     validated_data["password"])
         return super().update(instance, validated_data)
 
 
