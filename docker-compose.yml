@@ -22,7 +22,7 @@ services:
     environment:
       - REDIS_HOST=redis
     ports:
-      - 8000:8000
+      - :8000
     expose:
       - 8000
     volumes:
@@ -38,9 +38,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_USER=tozauz
-      - POSTGRES_PASSWORD=tozauz
-      - POSTGRES_DB=tozauz
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     ports:
       - "5435:5432"
 

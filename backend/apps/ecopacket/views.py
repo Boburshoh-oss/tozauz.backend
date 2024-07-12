@@ -543,6 +543,50 @@ class BoxLocationAPIView(APIView):
         return Response(list(boxes_queryset))
 
 
+# V2
+class BoxLocationAPIViewV2(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            lifecycle_subquery = LifeCycle.objects.filter(box=OuterRef("pk")).order_by(
+            "-started_at"
+            )
+            
+            # Get the last lifecycle location as a subquery
+            last_lifecycle_location = Subquery(lifecycle_subquery.values("location")[:1])
+            # Annotate Box queryset with last_lifecycle_location
+            boxes_queryset = Box.objects.annotate(
+                last_lifecycle_location=last_lifecycle_location
+            ).values("name", "last_lifecycle_location")
+
+            # Prepare a list to store results with parsed coordinates
+            results = []
+
+            # Iterate over queryset to extract and format coordinates
+            for box in boxes_queryset:
+                name = box['name']
+                location = box['last_lifecycle_location']
+
+                # If location is not None and has parentheses, extract coordinates
+                if location and isinstance(location, str) and location.startswith('(') and location.endswith(')'):
+                    coordinates = location.strip('()').split(',')
+                    coordinates = tuple(float(coord.strip()) for coord in coordinates)
+                else:
+                    coordinates = None
+
+                # Append formatted result to list
+                results.append({
+                    'name': name,
+                    'lang': coordinates[0] if coordinates else None,
+                    'lat': coordinates[1] if coordinates else None
+                })
+
+            # Return the formatted results as JSON response
+            return Response(results)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
 # CRUD DEVELOPER
 
 

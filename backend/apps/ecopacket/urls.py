@@ -11,7 +11,7 @@ from .views import (
     BoxOrderAPIView,
     IOTManualView,
     IOTManualMultipleView,
-    BoxLocationAPIView
+    BoxLocationAPIView,
 )
 
 

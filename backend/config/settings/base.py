@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
-    "debug_toolbar",
+    # "debug_toolbar",
     "django_filters",
     "drf_yasg",
 
@@ -69,7 +69,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.common.CommonMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -150,8 +150,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-ESKIZ_EMAIL = "christianadinejor@mail.ru"
-ESKIZ_PASSWORD = "Cbtf8ka48VJCHedfvDPm6BTRTNY7TRkj5B5xeS9I"
+# ESKIZ_EMAIL = "christianadinejor@mail.ru"
+# ESKIZ_PASSWORD = "Cbtf8ka48VJCHedfvDPm6BTRTNY7TRkj5B5xeS9I"
+
+ESKIZ_EMAIL = "fa_83_90@mail.ru"
+ESKIZ_PASSWORD = "Ys3hywiLZOEsXaLPfcB5DDuv264GDYOJ4gR3elVd"
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

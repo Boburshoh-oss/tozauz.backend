@@ -14,7 +14,8 @@ from .views import (
     RegisterView,
     VerifyRegistrationOTPView,
     ForgotPasswordView,
-    VerifyForgotPasswordOTPView
+    VerifyForgotPasswordOTPView,
+    UserProfileUpdateView,
 )
 
 
@@ -27,6 +28,7 @@ urlpatterns = [
     path("user-update-password/", UserChangePasswordView.as_view()),
     path("user-delete/", UserDeleteView.as_view()),
     path("admin-login/", AdminGetAuthToken.as_view()),
+
 ]
 
 urlpatterns2 = [
@@ -34,6 +36,7 @@ urlpatterns2 = [
     path('verify-registration-otp/', VerifyRegistrationOTPView.as_view(), name='verify_registration_otp'),
     path('forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
     path('verify-forgot-password-otp/', VerifyForgotPasswordOTPView.as_view(), name='verify_forgot_password_otp'),
+    path('profile/update/', UserProfileUpdateView.as_view(), name='profile-update'),
 ]
 
 urlpatterns += urlpatterns2

@@ -10,6 +10,7 @@ from .serializers import (
     UserAdminUpdateSerializer,
     UserSerializer,
     UserUpdateSerializer,
+    UserProfileUpdateSerializer,
 )
 from django.contrib.auth import authenticate, logout
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -35,7 +36,8 @@ class GetAuthToken(ObtainAuthToken):
     def post(self, request):
         phone_number = request.data.get("phone_number")
         password = request.data.get("password")
-        user = authenticate(request, phone_number=phone_number, password=password)
+        # user = authenticate(request, phone_number=phone_number, password=password)
+        user = User.objects.get(phone_number=phone_number, password=password)
         if user is None:
             return Response({"detail": "User not found"}, status=HTTP_404_NOT_FOUND)
         token, created = Token.objects.get_or_create(user=user)
@@ -164,22 +166,27 @@ class UserDeleteView(views.APIView):
 
 # version 2
 class RegisterView(views.APIView):
+    def perform_create(self, serializer):
+        return serializer.save(role=RoleOptions.POPULATION)
+
     def post(self, request):
-        user = User.objects.filter(phone_number=request.data['phone_number']).first()
-        serializer = UserSerializer(instance=user, data=request.data) if user else UserSerializer(data=request.data)
+        phone_number = request.data.get('phone_number')
+        if not phone_number:
+            return Response({"message": "Phone number is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(phone_number=phone_number).first()
+        serializer = UserRegisterSerializer(instance=user, data=request.data) if user else UserRegisterSerializer(data=request.data)
+
         if serializer.is_valid():
-            user = serializer.save()
+            user = self.perform_create(serializer)  # Use perform_create method to save the user
             otp = generate_random_password(6)
-            res = send_sms(user.phone_number, "Bu Eskiz dan test")
+            res = send_sms(user.phone_number, f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}")
             if res.status_code != 200:
-                return Response(
-                    {"message": "Failed to send OTP to phone number.", "error": res.json()}, status=500
-                )
+                return Response({"message": "Failed to send OTP to phone number.", "error": res.json()}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             redis_client.setex(f"otp_{user.phone_number}", 300, otp)
-            return Response(
-                {"message": "User registered successfully. OTP sent to phone number.", "otp": otp},
-                status=status.HTTP_201_CREATED,
-            )
+            return Response({"message": "User registered successfully. OTP sent to phone number.", "otp": otp}, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -221,7 +228,7 @@ class ForgotPasswordView(views.APIView):
         user = User.objects.filter(phone_number=phone_number).first()
         if user:
             otp = generate_random_password(6)
-            send_sms(phone_number, f"Your OTP code is {otp}")
+            send_sms(phone_number, f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}")
             redis_client.setex(f"otp_{phone_number}", 300, otp)
             return Response(
                 {"message": "OTP sent to phone number.", "otp": otp}, status=status.HTTP_200_OK
@@ -255,3 +262,26 @@ class VerifyForgotPasswordOTPView(views.APIView):
                 {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
         return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserProfileUpdateView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+    def put(self, request):
+        user = self.get_object()
+        serializer = UserProfileUpdateSerializer(user, data=request.data, partial=False)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        user = self.get_object()
+        serializer = UserProfileUpdateSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    

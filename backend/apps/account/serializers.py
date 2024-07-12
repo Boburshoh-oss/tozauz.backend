@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, RoleOptions
 from django.contrib.auth.hashers import make_password
 from django.utils.translation import gettext_lazy as _
 
@@ -38,15 +38,15 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+        #     validated_data["password"] = make_password(
+        #         validated_data["password"])
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+        #     validated_data["password"] = make_password(
+        #         validated_data["password"])
         return super().update(instance, validated_data)
 
 
@@ -69,15 +69,15 @@ class UserAdminRegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+        #     validated_data["password"] = make_password(
+        #         validated_data["password"])
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+        #     validated_data["password"] = make_password(
+        #         validated_data["password"])
         return super().update(instance, validated_data)
 
 class UserAdminUpdateSerializer(serializers.ModelSerializer):
@@ -94,15 +94,15 @@ class UserAdminUpdateSerializer(serializers.ModelSerializer):
 
  
     def create(self, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+        #     validated_data["password"] = make_password(
+        #         validated_data["password"])
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        if "password" in validated_data:
-            validated_data["password"] = make_password(
-                validated_data["password"])
+        # if "password" in validated_data:
+            # validated_data["password"] = make_password(
+            #     validated_data["password"])
         return super().update(instance, validated_data)
 
 
@@ -139,3 +139,18 @@ class OTPSerializer(serializers.Serializer):
     phone_number = serializers.CharField()
     otp = serializers.CharField()
     new_password = serializers.CharField(write_only=True)
+
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'car_number')
+        extra_kwargs = {
+            'car_number': {'required': False}
+        }
+
+    def validate(self, data):
+        user = self.instance
+        if user.role not in [RoleOptions.EMPLOYE, RoleOptions.ADMIN] and 'car_number' in data:
+            raise serializers.ValidationError("Siz moshina raqamini o'zgartira olmaysiz!")
+        return data
