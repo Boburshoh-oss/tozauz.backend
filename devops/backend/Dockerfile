@@ -15,7 +15,7 @@ RUN apt-get update -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --upgrade pip \
-    && pip install -r requirements.txt --no-cache-dir
+    && pip install -r requirements.txt 
 
 ADD ./backend /code/backend
 ADD ./devops /code/devops

@@ -33,25 +33,30 @@ from .utils import (
 class GetAuthToken(ObtainAuthToken):
     serializer_class = UserLoginSerializer
 
-    def post(self, request):
-        phone_number = request.data.get("phone_number")
-        password = request.data.get("password")
-        # user = authenticate(request, phone_number=phone_number, password=password)
-        user = User.objects.get(phone_number=phone_number, password=password)
-        if user is None:
-            return Response({"detail": "User not found"}, status=HTTP_404_NOT_FOUND)
-        token, created = Token.objects.get_or_create(user=user)
+    def post(self, request, *args, **kwargs):
+        phone_number = request.data.get('phone_number')
+        password = request.data.get('password')
 
-        return Response(
-            {
+        if not phone_number or not password:
+            return Response({
+                'error': 'Both phone number and password are required.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        user = authenticate(request, phone_number=phone_number, password=password)
+
+        if user:
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
                 "token": token.key,
                 "id": user.id,
                 "phone_number": user.phone_number,
                 "first_name": user.first_name,
                 "role": user.role,
-            }
-        )
-
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'error': 'Invalid credentials.'
+            }, status=status.HTTP_401_UNAUTHORIZED)
 
 class UserRegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]

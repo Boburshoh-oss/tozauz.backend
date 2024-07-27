@@ -1,4 +1,4 @@
-Django
+Django==4.1.7
 environs
 djangorestframework
 django-cors-headers
