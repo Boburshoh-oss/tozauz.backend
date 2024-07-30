@@ -44,7 +44,7 @@ class GetAuthToken(ObtainAuthToken):
 
         user = authenticate(request, phone_number=phone_number, password=password)
 
-        if user:
+        if user and user.is_active:
             token, created = Token.objects.get_or_create(user=user)
             return Response({
                 "token": token.key,
@@ -180,6 +180,8 @@ class RegisterView(views.APIView):
             return Response({"message": "Phone number is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         user = User.objects.filter(phone_number=phone_number).first()
+        if user and user.is_active:
+            return Response({"message":"Foydalanuvchi allaqachon mavjud!"}, status=status.HTTP_403_FORBIDDEN})
         serializer = UserRegisterSerializer(instance=user, data=request.data) if user else UserRegisterSerializer(data=request.data)
 
         if serializer.is_valid():
