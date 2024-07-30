@@ -181,7 +181,7 @@ class RegisterView(views.APIView):
 
         user = User.objects.filter(phone_number=phone_number).first()
         if user and user.is_active:
-            return Response({"message":"Foydalanuvchi allaqachon mavjud!"}, status=status.HTTP_403_FORBIDDEN})
+            return Response({"message":"Foydalanuvchi allaqachon mavjud!"}, status=status.HTTP_403_FORBIDDEN)
         serializer = UserRegisterSerializer(instance=user, data=request.data) if user else UserRegisterSerializer(data=request.data)
 
         if serializer.is_valid():
