@@ -73,7 +73,7 @@ class AdminGetAuthToken(ObtainAuthToken):
     serializer_class = UserLoginSerializer
 
     def post(self, request):
-        phone_number = request.data.get("phone_number")
+        phone_number = request.data.get("phoneNumber")
         password = request.data.get("password")
         user = authenticate(request, phone_number=phone_number, password=password)
         if user is None:
