@@ -4,6 +4,7 @@ from django.urls import path
 from .views import (
     BankAccountListAPIView,
     EarningListAPIView,
+    EarningToPenaltyView,
     EarningUserAPIView,
     MobileEarningListAPIView,
     PayOutListCreateAPIView,
@@ -21,6 +22,7 @@ urlpatterns = [
     path("me-bank/", MeBankAccountAPIView.as_view()),
     path("admin-bank-account/<int:user_id>/", AdminBankAccountAPIView.as_view()),
     path("earning-list/<int:pk>/", EarningUserAPIView.as_view()),
+    path("earning-to-penalty/<int:pk>/", EarningToPenaltyView.as_view()),
     path("earning-list/", EarningListAPIView.as_view()),
     path("mobile-earning-list/", MobileEarningListAPIView.as_view()),
     path("payout-list/<int:pk>/", PayOutListAPIView.as_view()),

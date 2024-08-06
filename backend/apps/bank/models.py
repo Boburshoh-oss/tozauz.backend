@@ -22,10 +22,15 @@ class Earning(models.Model):
     packet = models.ForeignKey(
         "packet.Packet", on_delete=models.SET_NULL, null=True, blank=True
     )
-
+    is_penalty = models.BooleanField(default=False)
+    penalty_amount = models.PositiveBigIntegerField(default=0)
+    reason = models.TextField(blank=True, default="")
     def __str__(self) -> str:
         return f"{self.bank_account.user} {self.amount} {self.tarrif}"
     
+
+
+
     
 
 class PayOut(models.Model):

@@ -78,3 +78,10 @@ class PayMePayedSerializer(serializers.ModelSerializer):
     class Meta:
         model = PayMe
         fields = ("payed",)
+
+
+class EarningPenaltySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Earning
+        fields = ['id', 'is_penalty', 'penalty_amount', 'reason']
+        read_only_fields = ['id']
