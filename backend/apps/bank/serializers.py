@@ -37,7 +37,8 @@ class MobileEarningListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Earning
-        fields = ("id", "tarrif", "amount", "created_at")
+        fields = ("id", "tarrif", "amount", "created_at", "is_penalty", "penalty_amount", "reason")
+
 
 
 class BankAccountSerializer(serializers.ModelSerializer):
