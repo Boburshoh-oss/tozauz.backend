@@ -65,7 +65,16 @@ class EarningUserAPIView(APIView, LimitOffsetPagination):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk, format=None):
+        start_date = request.query_params.get("start_date")
+        end_date = request.query_params.get("end_date")
+        is_penalty = request.query_params.get("is_penalty") 
         earning_list = Earning.objects.filter(bank_account__user=pk).order_by("-id")
+        if start_date:
+            earning_list = earning_list.filter(created_at__date__gte=start_date)
+        if end_date:
+            earning_list = earning_list.filter(created_at__date__lte=end_date)
+        if is_penalty:
+            earning_list = earning_list.filter(is_penalty=True)
         summa = earning_list.aggregate(Sum("amount"))
         paginator = MyPagination()
         result_page = paginator.paginate_queryset(earning_list, request)
