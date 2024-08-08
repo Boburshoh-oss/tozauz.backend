@@ -92,20 +92,21 @@ class EarningListAPIView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
+        
         # get the start_date and end_date from the request parameters
         start_date = self.request.query_params.get("start_date")
         end_date = self.request.query_params.get("end_date")
         is_penalty = self.request.query_params.get("is_penalty")
-        queryset = Earning.objects.all().order_by("-id")
+        queryset = super().get_queryset()
         # filter the queryset based on the date range
         if start_date:
-            queryset = queryset.filter(created_at__date__gte=start_date).order_by("-id")
+            queryset = queryset.filter(created_at__date__gte=start_date)
 
         if end_date:
-            queryset = queryset.filter(created_at__date__lte=end_date).order_by("-id")
+            queryset = queryset.filter(created_at__date__lte=end_date)
         if is_penalty:
             queryset = queryset.filter(is_penalty=True)
-        return queryset
+        return queryset.order_by("-id")
 
     def get(self, request, *args, **kwargs):
         res = super().get(request, *args, **kwargs)
