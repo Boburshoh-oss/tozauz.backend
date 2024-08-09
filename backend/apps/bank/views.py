@@ -76,7 +76,7 @@ class EarningUserAPIView(APIView, LimitOffsetPagination):
         summa = earning_list.aggregate(Sum("amount"))
         if is_penalty == "true":
             earning_list = earning_list.filter(is_penalty=True)
-            summa = earning_list.aggregate(amount=Sum("penalty_amount"))
+            summa = earning_list.aggregate(amount__sum=Sum("penalty_amount"))
         elif is_penalty == "false":
             earning_list = earning_list.filter(is_penalty=False)
             summa = earning_list.aggregate(Sum("amount"))
