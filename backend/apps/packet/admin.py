@@ -9,6 +9,8 @@ admin.site.register(Category)
 
 class PacketQrCodeAdmin(admin.ModelAdmin):
     # You can also specify read-only fields here
+    search_fields = ["qr_code","id"]
+    list_filter = ["category"]
     readonly_fields = ("created_at", "qr_code", "scannered_at")
     list_display = (
         "category",
