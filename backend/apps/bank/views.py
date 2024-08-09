@@ -73,11 +73,13 @@ class EarningUserAPIView(APIView, LimitOffsetPagination):
             earning_list = earning_list.filter(created_at__date__gte=start_date)
         if end_date:
             earning_list = earning_list.filter(created_at__date__lte=end_date)
+        summa = earning_list.aggregate(Sum("amount"))
         if is_penalty == "true":
             earning_list = earning_list.filter(is_penalty=True)
+            summa = earning_list.aggregate(amount=Sum("penalty_amount"))
         elif is_penalty == "false":
             earning_list = earning_list.filter(is_penalty=False)
-        summa = earning_list.aggregate(amount=Sum("penalty_amount"))
+            summa = earning_list.aggregate(Sum("amount"))
         paginator = MyPagination()
         result_page = paginator.paginate_queryset(earning_list, request)
         serializer = EarningSerializer(result_page, many=True)
