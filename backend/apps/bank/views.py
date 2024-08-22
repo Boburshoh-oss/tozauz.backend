@@ -158,6 +158,7 @@ class MobileEarningListAPIView(generics.ListAPIView):
 
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
+        is_penalty = request.query_params.get("is_penalty")
 
         queryset = Earning.objects.filter(bank_account__user=self.request.user)
 
@@ -167,6 +168,10 @@ class MobileEarningListAPIView(generics.ListAPIView):
 
         if end_date:
             queryset = queryset.filter(created_at__date__lte=end_date)
+        if is_penalty == "true":
+            queryset = queryset.filter(is_penalty=True)
+        elif is_penalty == "false":
+            queryset = queryset.filter(is_penalty=False)
         total = queryset.values("tarrif").annotate(count=Count("tarrif"))
         res.data.update({"total_cat": total})
         return res
