@@ -47,6 +47,7 @@ services:
     volumes:
       - static_volume:/code/backend/staticfiles
       - media_volume:/code/backend/media
+      - ./frontend:/frontend
 
     depends_on:
       - web
@@ -55,3 +56,4 @@ volumes:
   postgres_data:
   static_volume:
   media_volume:
+  front_volume:

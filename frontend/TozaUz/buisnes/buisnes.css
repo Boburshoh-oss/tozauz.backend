@@ -1,0 +1,269 @@
+* {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    text-decoration: none !important;
+    box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    margin-bottom: 0rem;
+}
+
+body {
+    font-family: "Rubik", sans-serif;
+}
+
+body img {
+    border-radius: 4px;
+}
+
+/* header-starting */
+header {
+    width: 100%;
+}
+
+header nav {
+    padding: 20px 0px;
+    background-color: deepskyblue;
+}
+
+header nav a.logo img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+}
+
+header nav .col-lg-6 {
+    align-items: center;
+}
+
+header nav .row {
+    justify-content: space-between;
+    align-items: center;
+}
+
+header nav ul {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0rem !important;
+    margin-top: -10px;
+    align-items: center !important;
+}
+
+header nav ul li a {
+    color: white;
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 0;
+    padding-bottom: 0px !important;
+}
+
+header nav ul li a:hover {
+    color: crimson;
+    transition: 1s;
+}
+
+header nav ul li.lan {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+header nav ul li.lan .as {
+    display: grid;
+    grid-template-rows: repeat(1, auto);
+    margin-left: 20px;
+}
+
+header nav i.fa-bars {
+    color: white;
+}
+
+header nav .bars {
+    z-index: 111111;
+    display: none !important;
+}
+
+header nav .bars .fa-bars {
+    font-size: 25px;
+}
+
+
+
+.buisnes {
+    width: 100%;
+    margin-top: 90px;
+    text-align: justify;
+}
+
+.buisnes .col-lg-12 .tex-im {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center !important;
+    grid-column-gap: 20px;
+}
+
+.buisnes .col-lg-12 .cart {
+    display: flex;
+    grid-column-gap: 30px;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 100px;
+}
+
+.buisnes .col-lg-12 .t-img {
+    display: flex;
+    justify-content: space-around;
+    grid-column-gap: 15px;
+}
+
+.buisnes .col-lg-12 .t-img video,
+.buisnes .col-lg-12 .t-img img {
+    width: auto;
+    height: 500px !important;
+    border-radius: 4px;
+}
+
+.buisnes .col-lg-12 h1 {
+    font-weight: 500;
+    font-size: 40px;
+    line-height: 45px;
+}
+
+.buisnes .col-lg-12 h4 {
+    font-weight: 400;
+    line-height: 28px;
+}
+
+.buisnes .col-lg-12 img {
+    width: 100%;
+    height: auto;
+}
+
+.buisnes .kub {
+    display: flex;
+    grid-column-gap: 30px;
+    margin: 30px 0px 100px 0px;
+    align-items: center;
+}
+
+.buisnes .cont {
+    display: flex;
+    align-items: center;
+    grid-column-gap: 30px;
+    margin: 30px 0px;
+}
+
+.buisnes .cont img {
+    width: 500px;
+    height: 100%;
+}
+
+
+
+@media (max-width: 991px) {
+    header nav ul {
+        display: flex;
+        grid-column-gap: -20px !important;
+        text-align: right;
+        position: relative;
+    }
+
+    .buisnes .col-lg-12 .cart,
+    .buisnes .cont {
+        display: grid;
+        grid-template-columns: repeat(1, auto);
+    }
+
+
+
+
+    .buisnes .col-lg-12 .cont img {
+        margin: auto;
+        padding-bottom: 20px;
+    }
+}
+
+@media (width: 767px) {
+    header nav ul {
+        top: -25px;
+        padding-left: 10rem !important;
+    }
+
+
+
+}
+
+@media (max-width: 769px) {
+    header nav .row {
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    header nav ul {
+        position: absolute;
+        top: 80px;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        text-align: center;
+        background-color: deepskyblue;
+        gap: 10px;
+        overflow: hidden !important;
+        padding: 0px;
+    }
+
+
+    header nav .bars {
+        display: block !important;
+        text-align: end;
+        margin-top: -50px;
+    }
+
+    #menuList {
+        transition: all 0.5s;
+    }
+
+
+    .buisnes .col-lg-12 h1 {
+        font-weight: 500;
+        font-size: 30px;
+        line-height: 30px;
+    }
+
+    .buisnes .col-lg-12 .tex-im,
+    .buisnes .col-lg-12 .t-img,
+    .buisnes .col-lg-12 .kub {
+        display: grid !important;
+        grid-template-rows: repeat(1, auto) !important;
+        text-align: center;
+        grid-row-gap: 20px;
+    }
+
+    .buisnes .col-lg-12 .cont img {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 320px) {
+
+    .buisnes .col-lg-12 h1 {
+        font-size: 25px;
+        line-height: 25px;
+    }
+
+    .buisnes .col-lg-12 .t-img img,
+    .buisnes .col-lg-12 .cont img {
+        width: 100%;
+    }
+}

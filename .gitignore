@@ -156,7 +156,7 @@ cython_debug/
 .idea/
 upload/
 static
-/frontend
+# /frontend
 /backend/media/
 /backend/staticfiles/
 

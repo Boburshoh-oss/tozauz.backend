@@ -31,8 +31,6 @@ class Earning(models.Model):
 
 
 
-    
-
 class PayOut(models.Model):
     user = models.ForeignKey(
         "account.user", on_delete=models.CASCADE, related_name="payout_user"
