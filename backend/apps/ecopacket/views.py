@@ -204,7 +204,7 @@ class IOTView(APIView):
             )
 
         last_lifecycle = box.lifecycle.last()
-
+        
         ecopacket_qr.scannered_at = timezone.now()
         ecopacket_qr.life_cycle = last_lifecycle
         ecopacket_qr.save()
@@ -215,7 +215,16 @@ class IOTView(APIView):
         bank_account = user.bankaccount
         bank_account.capital += ecopakcet_money
         bank_account.save()
-
+        
+        money_back = box.cashback
+        if box.seller is not None:
+            bank_account_seller = box.seller.bankaccount
+            money_back = money_back
+            bank_account_seller.capital += money_back  
+            bank_account_seller.save()
+            box.seller_share += money_back
+            box.save()
+            
         Earning.objects.create(
             bank_account=bank_account,
             amount=ecopakcet_money,

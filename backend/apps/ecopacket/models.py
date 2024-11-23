@@ -12,7 +12,16 @@ class Box(models.Model):
     category = models.ForeignKey(
         "packet.Category", on_delete=models.SET_NULL, null=True
     )
-
+    is_active = models.BooleanField(default=True)
+    seller = models.ForeignKey(
+        to="account.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="box",
+    )
+    cashback = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    seller_share = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     def __str__(self) -> str:
         return f"Box {self.sim_module}"
 
