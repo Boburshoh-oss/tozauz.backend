@@ -10,7 +10,7 @@ echo 'PostgreSQL started'
 
 echo 'Running migrations...'
 cd backend  # <-- Katalogni o'zgartirish
-python manage.py makemigrations
+# python manage.py makemigrations
 python manage.py migrate
 
 

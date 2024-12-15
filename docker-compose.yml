@@ -1,14 +1,14 @@
 
 services:
-  ngrok:
-      image: ngrok/ngrok:alpine
-      env_file:
-        - ./.env
-      command: 'http web:8000'        
-      ports:
-          - '4040:4040'
-      expose:
-          - '4040'
+  # ngrok:
+  #     image: ngrok/ngrok:alpine
+  #     env_file:
+  #       - ./.env
+  #     command: 'http web:8000'        
+  #     ports:
+  #         - '4040:4040'
+  #     expose:
+  #         - '4040'
 
   web:
     build:
@@ -18,8 +18,7 @@ services:
     entrypoint: /code/devops/backend/local-entrypoint.sh
     env_file:
       - ./.env
-    environment:
-      - REDIS_HOST=redis
+    
     ports:
       - 8000:8000
     expose:
@@ -30,7 +29,6 @@ services:
       - .:/code
     depends_on:
       - db
-      - redis
 
   db:
     image: postgres:16.2
@@ -43,13 +41,13 @@ services:
     ports:
       - "5435:5432"
 
-  redis:
-    restart: unless-stopped
-    image: redis:7.2.4
-    ports:
-      - "6379:6379"
-    expose:
-      - 6379  
+  # redis:
+  #   restart: unless-stopped
+  #   image: redis:7.2.4
+  #   ports:
+  #     - "6379:6379"
+  #   expose:
+  #     - 6379  
 
 volumes:
   postgres_data:

@@ -1,14 +1,13 @@
-Django==4.2.16
+Django
 environs
 djangorestframework
 django-cors-headers
 django-filter
 django-debug-toolbar
 gunicorn
-psycopg2-binary
+psycopg[binary,pool]
 drf-yasg
 python-dateutil
-whitenoise
 requests
 redis
 python-decouple

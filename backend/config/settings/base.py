@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "whitenoise.runserver_nostatic",
+    # "whitenoise.runserver_nostatic",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -71,7 +71,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     # "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    # "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -102,16 +102,16 @@ AUTH_USER_MODEL = "account.User"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "tozauz",
-        "USER": "tozauz",
-        "PASSWORD": "tozauz",
-        "HOST": "db",
-        "PORT": "5432",
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql_psycopg2",
+#         "NAME": "tozauz",
+#         "USER": "tozauz",
+#         "PASSWORD": "tozauz",
+#         "HOST": "db",
+#         "PORT": "5432",
+#     }
+# }
 
 
 
