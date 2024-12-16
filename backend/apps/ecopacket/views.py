@@ -11,7 +11,7 @@ from django.db.models import OuterRef, Subquery
 
 from apps.utils.save_to_database import create_ecopacket_qr_codes
 from .models import EcoPacketQrCode, Box, LifeCycle
-
+from apps.account.models import RoleOptions
 
 from apps.account.models import User
 from .serializers import (
@@ -19,11 +19,30 @@ from .serializers import (
     LifeCycleSerializer,
     EcoPacketQrCodeSerializer,
     EcoPacketQrCodeSerializerCreate,
+    AgentBoxSerializer, 
 )
 from apps.bank.models import Earning
 
 # from django.contrib.gis.geos import Point
 from apps.utils.pagination import MyPagination
+
+
+class BoxListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AgentBoxSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == RoleOptions.AGENT:
+            return Box.objects.filter(seller=user)
+        return Box.objects.all()
+
+
+class LifeCycleView(APIView):
+    def get(self, request):
+        life_cycles = LifeCycle.objects.all()
+        serializer = LifeCycleSerializer(life_cycles, many=True)
+        return Response(serializer.data)
 
 
 @api_view(["POST"])
@@ -204,7 +223,7 @@ class IOTView(APIView):
             )
 
         last_lifecycle = box.lifecycle.last()
-        
+
         ecopacket_qr.scannered_at = timezone.now()
         ecopacket_qr.life_cycle = last_lifecycle
         ecopacket_qr.save()
@@ -213,18 +232,30 @@ class IOTView(APIView):
         ecopakcet_catergory = ecopacket_qr.category
         user = ecopacket_qr.user
         bank_account = user.bankaccount
-        bank_account.capital += ecopakcet_money
-        bank_account.save()
-        
-        money_back = box.cashback
+
+        seller_percentage = box.seller_percentage
         if box.seller is not None:
+            # Seller ulushini hisoblash (masalan 30%)
+            seller_share = ecopakcet_money * seller_percentage / 100
+            # Client ulushini hisoblash (qolgan qismi)
+            client_share = ecopakcet_money - seller_share
+            # Seller hisobiga o'tkazish
             bank_account_seller = box.seller.bankaccount
-            money_back = money_back
-            bank_account_seller.capital += money_back  
+            bank_account_seller.capital += seller_share
             bank_account_seller.save()
-            box.seller_share += money_back
+
+            # Box da seller ulushini saqlash
+            box.seller_share += seller_share
             box.save()
-            
+
+            # Client hisobiga asosiy summa + client ulushini o'tkazish
+            bank_account.capital += ecopakcet_money + client_share
+        else:
+            # Seller bo'lmasa hamma summa clientga
+            bank_account.capital += ecopakcet_money
+
+        bank_account.save()
+
         Earning.objects.create(
             bank_account=bank_account,
             amount=ecopakcet_money,
@@ -559,11 +590,13 @@ class BoxLocationAPIViewV2(APIView):
     def get(self, request):
         try:
             lifecycle_subquery = LifeCycle.objects.filter(box=OuterRef("pk")).order_by(
-            "-started_at"
+                "-started_at"
             )
-            
+
             # Get the last lifecycle location as a subquery
-            last_lifecycle_location = Subquery(lifecycle_subquery.values("location")[:1])
+            last_lifecycle_location = Subquery(
+                lifecycle_subquery.values("location")[:1]
+            )
             # Annotate Box queryset with last_lifecycle_location
             boxes_queryset = Box.objects.annotate(
                 last_lifecycle_location=last_lifecycle_location
@@ -574,28 +607,37 @@ class BoxLocationAPIViewV2(APIView):
 
             # Iterate over queryset to extract and format coordinates
             for box in boxes_queryset:
-                name = box['name']
-                location = box['last_lifecycle_location']
+                name = box["name"]
+                location = box["last_lifecycle_location"]
 
                 # If location is not None and has parentheses, extract coordinates
-                if location and isinstance(location, str) and location.startswith('(') and location.endswith(')'):
-                    coordinates = location.strip('()').split(',')
+                if (
+                    location
+                    and isinstance(location, str)
+                    and location.startswith("(")
+                    and location.endswith(")")
+                ):
+                    coordinates = location.strip("()").split(",")
                     coordinates = tuple(float(coord.strip()) for coord in coordinates)
                 else:
                     coordinates = None
 
                 # Append formatted result to list
-                results.append({
-                    'name': name,
-                    'lang': coordinates[0] if coordinates else None,
-                    'lat': coordinates[1] if coordinates else None
-                })
+                results.append(
+                    {
+                        "name": name,
+                        "lang": coordinates[0] if coordinates else None,
+                        "lat": coordinates[1] if coordinates else None,
+                    }
+                )
 
             # Return the formatted results as JSON response
             return Response(results)
 
         except Exception as e:
-            return Response({'error': str(e)}, status=500)
+            return Response({"error": str(e)}, status=500)
+
+
 # CRUD DEVELOPER
 
 

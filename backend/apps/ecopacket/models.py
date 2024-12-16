@@ -1,5 +1,6 @@
 from django.db import models
 from apps.utils import get_uid
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 
@@ -20,8 +21,14 @@ class Box(models.Model):
         blank=True,
         related_name="box",
     )
-    cashback = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    seller_share = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    seller_share = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    seller_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0.00,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+    )
+
     def __str__(self) -> str:
         return f"Box {self.sim_module}"
 

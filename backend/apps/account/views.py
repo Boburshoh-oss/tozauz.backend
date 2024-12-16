@@ -46,13 +46,15 @@ class GetAuthToken(ObtainAuthToken):
 
         if user and user.is_active:
             token, created = Token.objects.get_or_create(user=user)
-            return Response({
+            user_data = {
                 "token": token.key,
                 "id": user.id,
                 "phone_number": user.phone_number,
                 "first_name": user.first_name,
                 "role": user.role,
-            }, status=status.HTTP_200_OK)
+            }
+            
+            return Response(user_data, status=status.HTTP_200_OK)
         else:
             return Response({
                 'error': 'Invalid credentials.'

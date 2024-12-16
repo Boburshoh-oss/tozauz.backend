@@ -5,6 +5,7 @@ class RoleOptions(models.TextChoices):
     EMPLOYE = "EMP", "Employer"
     POPULATION = 'POP', 'Population'
     ADMIN = 'ADMIN', 'Admin'
+    AGENT = 'AGENT', 'Agent'
 
 class UserManager(BaseUserManager):
     def create_user(self, phone_number, password=None, first_name=None, last_name=None, role=None, categories=None, car_number=None):
@@ -51,7 +52,7 @@ class User(AbstractBaseUser):
     car_number = models.CharField(max_length=10, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-
+    
     objects = UserManager()
 
     USERNAME_FIELD = 'phone_number'
@@ -82,6 +83,8 @@ class User(AbstractBaseUser):
         elif self.role == RoleOptions.POPULATION:
             self.is_admin = False
         elif self.role == RoleOptions.EMPLOYE:
+            self.is_admin = False
+        elif self.role == RoleOptions.AGENT:
             self.is_admin = False
             
         super(User, self).save(*args, **kwargs)

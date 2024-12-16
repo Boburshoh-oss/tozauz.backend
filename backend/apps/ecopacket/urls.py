@@ -12,6 +12,7 @@ from .views import (
     IOTManualView,
     IOTManualMultipleView,
     BoxLocationAPIView,
+    BoxListView
 )
 
 
@@ -20,6 +21,7 @@ router = routers.DefaultRouter()
 router.register(r"box", BoxModelViewSet)
 
 urlpatterns = [
+    path("agent/boxes/", BoxListView.as_view()),
     path(
         "create-eco-qr-codes/",
         create_ecopacket_qr_code,
