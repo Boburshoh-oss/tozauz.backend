@@ -12,6 +12,7 @@ class BoxFillCycleAdmin(admin.ModelAdmin):
 
 @admin.register(Box)
 class BoxAdmin(admin.ModelAdmin):
+    raw_id_fields = ('seller',)
     list_display = ('name', 'created_at', 'qr_code', 'sim_module')
 
 
