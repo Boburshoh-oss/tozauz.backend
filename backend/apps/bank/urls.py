@@ -15,6 +15,7 @@ from .views import (
     PayMeListAPIView,
     PayOutUserMobileListAPIView,
     PayMePayedView,
+    AgentEarningListAPIView,
 )
 
 urlpatterns = [
@@ -31,4 +32,5 @@ urlpatterns = [
     path("payme-create/", PayMeCreateAPIView.as_view()),
     path("payme-list/", PayMeListAPIView.as_view()),
     path("payme-payed/<int:pk>/", PayMePayedView.as_view()),
+    path("agent-earning-list/", AgentEarningListAPIView.as_view()),
 ]
