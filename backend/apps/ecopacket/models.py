@@ -8,6 +8,9 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 class Box(models.Model):
     name = models.CharField(max_length=200)
     sim_module = models.CharField(max_length=20, unique=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    datetime_of_delivery = models.DateTimeField(blank=True, null=True)
     qr_code = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(

@@ -19,7 +19,7 @@ class AgentBoxSerializer(serializers.ModelSerializer):
     category = CategoryForAgentBoxSerializer()
     class Meta:
         model = Box
-        fields = ("id", "name", "sim_module", "qr_code", "created_at", "category", "seller_share", "seller_percentage")
+        fields = "__all__"
 
 class BoxSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
