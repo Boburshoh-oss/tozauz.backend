@@ -58,7 +58,7 @@ class UserAdminRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'phone_number',
-                  'role', 'is_active', 'categories', 'car_number', 'is_admin']
+                  'role', 'is_active', 'categories', 'car_number', 'is_admin', 'inn', 'bank_receipt']
 
 
 class UserAdminRegisterSerializer(serializers.ModelSerializer):

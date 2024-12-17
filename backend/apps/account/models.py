@@ -52,7 +52,8 @@ class User(AbstractBaseUser):
     car_number = models.CharField(max_length=10, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-    
+    inn = models.CharField(max_length=10, blank=True, null=True)
+    bank_receipt = models.CharField(max_length=10, blank=True, null=True)
     objects = UserManager()
 
     USERNAME_FIELD = 'phone_number'
