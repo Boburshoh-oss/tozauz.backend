@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework import routers
-from .views import (
+from apps.ecopacket.views import (
     create_ecopacket_qr_code,
     IOTView,
     QrCodeScanerView,

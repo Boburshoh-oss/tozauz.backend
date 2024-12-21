@@ -10,11 +10,11 @@ from rest_framework.response import Response
 from django.db.models import OuterRef, Subquery
 
 from apps.utils.save_to_database import create_ecopacket_qr_codes
-from .models import EcoPacketQrCode, Box, LifeCycle
+from apps.ecopacket.models import EcoPacketQrCode, Box, LifeCycle
 from apps.account.models import RoleOptions
 
 from apps.account.models import User
-from .serializers import (
+from apps.ecopacket.serializers import (
     BoxSerializer,
     LifeCycleSerializer,
     EcoPacketQrCodeSerializer,
