@@ -9,11 +9,14 @@ class EarningFilter(filters.FilterSet):
 
     class Meta:
         model = Earning
-        fields = {
-            'tarrif': ['exact', 'icontains'],
-            'is_penalty': ['exact'],
-            'box__name': ['exact', 'icontains'],
-            'packet__qr_code': ['exact', 'icontains'],
-            'bank_account__user__first_name': ['exact', 'icontains'],
-            'bank_account__user__phone_number': ['exact', 'icontains']
-        }
+        fields = [
+            'tarrif',
+            'is_penalty',
+            'packet__qr_code',
+            'bank_account__user__first_name',
+            'bank_account__user__phone_number',
+            'start_date',
+            'end_date',
+            'min_amount',
+            'max_amount',
+        ]

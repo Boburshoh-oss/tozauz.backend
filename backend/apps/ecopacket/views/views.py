@@ -456,17 +456,46 @@ class IOTManualMultipleView(APIView):
 
                 ecopakcet_money = ecopacket.category.summa
                 ecopakcet_catergory = ecopacket.category
-                # user = ecopacket_qr.user
-                bank_account = user.bankaccount
-                bank_account.capital += ecopakcet_money
-                bank_account.save()
+                
+                # seller ulushini hisoblash
+                seller_percentage = box.seller_percentage
+                client_bank_account = user.bankaccount
+                if box.seller is not None:
+                    seller_share = ecopakcet_money * seller_percentage / 100
+                    client_share = ecopakcet_money - seller_share
+                    # Seller hisobiga o'tkazish
+                    bank_account_seller = box.seller.bankaccount
+                    bank_account_seller.capital += seller_share
+                    bank_account_seller.save()
+                    Earning.objects.create(
+                        bank_account=bank_account_seller,
+                        amount=seller_share,
+                        tarrif=ecopakcet_catergory.name,
+                        box=box,
+                    )
+                    # Box da seller ulushini saqlash
+                    box.seller_share += seller_share
+                    box.save()
 
-                Earning.objects.create(
-                    bank_account=bank_account,
-                    amount=ecopakcet_money,
-                    tarrif=ecopakcet_catergory.name,
-                    box=box,
-                )
+                    # Client hisobiga asosiy summa + client ulushini o'tkazish
+                    client_bank_account.capital += client_share
+                    Earning.objects.create(
+                        bank_account=client_bank_account,
+                        amount=client_share,
+                        tarrif=ecopakcet_catergory.name,
+                        box=box,
+                    )
+                else:
+                    # Seller bo'lmasa hamma summa clientga
+                    client_bank_account.capital += ecopakcet_money
+                    Earning.objects.create(
+                        bank_account=client_bank_account,
+                        amount=ecopakcet_money,
+                        tarrif=ecopakcet_catergory.name,
+                        box=box,
+                    )
+
+                client_bank_account.save()                
                 status_qr_code["S"] += 1
             else:
                 status_qr_code["E"] += 1
