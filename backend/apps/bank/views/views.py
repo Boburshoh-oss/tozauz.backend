@@ -67,7 +67,7 @@ class EarningUserAPIView(APIView, LimitOffsetPagination):
     def get(self, request, pk, format=None):
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
-        is_penalty = request.query_params.get("is_penalty") 
+        is_penalty = request.query_params.get("is_penalty")
         earning_list = Earning.objects.filter(bank_account__user=pk).order_by("-id")
         if start_date:
             earning_list = earning_list.filter(created_at__date__gte=start_date)
@@ -105,7 +105,7 @@ class EarningListAPIView(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        
+
         # get the start_date and end_date from the request parameters
         start_date = self.request.query_params.get("start_date")
         end_date = self.request.query_params.get("end_date")
@@ -126,7 +126,6 @@ class EarningListAPIView(generics.ListAPIView):
         summa = self.filter_queryset(self.get_queryset()).aggregate(Sum("amount"))
         res.data.update(summa)
         return res
-
 
 
 class MobileEarningListAPIView(generics.ListAPIView):
@@ -292,25 +291,34 @@ class PayMePayedView(generics.UpdateAPIView):
         return super().patch(request, *args, **kwargs)
 
 
-
 class EarningToPenaltyView(APIView):
     permission_classes = [permissions.IsAdminUser]
+
     def post(self, request, pk):
         penalty_amount = int(request.data.get("penalty_amount"))
-        
-        
+
         try:
             earning = Earning.objects.get(pk=pk)
             if earning.is_penalty:
-                return response.Response({"error": "Earning already is penalty"}, status=status.HTTP_400_BAD_REQUEST)
+                return response.Response(
+                    {"error": "Earning already is penalty"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         except Earning.DoesNotExist:
-            return response.Response({"error": "Earning not found"}, status=status.HTTP_404_NOT_FOUND)
+            return response.Response(
+                {"error": "Earning not found"}, status=status.HTTP_404_NOT_FOUND
+            )
         try:
             bank_account = BankAccount.objects.get(user=earning.bank_account.user)
         except BankAccount.DoesNotExist:
-            return response.Response({"error": "Bank account not found"}, status=status.HTTP_404_NOT_FOUND)
+            return response.Response(
+                {"error": "Bank account not found"}, status=status.HTTP_404_NOT_FOUND
+            )
         if bank_account.capital < penalty_amount:
-            return response.Response({"error": "Bank account doesn't have enough capital"}, status=status.HTTP_400_BAD_REQUEST)
+            return response.Response(
+                {"error": "Bank account doesn't have enough capital"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         bank_account.capital -= penalty_amount
         bank_account.save()
         serializer = EarningPenaltySerializer(earning, data=request.data, partial=True)
