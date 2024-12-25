@@ -63,3 +63,25 @@ class PayMe(models.Model):
     
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.amount}"
+
+class ApplicationStatus(models.TextChoices):
+    PENDING = "pending", "Pending"
+    APPROVED = "approved", "Approved"
+    REJECTED = "rejected", "Rejected"
+    IN_WAY = "in_way", "In Way"
+    DELIVERED = "delivered", "Delivered"
+
+class Application(models.Model):
+    agent = models.ForeignKey("account.user", on_delete=models.SET_NULL, null=True, blank=True,related_name="application_agent")
+    box = models.ForeignKey("ecopacket.box", on_delete=models.SET_NULL, null=True, blank=True)
+    employee = models.ForeignKey("account.user", on_delete=models.SET_NULL, null=True, blank=True,related_name="application_employee")
+    amount = models.PositiveBigIntegerField()
+    rejected_reason = models.TextField(blank=True, default="")
+    rejected_by = models.ForeignKey("account.user", on_delete=models.SET_NULL, null=True, blank=True,related_name="application_rejected_by")
+    comment = models.TextField(blank=True, default="")
+    containers_count = models.PositiveBigIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=200, choices=ApplicationStatus.choices, default=ApplicationStatus.PENDING)
+    def __str__(self) -> str:
+        return f"{self.agent.first_name} {self.amount}"

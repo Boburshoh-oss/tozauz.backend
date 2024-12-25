@@ -1,8 +1,8 @@
 from rest_framework import generics, permissions
 from django.db.models import Sum
 from django_filters import rest_framework as filters
-from ..models import Earning
-from ..serializers import EarningListSerializer
+from ..models import Earning, Application
+from ..serializers import EarningListSerializer, ApplicationCreateSerializer, ApplicationListSerializer, ApplicationUpdateSerializer
 from ..filters import EarningFilter
 from apps.utils.pagination import MyPagination
 
@@ -32,3 +32,31 @@ class AgentEarningListAPIView(generics.ListAPIView):
         response.data['total_penalty'] = total_amount['total_penalty'] or 0
         
         return response
+
+class ApplicationCreateView(generics.CreateAPIView):
+    serializer_class = ApplicationCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(agent=self.request.user)
+    
+class AgentApplicationListAPIView(generics.ListAPIView):
+    serializer_class = ApplicationListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = MyPagination
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_fields = ['status', 'employee', 'box']
+    
+    def get_queryset(self):
+        queryset = Application.objects.filter(agent=self.request.user).order_by('-created_at')
+        return queryset
+    
+class AgentApplicationUpdateAPIView(generics.UpdateAPIView):
+    serializer_class = ApplicationUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Application.objects.all()
+    lookup_field = 'pk'
+    
+    def get_queryset(self):
+        queryset = Application.objects.filter(agent=self.request.user).order_by('-created_at')
+        return queryset

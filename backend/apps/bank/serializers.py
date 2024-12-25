@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Earning, BankAccount, PayOut, PayMe
+from .models import Earning, BankAccount, PayOut, PayMe, Application
 from apps.account.serializers import (
     UserAdminRetrieveSerializer,
     UserEarningSerializer,
@@ -85,4 +85,25 @@ class EarningPenaltySerializer(serializers.ModelSerializer):
     class Meta:
         model = Earning
         fields = ['id', 'is_penalty', 'penalty_amount', 'reason']
+        read_only_fields = ['id']
+        
+class ApplicationCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = ['box', 'amount', 'comment', 'containers_count']
+        
+class ApplicationListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = "__all__"
+class ApplicationUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = ['status', 'rejected_reason', 'rejected_by', 'comment', 'containers_count']
+        read_only_fields = ['id']
+        
+class ApplicationRejectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = ['rejected_reason', 'rejected_by']
         read_only_fields = ['id']
