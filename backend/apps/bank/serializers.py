@@ -90,7 +90,24 @@ class EarningPenaltySerializer(serializers.ModelSerializer):
 class ApplicationCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
-        fields = ['box', 'amount', 'comment', 'containers_count']
+        fields = ['box', 'comment', 'containers_count']
+    
+    def validate(self, data):
+        box = data.get('box')
+        containers_count = data.get('containers_count')
+        
+        if not box:
+            raise serializers.ValidationError("Box is required")
+            
+        if containers_count > box.containers_count:
+            raise serializers.ValidationError(
+                f"Containers count cannot be greater than box capacity ({box.containers_count})"
+            )
+            
+        # Avtomatik amount hisoblash
+        data['amount'] = box.unloading_price * containers_count
+        
+        return data
         
 class ApplicationListSerializer(serializers.ModelSerializer):
     class Meta:

@@ -11,12 +11,15 @@ class Box(models.Model):
     address = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
     datetime_of_delivery = models.DateTimeField(blank=True, null=True)
+    unloading_price = models.PositiveBigIntegerField(default=0)
+    containers_count = models.PositiveIntegerField(default=0)
     qr_code = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(
         "packet.Category", on_delete=models.SET_NULL, null=True
     )
     is_active = models.BooleanField(default=True)
+    
     seller = models.ForeignKey(
         to="account.User",
         on_delete=models.SET_NULL,
