@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Earning, BankAccount, PayOut, PayMe, Application
+from .models import Earning, BankAccount, PayOut, PayMe, Application, PaymentType
 from apps.account.serializers import (
     UserAdminRetrieveSerializer,
     UserEarningSerializer,
@@ -90,11 +90,13 @@ class EarningPenaltySerializer(serializers.ModelSerializer):
 class ApplicationCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
-        fields = ['box', 'comment', 'containers_count']
+        fields = ['box', 'comment', 'containers_count', 'payment_type']
     
     def validate(self, data):
         box = data.get('box')
         containers_count = data.get('containers_count')
+        payment_type = data.get('payment_type')
+        user = self.context['request'].user
         
         if not box:
             raise serializers.ValidationError("Box is required")
@@ -105,7 +107,19 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
             )
             
         # Avtomatik amount hisoblash
-        data['amount'] = box.unloading_price * containers_count
+        amount = box.unloading_price * containers_count
+        data['amount'] = amount
+        
+        # Bank account to'lov turi tanlangan bo'lsa tekshiruvlar
+        if payment_type == PaymentType.BANK_ACCOUNT:
+            agent_bank_account = user.bank_account
+            if not agent_bank_account:
+                raise serializers.ValidationError("Agent bank account is required")
+                
+            if agent_bank_account.capital < amount:
+                raise serializers.ValidationError(
+                    f"Insufficient balance. Required: {amount}, Available: {agent_bank_account.capital}"
+                )
         
         return data
         

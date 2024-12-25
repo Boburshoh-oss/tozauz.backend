@@ -71,6 +71,11 @@ class ApplicationStatus(models.TextChoices):
     IN_WAY = "in_way", "In Way"
     DELIVERED = "delivered", "Delivered"
 
+class PaymentType(models.TextChoices):
+    BANK_ACCOUNT = "bank_account", "Bank Account"
+    INVOICE = "invoice", "Invoice"
+    CARD = "card", "Card"
+
 class Application(models.Model):
     agent = models.ForeignKey("account.user", on_delete=models.SET_NULL, null=True, blank=True,related_name="application_agent")
     box = models.ForeignKey("ecopacket.box", on_delete=models.SET_NULL, null=True, blank=True)
@@ -79,6 +84,7 @@ class Application(models.Model):
     rejected_reason = models.TextField(blank=True, default="")
     rejected_by = models.ForeignKey("account.user", on_delete=models.SET_NULL, null=True, blank=True,related_name="application_rejected_by")
     comment = models.TextField(blank=True, default="")
+    payment_type = models.CharField(max_length=200, choices=PaymentType.choices, default=PaymentType.BANK_ACCOUNT)
     containers_count = models.PositiveBigIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

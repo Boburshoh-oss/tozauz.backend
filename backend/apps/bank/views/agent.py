@@ -1,11 +1,11 @@
 from rest_framework import generics, permissions
 from django.db.models import Sum
 from django_filters import rest_framework as filters
-from ..models import Earning, Application
+from django.db import transaction
+from apps.utils.pagination import MyPagination
+from ..models import Earning, Application, PaymentType, ApplicationStatus
 from ..serializers import EarningListSerializer, ApplicationCreateSerializer, ApplicationListSerializer, ApplicationUpdateSerializer
 from ..filters import EarningFilter
-from apps.utils.pagination import MyPagination
-
 # agent earnings list
 class AgentEarningListAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -37,8 +37,22 @@ class ApplicationCreateView(generics.CreateAPIView):
     serializer_class = ApplicationCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    @transaction.atomic
     def perform_create(self, serializer):
-        serializer.save(agent=self.request.user)
+        payment_type = serializer.validated_data.get('payment_type')
+        amount = serializer.validated_data.get('amount')
+        
+        application = serializer.save(agent=self.request.user)
+        
+        if payment_type == PaymentType.BANK_ACCOUNT:
+            # Balansdan yechib olish
+            agent_bank_account = self.request.user.bank_account
+            agent_bank_account.capital -= amount
+            agent_bank_account.save()
+            
+            # Arizani approved holatiga o'tkazish
+            application.status = ApplicationStatus.APPROVED
+            application.save()
     
 class AgentApplicationListAPIView(generics.ListAPIView):
     serializer_class = ApplicationListSerializer
