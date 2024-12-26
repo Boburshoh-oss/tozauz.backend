@@ -6,5 +6,5 @@ from apps.ecopacket.views import (
 
 urlpatterns = [
     path("box-location/",BoxLocationAPIViewV2.as_view()),
-    path('boxes/<int:id>/', AgentBoxRetrieveView.as_view(), name='agent-box-detail'),
+    path('boxes/<int:pk>/', AgentBoxRetrieveView.as_view(), name='agent-box-detail'),
 ]
