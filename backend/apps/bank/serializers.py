@@ -120,7 +120,7 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
 
         # Bank account to'lov turi tanlangan bo'lsa tekshiruvlar
         if payment_type == PaymentType.BANK_ACCOUNT:
-            agent_bank_account = user.bank_account
+            agent_bank_account = user.bankaccount
             if not agent_bank_account:
                 raise serializers.ValidationError("Agent bank account is required")
 
