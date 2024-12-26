@@ -46,7 +46,7 @@ class ApplicationCreateView(generics.CreateAPIView):
         
         if payment_type == PaymentType.BANK_ACCOUNT:
             # Balansdan yechib olish
-            agent_bank_account = self.request.user.bank_account
+            agent_bank_account = self.request.user.bankaccount
             agent_bank_account.capital -= amount
             agent_bank_account.save()
             
