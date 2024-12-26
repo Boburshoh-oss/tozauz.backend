@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Earning, BankAccount, PayOut, PayMe, Application, PaymentType
+from apps.ecopacket.models import Box
 from apps.account.serializers import (
     UserAdminRetrieveSerializer,
     UserEarningSerializer,
@@ -133,6 +134,13 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
 
 
 class ApplicationListSerializer(serializers.ModelSerializer):
+    class BoxSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Box
+            fields = ("id", "name")
+
+    box = BoxSerializer()
+
     class Meta:
         model = Application
         fields = "__all__"
@@ -157,15 +165,17 @@ class ApplicationRejectSerializer(serializers.ModelSerializer):
         fields = ["rejected_reason", "rejected_by"]
         read_only_fields = ["id"]
 
+
 class AgentPayMeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PayMe
-        fields = ['amount', 'card', 'card_name']
-        read_only_fields = ["payed","created_at"]
+        fields = ["amount", "card", "card_name"]
+        read_only_fields = ["payed", "created_at"]
+
 
 class AgentPayOutListSerializer(serializers.ModelSerializer):
     admin = UserAdminRetrieveSerializer(read_only=True)
-    
+
     class Meta:
         model = PayOut
-        fields = ['id', 'amount', 'card', 'card_name', 'created_at', 'admin']
+        fields = ["id", "amount", "card", "card_name", "created_at", "admin"]
