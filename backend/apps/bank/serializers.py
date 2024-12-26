@@ -156,3 +156,16 @@ class ApplicationRejectSerializer(serializers.ModelSerializer):
         model = Application
         fields = ["rejected_reason", "rejected_by"]
         read_only_fields = ["id"]
+
+class AgentPayMeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PayMe
+        fields = ['amount', 'card', 'card_name']
+        read_only_fields = ["payed","created_at"]
+
+class AgentPayOutListSerializer(serializers.ModelSerializer):
+    admin = UserAdminRetrieveSerializer(read_only=True)
+    
+    class Meta:
+        model = PayOut
+        fields = ['id', 'amount', 'card', 'card_name', 'created_at', 'admin']

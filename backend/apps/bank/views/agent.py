@@ -3,12 +3,16 @@ from django.db.models import Sum
 from django_filters import rest_framework as filters
 from django.db import transaction
 from apps.utils.pagination import MyPagination
-from ..models import Earning, Application, PaymentType, ApplicationStatus
+from django.utils import timezone
+from rest_framework import serializers
+from ..models import Earning, Application, PaymentType, ApplicationStatus, PayMe, PayOut
 from ..serializers import (
     EarningListSerializer,
     ApplicationCreateSerializer,
     ApplicationListSerializer,
     ApplicationUpdateSerializer,
+    AgentPayMeSerializer,
+    AgentPayOutListSerializer,
 )
 from ..filters import EarningFilter
 
@@ -87,3 +91,38 @@ class AgentApplicationUpdateAPIView(generics.UpdateAPIView):
             "-created_at"
         )
         return queryset
+
+
+class AgentPayMeCreateView(generics.CreateAPIView):
+    serializer_class = AgentPayMeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Oxirgi so'rov vaqtini tekshirish
+        last_payme = PayMe.objects.filter(user=self.request.user).last()
+        if last_payme:
+            time_difference = timezone.now() - last_payme.created_at
+            if time_difference.days < 1:
+                raise serializers.ValidationError(
+                    "Sizning so'rovingiz ko'rib chiqilmoqda. Iltimos 24 soatdan keyin qayta urinib ko'ring."
+                )
+
+        serializer.save(user=self.request.user)
+
+
+class AgentPayMeListView(generics.ListAPIView):
+    serializer_class = AgentPayMeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = MyPagination
+
+    def get_queryset(self):
+        return PayMe.objects.filter(user=self.request.user).order_by("-created_at")
+
+
+class AgentPayOutListView(generics.ListAPIView):
+    serializer_class = AgentPayOutListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = MyPagination
+
+    def get_queryset(self):
+        return PayOut.objects.filter(user=self.request.user).order_by("-created_at")
