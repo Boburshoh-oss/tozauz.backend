@@ -134,12 +134,12 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
 
 
 class ApplicationListSerializer(serializers.ModelSerializer):
-    class BoxSerializer(serializers.ModelSerializer):
+    class BoxForApplicationSerializer(serializers.ModelSerializer):
         class Meta:
             model = Box
             fields = ("id", "name")
 
-    box = BoxSerializer()
+    box = BoxForApplicationSerializer()
 
     class Meta:
         model = Application
