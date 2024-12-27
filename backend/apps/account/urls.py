@@ -8,6 +8,7 @@ from .views import (
     UserUpdateRetrieveView,
     UserChangePasswordView,
     UserDeleteView,
+    UserDeleteByIdView,
 )
 
 from .views import (
@@ -27,6 +28,7 @@ urlpatterns = [
     path("user-update/<int:pk>/", UserUpdateRetrieveView.as_view()),
     path("user-update-password/", UserChangePasswordView.as_view()),
     path("user-delete/", UserDeleteView.as_view()),
+    path("user-delete/<int:user_id>/", UserDeleteByIdView.as_view()),
     path("admin-login/", AdminGetAuthToken.as_view()),
 
 ]

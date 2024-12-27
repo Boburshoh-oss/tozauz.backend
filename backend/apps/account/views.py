@@ -170,6 +170,34 @@ class UserDeleteView(views.APIView):
             )
         return Response({"message": "Kiritgan parolingiz to'g'ri kelmadi"}, status=400)
 
+class UserDeleteByIdView(views.APIView):
+    # permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            user.first_name = ''
+            user.last_name = ''
+            user.is_active = False
+            user.is_admin = False
+            user.save()
+
+            try:
+                bank_account = BankAccount.objects.get(user=user)
+                bank_account.capital = 0
+                bank_account.save()
+            except BankAccount.DoesNotExist:
+                pass  # If bank account doesn't exist, continue with deletion
+
+            return Response(
+                {"message": "Foydalanuvchi ma'lumotlari muvaffaqiyatli o'chirildi"}, 
+                status=status.HTTP_202_ACCEPTED
+            )
+        except User.DoesNotExist:
+            return Response(
+                {"message": "Foydalanuvchi topilmadi"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 # version 2
 class RegisterView(views.APIView):
