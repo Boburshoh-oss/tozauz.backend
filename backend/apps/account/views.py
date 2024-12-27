@@ -111,9 +111,9 @@ class UserAdminRegisterView(generics.ListCreateAPIView):
     search_fields = ["first_name", "last_name", "phone_number", "car_number"]
     pagination_class = MyPagination
 
-    def perform_create(self, serializer):
-        serializer.save(role=RoleOptions.EMPLOYE)
-        return super().perform_create(serializer)
+    # def perform_create(self, serializer):
+    #     serializer.save(role=RoleOptions.EMPLOYE)
+    #     return super().perform_create(serializer)
 
 
 # Admin
