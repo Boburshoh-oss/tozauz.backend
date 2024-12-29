@@ -191,12 +191,12 @@ class UserDeleteByIdView(views.APIView):
 
             return Response(
                 {"message": "Foydalanuvchi ma'lumotlari muvaffaqiyatli o'chirildi"}, 
-                status=status.HTTP_202_ACCEPTED
+                status=status.HTTP_200_OK
             )
         except User.DoesNotExist:
             return Response(
                 {"message": "Foydalanuvchi topilmadi"}, 
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_200_OK
             )
 
 # version 2
