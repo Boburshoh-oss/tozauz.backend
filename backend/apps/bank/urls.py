@@ -22,6 +22,7 @@ from .views import (
     AgentPayMeCreateView,
     AgentPayMeListView,
     AgentPayOutListView,
+    AgentAdminApplicationListAPIView,
 )
 
 urlpatterns = [
@@ -53,4 +54,6 @@ urlpatterns = [
     path("agent/payme/list/", AgentPayMeListView.as_view(), name="agent-payme-list"),
     # agent payout urls
     path("agent/payout/list/", AgentPayOutListView.as_view(), name="agent-payout-list"),
+    # agent admin application list
+    path("agent/admin/application/list/", AgentAdminApplicationListAPIView.as_view()),
 ]

@@ -79,6 +79,20 @@ class AgentApplicationListAPIView(generics.ListAPIView):
         )
         return queryset
 
+class AgentAdminApplicationListAPIView(generics.ListAPIView):
+    serializer_class = ApplicationListSerializer
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+    pagination_class = MyPagination
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_fields = ["status", "employee", "box"]
+
+    def get_queryset(self):
+        queryset = Application.objects.all().order_by(
+            "-created_at"
+        )
+        return queryset
+
+
 
 class AgentApplicationUpdateAPIView(generics.UpdateAPIView):
     serializer_class = ApplicationUpdateSerializer
