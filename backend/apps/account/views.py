@@ -1,8 +1,8 @@
 from django_filters import rest_framework as filters
-from rest_framework import filters as rf_filters, status
+from rest_framework import filters as rf_filters, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework import generics, permissions
-from .models import User, RoleOptions
+from .models import User, RoleOptions, AppVersion
 from .serializers import (
     UserRegisterSerializer,
     UserLoginSerializer,
@@ -11,6 +11,7 @@ from .serializers import (
     UserSerializer,
     UserUpdateSerializer,
     UserProfileUpdateSerializer,
+    AppVersionSerializer
 )
 from django.contrib.auth import authenticate, logout
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -321,4 +322,8 @@ class UserProfileUpdateView(views.APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+class AppVersionViewSet(viewsets.ModelViewSet):
+    queryset = AppVersion.objects.all()
+    serializer_class = AppVersionSerializer
+

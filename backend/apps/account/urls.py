@@ -10,6 +10,7 @@ from .views import (
     UserDeleteView,
     UserDeleteByIdView,
 )
+from rest_framework.routers import DefaultRouter
 
 from .views import (
     RegisterView,
@@ -18,7 +19,10 @@ from .views import (
     VerifyForgotPasswordOTPView,
     UserProfileUpdateView,
 )
+from .views import AppVersionViewSet
 
+router = DefaultRouter()
+router.register('app-version', AppVersionViewSet, basename='app-version')
 
 urlpatterns = [
     path("api-token-auth/", GetAuthToken.as_view()),
