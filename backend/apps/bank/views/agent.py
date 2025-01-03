@@ -26,6 +26,10 @@ class AgentEarningListAPIView(generics.ListAPIView):
     pagination_class = MyPagination
 
     def get_queryset(self):
+        # Swagger uchun fake view tekshirish
+        if getattr(self, 'swagger_fake_view', False):
+            return Earning.objects.none()
+        
         queryset = Earning.objects.all().order_by("-created_at")
         return queryset
 
@@ -71,9 +75,13 @@ class AgentApplicationListAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = MyPagination
     filter_backends = [filters.DjangoFilterBackend]
-    filterset_fields = ["status", "employee", "box"]
+    filterset_fields = ["status", "employee", "box", "payment_type"]
 
     def get_queryset(self):
+         # Swagger uchun fake view tekshirish
+        if getattr(self, 'swagger_fake_view', False):
+            return Application.objects.none()
+            
         queryset = Application.objects.filter(agent=self.request.user).order_by(
             "-created_at"
         )
@@ -101,6 +109,10 @@ class AgentApplicationUpdateAPIView(generics.UpdateAPIView):
     lookup_field = "pk"
 
     def get_queryset(self):
+        # Swagger uchun fake view tekshirish
+        if getattr(self, 'swagger_fake_view', False):
+            return Application.objects.none()
+        
         queryset = Application.objects.filter(agent=self.request.user).order_by(
             "-created_at"
         )
@@ -130,6 +142,10 @@ class AgentPayMeListView(generics.ListAPIView):
     pagination_class = MyPagination
 
     def get_queryset(self):
+        # Swagger uchun fake view tekshirish
+        if getattr(self, 'swagger_fake_view', False):
+            return PayMe.objects.none()
+        
         return PayMe.objects.filter(user=self.request.user).order_by("-created_at")
 
 
@@ -139,4 +155,8 @@ class AgentPayOutListView(generics.ListAPIView):
     pagination_class = MyPagination
 
     def get_queryset(self):
+        # Swagger uchun fake view tekshirish
+        if getattr(self, 'swagger_fake_view', False):
+            return PayOut.objects.none()
+        
         return PayOut.objects.filter(user=self.request.user).order_by("-created_at")
