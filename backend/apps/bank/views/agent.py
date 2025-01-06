@@ -106,4 +106,42 @@ class AgentApplicationUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = Application.objects.all()
     lookup_field = 'pk'
     
-    
+class AgentPayMeCreateView(generics.CreateAPIView):
+    serializer_class = AgentPayMeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = PayMe.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class AgentPayMeListView(generics.ListAPIView):
+    serializer_class = AgentPayMeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_fields = ["payed", "user"]
+    pagination_class = MyPagination
+    queryset = PayMe.objects.all()
+
+    def get_queryset(self):
+        # Swagger uchun fake view tekshirish
+        if getattr(self, 'swagger_fake_view', False):
+            return PayMe.objects.none()
+        
+        queryset = PayMe.objects.filter(user=self.request.user).order_by("-created_at")
+        return queryset
+
+class AgentPayOutListView(generics.ListAPIView):
+    serializer_class = AgentPayOutListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_fields = ["user"]
+    pagination_class = MyPagination
+    queryset = PayOut.objects.all()
+
+    def get_queryset(self):
+        # Swagger uchun fake view tekshirish
+        if getattr(self, 'swagger_fake_view', False):
+            return PayOut.objects.none()
+        
+        queryset = PayOut.objects.filter(user=self.request.user).order_by("-created_at")
+        return queryset
