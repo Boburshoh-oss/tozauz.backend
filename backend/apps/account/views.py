@@ -1,8 +1,8 @@
 from django_filters import rest_framework as filters
-from rest_framework import filters as rf_filters, status
+from rest_framework import filters as rf_filters, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework import generics, permissions
-from .models import User, RoleOptions
+from .models import User, RoleOptions, AppVersion
 from .serializers import (
     UserRegisterSerializer,
     UserLoginSerializer,
@@ -11,6 +11,7 @@ from .serializers import (
     UserSerializer,
     UserUpdateSerializer,
     UserProfileUpdateSerializer,
+    AppVersionSerializer
 )
 from django.contrib.auth import authenticate, logout
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -111,9 +112,9 @@ class UserAdminRegisterView(generics.ListCreateAPIView):
     search_fields = ["first_name", "last_name", "phone_number", "car_number"]
     pagination_class = MyPagination
 
-    def perform_create(self, serializer):
-        serializer.save(role=RoleOptions.EMPLOYE)
-        return super().perform_create(serializer)
+    # def perform_create(self, serializer):
+    #     serializer.save(role=RoleOptions.EMPLOYE)
+    #     return super().perform_create(serializer)
 
 
 # Admin
@@ -170,6 +171,34 @@ class UserDeleteView(views.APIView):
             )
         return Response({"message": "Kiritgan parolingiz to'g'ri kelmadi"}, status=400)
 
+class UserDeleteByIdView(views.APIView):
+    # permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            user.first_name = ''
+            user.last_name = ''
+            user.is_active = False
+            user.is_admin = False
+            user.save()
+
+            try:
+                bank_account = BankAccount.objects.get(user=user)
+                bank_account.capital = 0
+                bank_account.save()
+            except BankAccount.DoesNotExist:
+                pass  # If bank account doesn't exist, continue with deletion
+
+            return Response(
+                {"message": "Foydalanuvchi ma'lumotlari muvaffaqiyatli o'chirildi"}, 
+                status=status.HTTP_200_OK
+            )
+        except User.DoesNotExist:
+            return Response(
+                {"message": "Foydalanuvchi topilmadi"}, 
+                status=status.HTTP_200_OK
+            )
 
 # version 2
 class RegisterView(views.APIView):
@@ -293,4 +322,8 @@ class UserProfileUpdateView(views.APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+class AppVersionViewSet(viewsets.ModelViewSet):
+    queryset = AppVersion.objects.all()
+    serializer_class = AppVersionSerializer
+

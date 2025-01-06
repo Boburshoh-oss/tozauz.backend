@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Earning, BankAccount, PayOut, PayMe, Application, PaymentType
+from apps.ecopacket.models import Box
 from apps.account.serializers import (
     UserAdminRetrieveSerializer,
     UserEarningSerializer,
@@ -37,8 +38,15 @@ class MobileEarningListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Earning
-        fields = ("id", "tarrif", "amount", "created_at", "is_penalty", "penalty_amount", "reason")
-
+        fields = (
+            "id",
+            "tarrif",
+            "amount",
+            "created_at",
+            "is_penalty",
+            "penalty_amount",
+            "reason",
+        )
 
 
 class BankAccountSerializer(serializers.ModelSerializer):
@@ -84,57 +92,90 @@ class PayMePayedSerializer(serializers.ModelSerializer):
 class EarningPenaltySerializer(serializers.ModelSerializer):
     class Meta:
         model = Earning
-        fields = ['id', 'is_penalty', 'penalty_amount', 'reason']
-        read_only_fields = ['id']
-        
+        fields = ["id", "is_penalty", "penalty_amount", "reason"]
+        read_only_fields = ["id"]
+
+
 class ApplicationCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
-        fields = ['box', 'comment', 'containers_count', 'payment_type']
-    
+        fields = ["box", "comment", "containers_count", "payment_type"]
+
     def validate(self, data):
-        box = data.get('box')
-        containers_count = data.get('containers_count')
-        payment_type = data.get('payment_type')
-        user = self.context['request'].user
-        
+        box = data.get("box")
+        containers_count = data.get("containers_count")
+        payment_type = data.get("payment_type")
+        user = self.context["request"].user
+
         if not box:
             raise serializers.ValidationError("Box is required")
-            
+
         if containers_count > box.containers_count:
             raise serializers.ValidationError(
                 f"Containers count cannot be greater than box capacity ({box.containers_count})"
             )
-            
+
         # Avtomatik amount hisoblash
         amount = box.unloading_price * containers_count
-        data['amount'] = amount
-        
+        data["amount"] = amount
+
         # Bank account to'lov turi tanlangan bo'lsa tekshiruvlar
         if payment_type == PaymentType.BANK_ACCOUNT:
-            agent_bank_account = user.bank_account
+            agent_bank_account = user.bankaccount
             if not agent_bank_account:
                 raise serializers.ValidationError("Agent bank account is required")
-                
+
             if agent_bank_account.capital < amount:
                 raise serializers.ValidationError(
                     f"Insufficient balance. Required: {amount}, Available: {agent_bank_account.capital}"
                 )
-        
+
         return data
-        
+
+
 class ApplicationListSerializer(serializers.ModelSerializer):
+    class BoxForApplicationSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Box
+            fields = ("id", "name")
+
+    box = BoxForApplicationSerializer()
+
     class Meta:
         model = Application
         fields = "__all__"
+
+
 class ApplicationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
-        fields = ['status', 'rejected_reason', 'rejected_by', 'comment', 'containers_count']
-        read_only_fields = ['id']
-        
+        fields = [
+            "status",
+            "rejected_reason",
+            "rejected_by",
+            "comment",
+            "containers_count",
+        ]
+        read_only_fields = ["id"]
+
+
 class ApplicationRejectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
-        fields = ['rejected_reason', 'rejected_by']
-        read_only_fields = ['id']
+        fields = ["rejected_reason", "rejected_by"]
+        read_only_fields = ["id"]
+
+
+class AgentPayMeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PayMe
+        fields = ["amount", "card", "card_name"]
+        read_only_fields = ["payed", "created_at"]
+
+
+class AgentPayOutListSerializer(serializers.ModelSerializer):
+    admin = UserAdminRetrieveSerializer(read_only=True)
+
+    class Meta:
+        model = PayOut
+        fields = ["id", "amount", "card", "card_name", "created_at", "admin"]

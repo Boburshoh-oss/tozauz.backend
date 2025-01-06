@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from .views import (
     GetAuthToken,
     UserRegisterView,
@@ -8,7 +8,9 @@ from .views import (
     UserUpdateRetrieveView,
     UserChangePasswordView,
     UserDeleteView,
+    UserDeleteByIdView,
 )
+from rest_framework.routers import DefaultRouter
 
 from .views import (
     RegisterView,
@@ -17,7 +19,10 @@ from .views import (
     VerifyForgotPasswordOTPView,
     UserProfileUpdateView,
 )
+from .views import AppVersionViewSet
 
+router = DefaultRouter()
+router.register('app-version', AppVersionViewSet, basename='app-version')
 
 urlpatterns = [
     path("api-token-auth/", GetAuthToken.as_view()),
@@ -27,7 +32,9 @@ urlpatterns = [
     path("user-update/<int:pk>/", UserUpdateRetrieveView.as_view()),
     path("user-update-password/", UserChangePasswordView.as_view()),
     path("user-delete/", UserDeleteView.as_view()),
+    path("user-delete/<int:user_id>/", UserDeleteByIdView.as_view()),
     path("admin-login/", AdminGetAuthToken.as_view()),
+    path("",include(router.urls)),
 
 ]
 

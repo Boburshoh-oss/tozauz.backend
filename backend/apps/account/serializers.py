@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, RoleOptions
+from .models import User, RoleOptions, AppVersion
 from django.contrib.auth.hashers import make_password
 from django.utils.translation import gettext_lazy as _
 
@@ -166,3 +166,9 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         if user.role not in [RoleOptions.EMPLOYE, RoleOptions.ADMIN] and 'car_number' in data:
             raise serializers.ValidationError("Siz moshina raqamini o'zgartira olmaysiz!")
         return data
+
+class AppVersionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppVersion
+        fields = '__all__'
+

@@ -267,7 +267,7 @@ class PayMeListAPIView(generics.ListAPIView):
     queryset = PayMe.objects.all().order_by("-id")
     pagination_class = MyPagination
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
-    filterset_fields = ["user__role", "user"]
+    filterset_fields = [ "user","payed"]
     search_fields = [
         "card",
         "card_name",
