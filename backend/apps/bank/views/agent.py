@@ -65,12 +65,11 @@ class AgentApplicationListAPIView(generics.ListAPIView):
         queryset = Application.objects.filter(agent=self.request.user).order_by('-created_at')
         return queryset
     
-class AgentApplicationUpdateAPIView(generics.UpdateAPIView):
+class AgentApplicationUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = ApplicationUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = Application.objects.all()
     lookup_field = 'pk'
     
-    def get_queryset(self):
-        queryset = Application.objects.filter(agent=self.request.user).order_by('-created_at')
-        return queryset
+    
+    
