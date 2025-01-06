@@ -106,6 +106,4 @@ class AgentApplicationUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = Application.objects.all()
     lookup_field = 'pk'
     
-    def get_queryset(self):
-        queryset = Application.objects.filter(agent=self.request.user).order_by('-created_at')
-        return queryset
+    
