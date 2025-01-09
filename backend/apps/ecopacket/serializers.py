@@ -27,16 +27,7 @@ class BoxSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Box
-        fields = (
-            "id",
-            "name",
-            "state",
-            "cycle_created_at",
-            "sim_module",
-            "qr_code",
-            "created_at",
-            "category",
-        )
+        fields = "__all__"
 
 
 class LifeCycleSerializer(serializers.ModelSerializer):
