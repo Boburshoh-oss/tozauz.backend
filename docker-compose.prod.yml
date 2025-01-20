@@ -29,7 +29,13 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
   
-
+  redis:
+    restart: unless-stopped
+    image: redis:7.2.4
+    ports:
+      - "6379:6379"
+    expose:
+      - 6379  
   
   nginx:
     build:
