@@ -30,7 +30,7 @@ class AgentEarningListAPIView(generics.ListAPIView):
         if getattr(self, 'swagger_fake_view', False):
             return Earning.objects.none()
         
-        queryset = Earning.objects.all().order_by("-created_at")
+        queryset = Earning.objects.filter(bank_account__user_role="AGENT").order_by("-created_at")
         return queryset
 
     def get(self, request, *args, **kwargs):
