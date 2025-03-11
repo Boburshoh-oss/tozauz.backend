@@ -29,6 +29,7 @@ from .utils import (
     send_sms,
     redis_client
 )
+from apps.ecopacket.models import Box
 
 
 class GetAuthToken(ObtainAuthToken):
