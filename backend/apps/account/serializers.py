@@ -105,6 +105,7 @@ class UserAdminRegisterSerializer(serializers.ModelSerializer):
             "categories",
             "car_number",
             "is_admin",
+            "boxes",
         )
         extra_kwargs = {
             "id": {"read_only": True},
