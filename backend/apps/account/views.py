@@ -111,6 +111,25 @@ class UserAdminRegisterView(generics.ListCreateAPIView):
     filterset_fields = ["is_admin", "role", "categories"]
     search_fields = ["first_name", "last_name", "phone_number", "car_number"]
     pagination_class = MyPagination
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        # Agent foydalanuvchilarni olish
+        agent_users = self.get_queryset().filter(role="AGENT")
+        
+        if agent_users.exists():
+            # Barcha box konteynerlarni bir marta olish
+            agent_boxes = {}
+            boxes = Box.objects.filter(seller__in=agent_users)
+            
+            # Agent ID bo'yicha box ma'lumotlarini saqlash
+            for box in boxes:
+                if box.seller_id not in agent_boxes:
+                    agent_boxes[box.seller_id] = []
+                agent_boxes[box.seller_id].append(box)
+                
+            context['agent_boxes'] = agent_boxes
+        return context
 
     # def perform_create(self, serializer):
     #     serializer.save(role=RoleOptions.EMPLOYE)

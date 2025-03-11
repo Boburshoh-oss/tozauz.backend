@@ -36,29 +36,6 @@ class AgentEarningListAPIView(generics.ListAPIView):
         )
         return queryset
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        # Agent box ma'lumotlarini bir marta olish
-        agent_boxes = {}
-        if not getattr(self, "swagger_fake_view", False):
-            # Barcha agentlarning ID larini olish
-            agent_ids = (
-                Earning.objects.filter(bank_account__user__role="AGENT")
-                .values_list("bank_account__user__id", flat=True)
-                .distinct()
-            )
-
-            # Barcha agentlar uchun box ma'lumotlarini bir marta olish
-            boxes = Box.objects.filter(seller__in=agent_ids).select_related("category")
-
-            # Agent ID bo'yicha box ma'lumotlarini saqlash
-            for box in boxes:
-                if box.seller_id not in agent_boxes:
-                    agent_boxes[box.seller_id] = []
-                agent_boxes[box.seller_id].append(box)
-
-        context["agent_boxes"] = agent_boxes
-        return context
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
