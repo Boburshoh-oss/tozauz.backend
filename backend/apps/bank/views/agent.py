@@ -15,6 +15,7 @@ from ..serializers import (
     AgentPayOutListSerializer,
 )
 from ..filters import EarningFilter
+from apps.ecopacket.models import Box
 
 
 # agent earnings list
@@ -27,11 +28,37 @@ class AgentEarningListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         # Swagger uchun fake view tekshirish
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return Earning.objects.none()
-        
-        queryset = Earning.objects.filter(bank_account__user__role="AGENT").order_by("-created_at")
+
+        queryset = Earning.objects.filter(bank_account__user__role="AGENT").order_by(
+            "-created_at"
+        )
         return queryset
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        # Agent box ma'lumotlarini bir marta olish
+        agent_boxes = {}
+        if not getattr(self, "swagger_fake_view", False):
+            # Barcha agentlarning ID larini olish
+            agent_ids = (
+                Earning.objects.filter(bank_account__user__role="AGENT")
+                .values_list("bank_account__user__id", flat=True)
+                .distinct()
+            )
+
+            # Barcha agentlar uchun box ma'lumotlarini bir marta olish
+            boxes = Box.objects.filter(seller__in=agent_ids).select_related("category")
+
+            # Agent ID bo'yicha box ma'lumotlarini saqlash
+            for box in boxes:
+                if box.seller_id not in agent_boxes:
+                    agent_boxes[box.seller_id] = []
+                agent_boxes[box.seller_id].append(box)
+
+        context["agent_boxes"] = agent_boxes
+        return context
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
@@ -78,14 +105,15 @@ class AgentApplicationListAPIView(generics.ListAPIView):
     filterset_fields = ["status", "employee", "box", "payment_type"]
 
     def get_queryset(self):
-         # Swagger uchun fake view tekshirish
-        if getattr(self, 'swagger_fake_view', False):
+        # Swagger uchun fake view tekshirish
+        if getattr(self, "swagger_fake_view", False):
             return Application.objects.none()
-            
+
         queryset = Application.objects.filter(agent=self.request.user).order_by(
             "-created_at"
         )
         return queryset
+
 
 class AgentAdminApplicationListAPIView(generics.ListAPIView):
     serializer_class = ApplicationListSerializer
@@ -95,17 +123,17 @@ class AgentAdminApplicationListAPIView(generics.ListAPIView):
     filterset_fields = ["status", "employee", "box"]
 
     def get_queryset(self):
-        queryset = Application.objects.all().order_by(
-            "-created_at"
-        )
+        queryset = Application.objects.all().order_by("-created_at")
         return queryset
-    
+
+
 class AgentApplicationUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = ApplicationUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = Application.objects.all()
-    lookup_field = 'pk'
-    
+    lookup_field = "pk"
+
+
 class AgentPayMeCreateView(generics.CreateAPIView):
     serializer_class = AgentPayMeSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -113,6 +141,7 @@ class AgentPayMeCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
 
 class AgentPayMeListView(generics.ListAPIView):
     serializer_class = AgentPayMeSerializer
@@ -124,11 +153,12 @@ class AgentPayMeListView(generics.ListAPIView):
 
     def get_queryset(self):
         # Swagger uchun fake view tekshirish
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return PayMe.objects.none()
-        
+
         queryset = PayMe.objects.filter(user=self.request.user).order_by("-created_at")
         return queryset
+
 
 class AgentPayOutListView(generics.ListAPIView):
     serializer_class = AgentPayOutListSerializer
@@ -140,8 +170,8 @@ class AgentPayOutListView(generics.ListAPIView):
 
     def get_queryset(self):
         # Swagger uchun fake view tekshirish
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return PayOut.objects.none()
-        
+
         queryset = PayOut.objects.filter(user=self.request.user).order_by("-created_at")
         return queryset

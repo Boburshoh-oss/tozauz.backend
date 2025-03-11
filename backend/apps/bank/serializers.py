@@ -17,14 +17,30 @@ class EarningSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class BoxForAgentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Box
+        fields = ('id', 'name', 'address', 'location', 'containers_count')
+
 class EarningListSerializer(serializers.ModelSerializer):
     user = UserEarningSerializer(source="bank_account.user")
     created_at = serializers.DateTimeField(read_only=True)
     packet = PacketSerializerCreate()
+    agent_boxes = serializers.SerializerMethodField()
 
     class Meta:
         model = Earning
         fields = "__all__"
+        
+    def get_agent_boxes(self, obj):
+        # Context dan oldindan yuklangan box ma'lumotlarini olish
+        agent_boxes = self.context.get('agent_boxes', {})
+        user_id = obj.bank_account.user.id
+        
+        # Agar context da box ma'lumotlari bo'lsa, ularni qaytarish
+        if user_id in agent_boxes:
+            return BoxForAgentSerializer(agent_boxes[user_id], many=True).data
+        return []
 
 
 # class MobileCategorySerializer(serializers.ModelSerializer):
