@@ -289,6 +289,13 @@ class PayMePayedView(generics.UpdateAPIView):
         instance.save()
 
         return super().patch(request, *args, **kwargs)
+    
+    def put(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.payed = True
+        instance.save()
+
+        return super().put(request, *args, **kwargs)
 
 
 class EarningToPenaltyView(APIView):
