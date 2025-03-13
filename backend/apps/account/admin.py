@@ -15,6 +15,7 @@ class MyUserAdmin(UserAdmin):
         ('Personal Info', {'fields': ('first_name', 'last_name')}),
         ('Permissions', {'fields': ('is_admin',
          'is_active', 'role', 'categories', 'car_number')}),
+        ('OTP Info', {'fields': ('otp', 'otp_created_at')}),
         ('Important Dates', {'fields': ('last_login',)})
     )
     add_fieldsets = (

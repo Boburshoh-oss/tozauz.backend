@@ -1,3 +1,7 @@
+
+from datetime import datetime, timedelta
+from django.utils import timezone
+import random
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 
@@ -54,6 +58,10 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     inn = models.CharField(max_length=10, blank=True, null=True)
     bank_receipt = models.CharField(max_length=10, blank=True, null=True)
+    
+    # Add new OTP fields
+    otp = models.CharField(max_length=6, blank=True, null=True)
+    otp_created_at = models.DateTimeField(blank=True, null=True)
     objects = UserManager()
 
     USERNAME_FIELD = 'phone_number'
@@ -73,6 +81,33 @@ class User(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
+    
+    def generate_otp(self):
+        """Generate a 6-digit OTP and save it to the user model"""
+        otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        self.otp = otp
+        self.otp_created_at = timezone.now()
+        self.save()
+        return otp
+    
+    def verify_otp(self, otp):
+        """Verify if the provided OTP matches and is not expired"""
+        # Check if OTP is expired (5 minutes)
+        if not self.otp_created_at:
+            return False
+            
+        expiration_time = self.otp_created_at + timedelta(minutes=5)
+        if timezone.now() > expiration_time:
+            return False
+            
+        # Check if OTP matches
+        return self.otp == otp
+    
+    def clear_otp(self):
+        """Clear the OTP after successful verification"""
+        self.otp = None
+        self.otp_created_at = None
+        self.save()
 
     @property
     def is_staff(self):

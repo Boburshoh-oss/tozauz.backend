@@ -11,7 +11,7 @@ from .serializers import (
     UserSerializer,
     UserUpdateSerializer,
     UserProfileUpdateSerializer,
-    AppVersionSerializer
+    AppVersionSerializer,
 )
 from django.contrib.auth import authenticate, logout
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -27,7 +27,7 @@ from .utils import (
     # eskiz_login,
     # eskiz_refresh_token,
     send_sms,
-    redis_client
+    redis_client,
 )
 from apps.ecopacket.models import Box
 
@@ -36,13 +36,14 @@ class GetAuthToken(ObtainAuthToken):
     serializer_class = UserLoginSerializer
 
     def post(self, request, *args, **kwargs):
-        phone_number = request.data.get('phone_number')
-        password = request.data.get('password')
+        phone_number = request.data.get("phone_number")
+        password = request.data.get("password")
 
         if not phone_number or not password:
-            return Response({
-                'error': 'Both phone number and password are required.'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Both phone number and password are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user = authenticate(request, phone_number=phone_number, password=password)
 
@@ -55,12 +56,13 @@ class GetAuthToken(ObtainAuthToken):
                 "first_name": user.first_name,
                 "role": user.role,
             }
-            
+
             return Response(user_data, status=status.HTTP_200_OK)
         else:
-            return Response({
-                'error': 'Invalid credentials.'
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED
+            )
+
 
 class UserRegisterView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
@@ -112,24 +114,24 @@ class UserAdminRegisterView(generics.ListCreateAPIView):
     filterset_fields = ["is_admin", "role", "categories"]
     search_fields = ["first_name", "last_name", "phone_number", "car_number"]
     pagination_class = MyPagination
-    
+
     def get_serializer_context(self):
         context = super().get_serializer_context()
         # Agent foydalanuvchilarni olish
         agent_users = self.get_queryset().filter(role="AGENT")
-        
+
         if agent_users.exists():
             # Barcha box konteynerlarni bir marta olish
             agent_boxes = {}
             boxes = Box.objects.filter(seller__in=agent_users)
-            
+
             # Agent ID bo'yicha box ma'lumotlarini saqlash
             for box in boxes:
                 if box.seller_id not in agent_boxes:
                     agent_boxes[box.seller_id] = []
                 agent_boxes[box.seller_id].append(box)
-                
-            context['agent_boxes'] = agent_boxes
+
+            context["agent_boxes"] = agent_boxes
         return context
 
     # def perform_create(self, serializer):
@@ -174,8 +176,8 @@ class UserDeleteView(views.APIView):
         user = request.user
         # if user.check_password(password):
         if True:
-            user.first_name = ''
-            user.last_name = ''
+            user.first_name = ""
+            user.last_name = ""
             user.is_active = False
             user.is_admin = False
             user.save()
@@ -184,12 +186,15 @@ class UserDeleteView(views.APIView):
                 arg.capital = 0
                 arg.save()
             except Exception as e:
-                return Response({"message": "Bank accountingizda muammo bor"}, status=400)
+                return Response(
+                    {"message": "Bank accountingizda muammo bor"}, status=400
+                )
             logout(request)
             return Response(
                 {"message": "Ma'lumotlarningiz muvaffaqiyatli o'chirildi"}, status=202
             )
         return Response({"message": "Kiritgan parolingiz to'g'ri kelmadi"}, status=400)
+
 
 class UserDeleteByIdView(views.APIView):
     # permission_classes = [permissions.IsAdminUser]
@@ -197,8 +202,8 @@ class UserDeleteByIdView(views.APIView):
     def post(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
-            user.first_name = ''
-            user.last_name = ''
+            user.first_name = ""
+            user.last_name = ""
             user.is_active = False
             user.is_admin = False
             user.save()
@@ -211,14 +216,14 @@ class UserDeleteByIdView(views.APIView):
                 pass  # If bank account doesn't exist, continue with deletion
 
             return Response(
-                {"message": "Foydalanuvchi ma'lumotlari muvaffaqiyatli o'chirildi"}, 
-                status=status.HTTP_200_OK
+                {"message": "Foydalanuvchi ma'lumotlari muvaffaqiyatli o'chirildi"},
+                status=status.HTTP_200_OK,
             )
         except User.DoesNotExist:
             return Response(
-                {"message": "Foydalanuvchi topilmadi"}, 
-                status=status.HTTP_200_OK
+                {"message": "Foydalanuvchi topilmadi"}, status=status.HTTP_200_OK
             )
+
 
 # version 2
 class RegisterView(views.APIView):
@@ -226,24 +231,51 @@ class RegisterView(views.APIView):
         return serializer.save(role=RoleOptions.POPULATION)
 
     def post(self, request):
-        phone_number = request.data.get('phone_number')
+        phone_number = request.data.get("phone_number")
         if not phone_number:
-            return Response({"message": "Phone number is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Phone number is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user = User.objects.filter(phone_number=phone_number).first()
         if user and user.is_active:
-            return Response({"message":"Foydalanuvchi allaqachon mavjud!"}, status=status.HTTP_403_FORBIDDEN)
-        serializer = UserRegisterSerializer(instance=user, data=request.data) if user else UserRegisterSerializer(data=request.data)
+            return Response(
+                {"message": "Foydalanuvchi allaqachon mavjud!"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        serializer = (
+            UserRegisterSerializer(instance=user, data=request.data)
+            if user
+            else UserRegisterSerializer(data=request.data)
+        )
 
         if serializer.is_valid():
-            user = self.perform_create(serializer)  # Use perform_create method to save the user
-            otp = generate_random_password(6)
-            res = send_sms(user.phone_number, f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}")
+            user = self.perform_create(
+                serializer
+            )  # Use perform_create method to save the user
+            # Generate OTP and save it to the user model
+            otp = user.generate_otp()
+            res = send_sms(
+                user.phone_number,
+                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}",
+            )
             if res.status_code != 200:
-                return Response({"message": "Failed to send OTP to phone number.", "error": res.json()}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(
+                    {
+                        "message": "Failed to send OTP to phone number.",
+                        "error": res.json(),
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
-            redis_client.setex(f"otp_{user.phone_number}", 300, otp)
-            return Response({"message": "User registered successfully. OTP sent to phone number.", "otp": otp}, status=status.HTTP_201_CREATED)
+            return Response(
+                {
+                    "message": "User registered successfully. OTP sent to phone number.",
+                    "otp": otp,
+                },
+                status=status.HTTP_201_CREATED,
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -258,20 +290,23 @@ class VerifyRegistrationOTPView(views.APIView):
                 {"error": "Phone number and OTP are required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        saved_otp = redis_client.get(f"otp_{phone_number}")
-        if saved_otp and saved_otp == otp:
-            user = User.objects.filter(phone_number=phone_number).first()
-            if user:
-                user.is_active = True
-                user.save()
-                redis_client.delete(f"otp_{phone_number}")
-                return Response(
-                    {"message": "OTP verified successfully."}, status=status.HTTP_200_OK
-                )
+
+        user = User.objects.filter(phone_number=phone_number).first()
+        if not user:
             return Response(
                 {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
-        return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user.verify_otp(otp):
+            user.is_active = True
+            user.clear_otp()  # Clear OTP after successful verification
+            return Response(
+                {"message": "OTP verified successfully."}, status=status.HTTP_200_OK
+            )
+
+        return Response(
+            {"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class ForgotPasswordView(views.APIView):
@@ -285,11 +320,14 @@ class ForgotPasswordView(views.APIView):
 
         user = User.objects.filter(phone_number=phone_number).first()
         if user:
-            otp = generate_random_password(6)
-            send_sms(phone_number, f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}")
-            redis_client.setex(f"otp_{phone_number}", 300, otp)
+            otp = user.generate_otp()
+            send_sms(
+                phone_number,
+                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}",
+            )
             return Response(
-                {"message": "OTP sent to phone number.", "otp": otp}, status=status.HTTP_200_OK
+                {"message": "OTP sent to phone number.", "otp": otp},
+                status=status.HTTP_200_OK,
             )
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -306,20 +344,25 @@ class VerifyForgotPasswordOTPView(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        saved_otp = redis_client.get(f"otp_{phone_number}")
-        if saved_otp and saved_otp == otp:
-            user = User.objects.filter(phone_number=phone_number).first()
-            if user:
-                user.set_password(new_password)
-                user.save()
-                return Response(
-                    {"message": "Password reset successfully."},
-                    status=status.HTTP_200_OK,
-                )
+        user = User.objects.filter(phone_number=phone_number).first()
+        if not user:
             return Response(
-                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                {"error": "User not found"}, 
+                status=status.HTTP_404_NOT_FOUND
             )
-        return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if user.verify_otp(otp):
+            user.set_password(new_password)
+            user.clear_otp()  # Clear OTP after successful verification
+            return Response(
+                {"message": "Password reset successfully."},
+                status=status.HTTP_200_OK,
+            )
+            
+        return Response(
+            {"error": "Invalid or expired OTP"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 class UserProfileUpdateView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -343,7 +386,7 @@ class UserProfileUpdateView(views.APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class AppVersionViewSet(viewsets.ModelViewSet):
     queryset = AppVersion.objects.all()
     serializer_class = AppVersionSerializer
-
