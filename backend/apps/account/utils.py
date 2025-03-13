@@ -21,7 +21,6 @@ def send_sms(phone_number, message):
     if token is None:
         token = eskiz_login()
         save_token_to_redis(token)
-    print(token)
     headers = {"Authorization": f"Bearer {token}"}
     payload = {
         "mobile_phone": phone_number,
@@ -32,7 +31,6 @@ def send_sms(phone_number, message):
 
     url = "https://notify.eskiz.uz/api/message/sms/send"
     response = requests.post(url, headers=headers, data=payload)
-    print(response.json())
     if response.status_code != 200:
         # If the token is expired, refresh it
         token = eskiz_refresh_token()
