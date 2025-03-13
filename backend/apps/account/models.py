@@ -96,9 +96,9 @@ class User(AbstractBaseUser):
         if not self.otp_created_at:
             return False
             
-        expiration_time = self.otp_created_at + timedelta(minutes=5)
-        if timezone.now() > expiration_time:
-            return False
+        # expiration_time = self.otp_created_at + timedelta(minutes=5)
+        # if timezone.now() > expiration_time:
+        #     return False
             
         # Check if OTP matches
         return self.otp == otp
