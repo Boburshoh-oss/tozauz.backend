@@ -272,7 +272,6 @@ class RegisterView(views.APIView):
             return Response(
                 {
                     "message": "User registered successfully. OTP sent to phone number.",
-                    "otp": otp,
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -326,7 +325,7 @@ class ForgotPasswordView(views.APIView):
                 f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}",
             )
             return Response(
-                {"message": "OTP sent to phone number.", "otp": otp},
+                {"message": "OTP sent to phone number.",},
                 status=status.HTTP_200_OK,
             )
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
