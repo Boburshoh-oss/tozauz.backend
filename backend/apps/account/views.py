@@ -28,6 +28,8 @@ from .utils import (
     # eskiz_refresh_token,
     send_sms,
     redis_client,
+    check_otp_limit,
+    increment_otp_counter,
 )
 from apps.ecopacket.models import Box
 
@@ -238,6 +240,18 @@ class RegisterView(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # IP manzilni olish
+        ip_address = self.get_client_ip(request)
+
+        # OTP cheklovini tekshirish
+        if not check_otp_limit(phone_number, ip_address):
+            return Response(
+                {
+                    "message": "Siz bugun OTP kodlarini jo'natish limitiga yetdingiz. Iltimos, ertaga qayta urinib ko'ring."
+                },
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
         user = User.objects.filter(phone_number=phone_number).first()
         if user and user.is_active:
             return Response(
@@ -269,6 +283,9 @@ class RegisterView(views.APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
+            # OTP jo'natilganini hisoblagichga qo'shish
+            increment_otp_counter(phone_number, ip_address)
+
             return Response(
                 {
                     "message": "User registered successfully. OTP sent to phone number.",
@@ -277,6 +294,15 @@ class RegisterView(views.APIView):
             )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_client_ip(self, request):
+        """Mijoz IP manzilini aniqlash"""
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(",")[0]
+        else:
+            ip = request.META.get("REMOTE_ADDR")
+        return ip
 
 
 class VerifyRegistrationOTPView(views.APIView):
@@ -317,18 +343,46 @@ class ForgotPasswordView(views.APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # IP manzilni olish
+        ip_address = self.get_client_ip(request)
+
+        # OTP cheklovini tekshirish
+        if not check_otp_limit(phone_number, ip_address):
+            return Response(
+                {
+                    "message": "Siz bugun OTP kodlarini jo'natish limitiga yetdingiz. Iltimos, ertaga qayta urinib ko'ring."
+                },
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
         user = User.objects.filter(phone_number=phone_number).first()
         if user:
             otp = user.generate_otp()
-            send_sms(
+            res = send_sms(
                 phone_number,
                 f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}",
             )
+
+            # OTP jo'natilganini hisoblagichga qo'shish
+            if res.status_code == 200:
+                increment_otp_counter(phone_number, ip_address)
+
             return Response(
-                {"message": "OTP sent to phone number.",},
+                {
+                    "message": "OTP sent to phone number.",
+                },
                 status=status.HTTP_200_OK,
             )
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def get_client_ip(self, request):
+        """Mijoz IP manzilini aniqlash"""
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(",")[0]
+        else:
+            ip = request.META.get("REMOTE_ADDR")
+        return ip
 
 
 class VerifyForgotPasswordOTPView(views.APIView):
@@ -346,10 +400,9 @@ class VerifyForgotPasswordOTPView(views.APIView):
         user = User.objects.filter(phone_number=phone_number).first()
         if not user:
             return Response(
-                {"error": "User not found"}, 
-                status=status.HTTP_404_NOT_FOUND
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
             )
-            
+
         if user.verify_otp(otp):
             user.set_password(new_password)
             user.clear_otp()  # Clear OTP after successful verification
@@ -357,11 +410,11 @@ class VerifyForgotPasswordOTPView(views.APIView):
                 {"message": "Password reset successfully."},
                 status=status.HTTP_200_OK,
             )
-            
+
         return Response(
-            {"error": "Invalid or expired OTP"}, 
-            status=status.HTTP_400_BAD_REQUEST
+            {"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST
         )
+
 
 class UserProfileUpdateView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
