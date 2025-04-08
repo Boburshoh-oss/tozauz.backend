@@ -111,7 +111,7 @@ class AdminGetAuthToken(ObtainAuthToken):
 class UserAdminRegisterView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAdminUser]
     serializer_class = UserAdminRegisterSerializer
-    queryset = User.objects.all().order_by("-id")
+    queryset = User.objects.filter(is_active=True).order_by("-id")
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
     filterset_fields = ["is_admin", "role", "categories"]
     search_fields = ["first_name", "last_name", "phone_number", "car_number"]
