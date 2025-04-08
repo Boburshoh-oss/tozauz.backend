@@ -50,9 +50,11 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop("password", None)
+        validated_data["is_active"] = False
         user = super().create(validated_data)
         if password:
             user.set_password(password)
+            
             user.save()
         return user
 
