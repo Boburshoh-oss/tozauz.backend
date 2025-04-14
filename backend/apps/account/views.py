@@ -274,10 +274,10 @@ class RegisterView(views.APIView):
 
             # SMS xabarini tayyorlash
             sms_message = (
-                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}"
+                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash code is: {otp}"
             )
             if auto_input_code:
-                sms_message += f"\nKod: {auto_input_code}"
+                sms_message += f" {auto_input_code}"
 
             res = send_sms(user.phone_number, sms_message)
             if res.status_code != 200:
@@ -370,10 +370,10 @@ class ForgotPasswordView(views.APIView):
 
             # SMS xabarini tayyorlash
             sms_message = (
-                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}"
+                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash code is: {otp}"
             )
             if auto_input_code:
-                sms_message += f"\nKod: {auto_input_code}"
+                sms_message += f" {auto_input_code}"
 
             res = send_sms(phone_number, sms_message)
 
