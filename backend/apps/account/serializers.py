@@ -220,6 +220,7 @@ class OTPSerializer(serializers.Serializer):
     phone_number = serializers.CharField()
     otp = serializers.CharField()
     new_password = serializers.CharField(write_only=True)
+    auto_input_code = serializers.CharField(write_only=True, required=False)
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):

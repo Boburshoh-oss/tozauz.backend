@@ -234,9 +234,7 @@ class RegisterView(views.APIView):
 
     def post(self, request):
         phone_number = request.data.get("phone_number")
-        auto_input_code = request.data.get(
-            "auto_input_code"
-        )  # Qo'shimcha input kodini olish
+        auto_input_code = request.data.get("auto_input_code")
         if not phone_number:
             return Response(
                 {"message": "Phone number is required."},
@@ -345,6 +343,9 @@ class VerifyRegistrationOTPView(views.APIView):
 class ForgotPasswordView(views.APIView):
     def post(self, request):
         phone_number = request.data.get("phone_number")
+        auto_input_code = request.data.get(
+            "auto_input_code"
+        )  # Qo'shimcha input kodini olish
         if not phone_number:
             return Response(
                 {"error": "Phone number is required"},
@@ -366,10 +367,15 @@ class ForgotPasswordView(views.APIView):
         user = User.objects.filter(phone_number=phone_number).first()
         if user:
             otp = user.generate_otp()
-            res = send_sms(
-                phone_number,
-                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}",
+
+            # SMS xabarini tayyorlash
+            sms_message = (
+                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}"
             )
+            if auto_input_code:
+                sms_message += f"\nKod: {auto_input_code}"
+
+            res = send_sms(phone_number, sms_message)
 
             # OTP jo'natilganini hisoblagichga qo'shish
             if res.status_code == 200:
