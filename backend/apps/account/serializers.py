@@ -4,7 +4,6 @@ from apps.ecopacket.models import Box
 from .models import User, RoleOptions, AppVersion
 
 
-
 class UserEarningSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -28,6 +27,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
+    auto_input_code = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = User
         fields = (
@@ -39,6 +40,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             "last_login",
             "role",
             "is_active",
+            "auto_input_code",
         )
         extra_kwargs = {
             "id": {"read_only": True},
@@ -50,16 +52,18 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop("password", None)
+        auto_input_code = validated_data.pop("auto_input_code", None)
         validated_data["is_active"] = False
         user = super().create(validated_data)
         if password:
             user.set_password(password)
-            
+
             user.save()
         return user
 
     def update(self, instance, validated_data):
         password = validated_data.pop("password", None)
+        auto_input_code = validated_data.pop("auto_input_code", None)
         user = super().update(instance, validated_data)
         if password:
             user.set_password(password)

@@ -234,6 +234,9 @@ class RegisterView(views.APIView):
 
     def post(self, request):
         phone_number = request.data.get("phone_number")
+        auto_input_code = request.data.get(
+            "auto_input_code"
+        )  # Qo'shimcha input kodini olish
         if not phone_number:
             return Response(
                 {"message": "Phone number is required."},
@@ -270,10 +273,15 @@ class RegisterView(views.APIView):
             )  # Use perform_create method to save the user
             # Generate OTP and save it to the user model
             otp = user.generate_otp()
-            res = send_sms(
-                user.phone_number,
-                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}",
+
+            # SMS xabarini tayyorlash
+            sms_message = (
+                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash kodi: {otp}"
             )
+            if auto_input_code:
+                sms_message += f"\nKod: {auto_input_code}"
+
+            res = send_sms(user.phone_number, sms_message)
             if res.status_code != 200:
                 return Response(
                     {
