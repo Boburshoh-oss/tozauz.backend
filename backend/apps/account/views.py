@@ -199,9 +199,16 @@ class UserDeleteView(views.APIView):
 
 
 class UserDeleteByIdView(views.APIView):
-    # permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, user_id):
+        # Foydalanuvchi faqat o'zining hisobini o'chirishi mumkinligini tekshirish
+        if str(request.user.id) != str(user_id):
+            return Response(
+                {"message": "Siz faqat o'zingizning hisobingizni o'chira olasiz"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         try:
             user = User.objects.get(id=user_id)
             user.first_name = ""
@@ -273,9 +280,7 @@ class RegisterView(views.APIView):
             otp = user.generate_otp()
 
             # SMS xabarini tayyorlash
-            sms_message = (
-                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash code is: {otp}"
-            )
+            sms_message = f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash code is: {otp}"
             if auto_input_code:
                 sms_message += f" {auto_input_code}"
 
@@ -369,9 +374,7 @@ class ForgotPasswordView(views.APIView):
             otp = user.generate_otp()
 
             # SMS xabarini tayyorlash
-            sms_message = (
-                f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash code is: {otp}"
-            )
+            sms_message = f"Tozauz mobil ilovasi tozauz.uz ga kirish uchun tasdiqlash code is: {otp}"
             if auto_input_code:
                 sms_message += f" {auto_input_code}"
 

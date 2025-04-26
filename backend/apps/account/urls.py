@@ -31,7 +31,7 @@ urlpatterns = [
     path("admin-register/<int:pk>/", UserAdminRetrieveView.as_view()),
     path("user-update/<int:pk>/", UserUpdateRetrieveView.as_view()),
     path("user-update-password/", UserChangePasswordView.as_view()),
-    path("user-delete/", UserDeleteView.as_view()),
+    # path("user-delete/", UserDeleteView.as_view()),
     path("user-delete/<int:user_id>/", UserDeleteByIdView.as_view()),
     path("admin-login/", AdminGetAuthToken.as_view()),
     path("",include(router.urls)),
