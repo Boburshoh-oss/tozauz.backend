@@ -84,7 +84,7 @@ def get_token_from_redis():
 def check_otp_limit(phone_number, ip_address):
     """
     Telefon raqami va IP manzili uchun OTP cheklovlarini tekshiradi.
-    Agar kunlik limit (3) oshib ketmagan bo'lsa True, aks holda False qaytaradi.
+    Agar kunlik limit (6) oshib ketmagan bo'lsa True, aks holda False qaytaradi.
     """
     today = datetime.now().strftime("%Y-%m-%d")
 
@@ -101,7 +101,7 @@ def check_otp_limit(phone_number, ip_address):
     ip_count = int(ip_count) if ip_count else 0
 
     # Limit tekshirish (2 martadan ko'p bo'lsa False)
-    if phone_count >= 4 or ip_count >= 4:
+    if phone_count >= 10 or ip_count >= 10:
         return False
 
     return True
