@@ -19,7 +19,7 @@ from apps.ecopacket.serializers import (
     LifeCycleSerializer,
     EcoPacketQrCodeSerializer,
     EcoPacketQrCodeSerializerCreate,
-    AgentBoxSerializer, 
+    AgentBoxSerializer,
 )
 from apps.bank.models import Earning
 
@@ -233,35 +233,51 @@ class IOTView(APIView):
         user = ecopacket_qr.user
         bank_account = user.bankaccount
 
-        seller_percentage = box.seller_percentage
-        if box.seller is not None:
-            # Seller ulushini hisoblash (masalan 30%)
-            seller_share = ecopakcet_money * seller_percentage / 100
-            # Client ulushini hisoblash (qolgan qismi)
-            client_share = ecopakcet_money - seller_share
-            # Seller hisobiga o'tkazish
-            bank_account_seller = box.seller.bankaccount
-            bank_account_seller.capital += seller_share
-            bank_account_seller.save()
-
-            # Box da seller ulushini saqlash
-            box.seller_share += seller_share
-            box.save()
-
-            # Client hisobiga asosiy summa + client ulushini o'tkazish
-            bank_account.capital += ecopakcet_money + client_share
-        else:
-            # Seller bo'lmasa hamma summa clientga
+        # Kategoriya ignore_agent=True bo'lsa, hamma pul foydalanuvchiga beriladi
+        if ecopakcet_catergory.ignore_agent:
+            # Seller ulushini hisoblamay, hammasi foydalanuvchiga boradi
             bank_account.capital += ecopakcet_money
+            bank_account.save()
 
-        bank_account.save()
+            # Foydalanuvchi uchun daromad yozib qo'yiladi
+            Earning.objects.create(
+                bank_account=bank_account,
+                amount=ecopakcet_money,
+                tarrif=ecopakcet_catergory.name,
+                box=box,
+            )
+        else:
+            # Agar ignore_agent=False bo'lsa, odatiy hisob-kitob
+            seller_percentage = box.seller_percentage
+            if box.seller is not None:
+                # Seller ulushini hisoblash (masalan 30%)
+                seller_share = ecopakcet_money * seller_percentage / 100
+                # Client ulushini hisoblash (qolgan qismi)
+                client_share = ecopakcet_money - seller_share
+                # Seller hisobiga o'tkazish
+                bank_account_seller = box.seller.bankaccount
+                bank_account_seller.capital += seller_share
+                bank_account_seller.save()
 
-        Earning.objects.create(
-            bank_account=bank_account,
-            amount=ecopakcet_money,
-            tarrif=ecopakcet_catergory.name,
-            box=box,
-        )
+                # Box da seller ulushini saqlash
+                box.seller_share += seller_share
+                box.save()
+
+                # Client hisobiga asosiy summa + client ulushini o'tkazish
+                bank_account.capital += ecopakcet_money + client_share
+            else:
+                # Seller bo'lmasa hamma summa clientga
+                bank_account.capital += ecopakcet_money
+
+            bank_account.save()
+
+            Earning.objects.create(
+                bank_account=bank_account,
+                amount=ecopakcet_money,
+                tarrif=ecopakcet_catergory.name,
+                box=box,
+            )
+
         # Return a success response
         return Response(
             {"message": "Qr code was successfully scanned."},
@@ -320,17 +336,62 @@ class IOTManualView(APIView):
 
         ecopakcet_money = ecopacket_qr.category.summa
         ecopakcet_catergory = ecopacket_qr.category
-        # user = ecopacket_qr.user
         bank_account = user.bankaccount
-        bank_account.capital += ecopakcet_money
-        bank_account.save()
 
-        Earning.objects.create(
-            bank_account=bank_account,
-            amount=ecopakcet_money,
-            tarrif=ecopakcet_catergory.name,
-            box=box,
-        )
+        # Kategoriya ignore_agent=True bo'lsa, hamma pul foydalanuvchiga beriladi
+        if ecopakcet_catergory.ignore_agent:
+            # Seller ulushini hisoblamay, hammasi foydalanuvchiga boradi
+            bank_account.capital += ecopakcet_money
+            bank_account.save()
+
+            # Foydalanuvchi uchun daromad yozib qo'yiladi
+            Earning.objects.create(
+                bank_account=bank_account,
+                amount=ecopakcet_money,
+                tarrif=ecopakcet_catergory.name,
+                box=box,
+            )
+        else:
+            # Agar ignore_agent=False bo'lsa yoki bo'lmasa, odatiy hisob-kitob
+            seller_percentage = box.seller_percentage
+            if box.seller is not None:
+                # Seller ulushini hisoblash
+                seller_share = ecopakcet_money * seller_percentage / 100
+                client_share = ecopakcet_money - seller_share
+
+                # Seller hisobiga o'tkazish
+                bank_account_seller = box.seller.bankaccount
+                bank_account_seller.capital += seller_share
+                bank_account_seller.save()
+
+                # Box da seller ulushini saqlash
+                box.seller_share += seller_share
+                box.save()
+
+                # Seller uchun daromad yozib qo'yiladi
+                Earning.objects.create(
+                    bank_account=bank_account_seller,
+                    amount=seller_share,
+                    tarrif=ecopakcet_catergory.name,
+                    box=box,
+                )
+
+                # Client hisobiga client ulushini o'tkazish
+                bank_account.capital += client_share
+            else:
+                # Seller bo'lmasa hamma summa clientga
+                bank_account.capital += ecopakcet_money
+
+            bank_account.save()
+
+            # Client uchun daromad yozib qo'yiladi
+            Earning.objects.create(
+                bank_account=bank_account,
+                amount=ecopakcet_money if box.seller is None else client_share,
+                tarrif=ecopakcet_catergory.name,
+                box=box,
+            )
+
         # Return a success response
         return Response(
             {"message": "Qr code was successfully scanned."},
@@ -388,17 +449,62 @@ class IOTManualView(APIView):
 
         ecopakcet_money = ecopacket_qr.category.summa
         ecopakcet_catergory = ecopacket_qr.category
-        # user = ecopacket_qr.user
         bank_account = user.bankaccount
-        bank_account.capital += ecopakcet_money
-        bank_account.save()
 
-        Earning.objects.create(
-            bank_account=bank_account,
-            amount=ecopakcet_money,
-            tarrif=ecopakcet_catergory.name,
-            box=box,
-        )
+        # Kategoriya ignore_agent=True bo'lsa, hamma pul foydalanuvchiga beriladi
+        if ecopakcet_catergory.ignore_agent:
+            # Seller ulushini hisoblamay, hammasi foydalanuvchiga boradi
+            bank_account.capital += ecopakcet_money
+            bank_account.save()
+
+            # Foydalanuvchi uchun daromad yozib qo'yiladi
+            Earning.objects.create(
+                bank_account=bank_account,
+                amount=ecopakcet_money,
+                tarrif=ecopakcet_catergory.name,
+                box=box,
+            )
+        else:
+            # Agar ignore_agent=False bo'lsa yoki bo'lmasa, odatiy hisob-kitob
+            seller_percentage = box.seller_percentage
+            if box.seller is not None:
+                # Seller ulushini hisoblash
+                seller_share = ecopakcet_money * seller_percentage / 100
+                client_share = ecopakcet_money - seller_share
+
+                # Seller hisobiga o'tkazish
+                bank_account_seller = box.seller.bankaccount
+                bank_account_seller.capital += seller_share
+                bank_account_seller.save()
+
+                # Box da seller ulushini saqlash
+                box.seller_share += seller_share
+                box.save()
+
+                # Seller uchun daromad yozib qo'yiladi
+                Earning.objects.create(
+                    bank_account=bank_account_seller,
+                    amount=seller_share,
+                    tarrif=ecopakcet_catergory.name,
+                    box=box,
+                )
+
+                # Client hisobiga client ulushini o'tkazish
+                bank_account.capital += client_share
+            else:
+                # Seller bo'lmasa hamma summa clientga
+                bank_account.capital += ecopakcet_money
+
+            bank_account.save()
+
+            # Client uchun daromad yozib qo'yiladi
+            Earning.objects.create(
+                bank_account=bank_account,
+                amount=ecopakcet_money if box.seller is None else client_share,
+                tarrif=ecopakcet_catergory.name,
+                box=box,
+            )
+
         # Return a success response
         return Response(
             {"message": "Qr code was successfully scanned."},
@@ -456,46 +562,61 @@ class IOTManualMultipleView(APIView):
 
                 ecopakcet_money = ecopacket.category.summa
                 ecopakcet_catergory = ecopacket.category
-                
-                # seller ulushini hisoblash
-                seller_percentage = box.seller_percentage
                 client_bank_account = user.bankaccount
-                if box.seller is not None:
-                    seller_share = ecopakcet_money * seller_percentage / 100
-                    client_share = ecopakcet_money - seller_share
-                    # Seller hisobiga o'tkazish
-                    bank_account_seller = box.seller.bankaccount
-                    bank_account_seller.capital += seller_share
-                    bank_account_seller.save()
-                    Earning.objects.create(
-                        bank_account=bank_account_seller,
-                        amount=seller_share,
-                        tarrif=ecopakcet_catergory.name,
-                        box=box,
-                    )
-                    # Box da seller ulushini saqlash
-                    box.seller_share += seller_share
-                    box.save()
 
-                    # Client hisobiga asosiy summa + client ulushini o'tkazish
-                    client_bank_account.capital += client_share
-                    Earning.objects.create(
-                        bank_account=client_bank_account,
-                        amount=client_share,
-                        tarrif=ecopakcet_catergory.name,
-                        box=box,
-                    )
-                else:
-                    # Seller bo'lmasa hamma summa clientga
+                # Kategoriya ignore_agent=True bo'lsa, hamma pul foydalanuvchiga beriladi
+                if ecopakcet_catergory.ignore_agent:
+                    # Seller ulushini hisoblamay, hammasi foydalanuvchiga boradi
                     client_bank_account.capital += ecopakcet_money
+                    client_bank_account.save()
+
+                    # Foydalanuvchi uchun daromad yozib qo'yiladi
                     Earning.objects.create(
                         bank_account=client_bank_account,
                         amount=ecopakcet_money,
                         tarrif=ecopakcet_catergory.name,
                         box=box,
                     )
+                else:
+                    # Agar ignore_agent=False bo'lsa, odatiy hisob-kitob
+                    # seller ulushini hisoblash
+                    seller_percentage = box.seller_percentage
+                    if box.seller is not None:
+                        seller_share = ecopakcet_money * seller_percentage / 100
+                        client_share = ecopakcet_money - seller_share
+                        # Seller hisobiga o'tkazish
+                        bank_account_seller = box.seller.bankaccount
+                        bank_account_seller.capital += seller_share
+                        bank_account_seller.save()
+                        Earning.objects.create(
+                            bank_account=bank_account_seller,
+                            amount=seller_share,
+                            tarrif=ecopakcet_catergory.name,
+                            box=box,
+                        )
+                        # Box da seller ulushini saqlash
+                        box.seller_share += seller_share
+                        box.save()
 
-                client_bank_account.save()                
+                        # Client hisobiga asosiy summa + client ulushini o'tkazish
+                        client_bank_account.capital += client_share
+                        Earning.objects.create(
+                            bank_account=client_bank_account,
+                            amount=client_share,
+                            tarrif=ecopakcet_catergory.name,
+                            box=box,
+                        )
+                    else:
+                        # Seller bo'lmasa hamma summa clientga
+                        client_bank_account.capital += ecopakcet_money
+                        Earning.objects.create(
+                            bank_account=client_bank_account,
+                            amount=ecopakcet_money,
+                            tarrif=ecopakcet_catergory.name,
+                            box=box,
+                        )
+
+                client_bank_account.save()
                 status_qr_code["S"] += 1
             else:
                 status_qr_code["E"] += 1
