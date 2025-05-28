@@ -31,8 +31,8 @@ DEBUG = env.bool("DEBUG")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
-CSRF_TRUSTED_ORIGINS =  []
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_TRUSTED_ORIGINS = []
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,17 +50,16 @@ INSTALLED_APPS = [
     # "debug_toolbar",
     "django_filters",
     "drf_yasg",
-
     "apps.account",
     "apps.bank",
     "apps.ecopacket",
     "apps.packet",
+    "apps.home",
 ]
 # CORS_ORIGIN_WHITELIST = (
 # 'http://localhost:3000',  # for localhost (REACT Default)
 # 'http://192.168.10.45:3000', # for network
 # )
-
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -112,7 +111,6 @@ AUTH_USER_MODEL = "account.User"
 #         "PORT": "5432",
 #     }
 # }
-
 
 
 # Password validation

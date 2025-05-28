@@ -3,13 +3,23 @@ from .models import Category, Packet
 
 # Register your models here.
 
-admin.site.register(Category)
+
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "summa", "ignore_agent", "count_user")
+    list_filter = ["ignore_agent"]
+    search_fields = ["name"]
+    list_editable = ["ignore_agent"]
+
+    fieldsets = ((None, {"fields": ("name", "summa", "ignore_agent")}),)
+
+
+admin.site.register(Category, CategoryAdmin)
 # admin.site.register(Packet)
 
 
 class PacketQrCodeAdmin(admin.ModelAdmin):
     # You can also specify read-only fields here
-    search_fields = ["qr_code","id"]
+    search_fields = ["qr_code", "id"]
     list_filter = ["category"]
     readonly_fields = ("created_at", "qr_code", "scannered_at")
     list_display = (

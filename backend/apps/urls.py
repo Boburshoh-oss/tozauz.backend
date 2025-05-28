@@ -9,6 +9,6 @@ urlpatterns = [
     path("ecopacket/", include("apps.ecopacket.urls.urls2")),
     path("packet/", include("apps.packet.urls")),
     path("bank/", include("apps.bank.urls")),
+    path("home/", include("apps.home.urls")),
     path("dashboard/", DashboardView.as_view()),
-    
 ]
