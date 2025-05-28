@@ -1,11 +1,12 @@
-from rest_framework import generics, status, permissions
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework import generics, status, permissions, viewsets
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
-from .models import Home, HomeMembership
+from .models import Home, HomeMembership, Region, WasteMonthlyReport
 from .serializers import (
     HomeReportSerializer,
     HomeSerializer,
@@ -13,8 +14,60 @@ from .serializers import (
     JoinHomeSerializer,
     HomeMembershipSerializer,
     HomeMemberReportSerializer,
+    HomeListSerializer,
+    RegionSerializer,
+    RegionDetailSerializer,
+    WasteMonthlyReportSerializer,
+    HomeWarningSerializer,
 )
 from apps.ecopacket.models import EcoPacketQrCode
+
+
+class RegionViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Region CRUD operations
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return RegionDetailSerializer
+        return RegionSerializer
+
+    def get_queryset(self):
+        return Region.objects.filter(is_active=True).order_by("name")
+
+    @action(detail=True, methods=["get"])
+    def monthly_stats(self, request, pk=None):
+        """Hudud uchun oylik statistika"""
+        region = self.get_object()
+        year = request.query_params.get("year")
+        month = request.query_params.get("month")
+
+        if year:
+            year = int(year)
+        if month:
+            month = int(month)
+
+        stats = region.get_monthly_waste_statistics(year, month)
+        return Response(stats)
+
+    @action(detail=True, methods=["post"])
+    def generate_report(self, request, pk=None):
+        """Hudud uchun oylik hisobot yaratish"""
+        region = self.get_object()
+        year = request.data.get("year")
+        month = request.data.get("month")
+
+        if year:
+            year = int(year)
+        if month:
+            month = int(month)
+
+        report = WasteMonthlyReport.generate_monthly_report(region, year, month)
+        serializer = WasteMonthlyReportSerializer(report)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class HomeReportView(APIView):
@@ -29,9 +82,9 @@ class HomeReportView(APIView):
     def get(self, request):
         try:
             # Get user's home membership
-            membership = HomeMembership.objects.select_related("home").get(
-                user=request.user
-            )
+            membership = HomeMembership.objects.select_related(
+                "home", "home__region"
+            ).get(user=request.user)
             home = membership.home
 
         except HomeMembership.DoesNotExist:
@@ -40,18 +93,28 @@ class HomeReportView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        # Get current month for statistics
+        now = timezone.now()
+
         # Get all members of the home with ecopacket counts
-        # Using efficient query with annotations
         members_data = (
             HomeMembership.objects.filter(home=home)
             .select_related("user", "home")
             .annotate(
                 ecopacket_count=Count(
                     "user__ecopacketqrcode",
-                    filter=Q(user__ecopacketqrcode__user__isnull=False),
-                )
+                    filter=Q(user__ecopacketqrcode__scannered_at__isnull=False),
+                ),
+                monthly_ecopacket_count=Count(
+                    "user__ecopacketqrcode",
+                    filter=Q(
+                        user__ecopacketqrcode__scannered_at__year=now.year,
+                        user__ecopacketqrcode__scannered_at__month=now.month,
+                        user__ecopacketqrcode__scannered_at__isnull=False,
+                    ),
+                ),
             )
-            .order_by("-ecopacket_count", "joined_at")
+            .order_by("-monthly_ecopacket_count", "-ecopacket_count", "joined_at")
         )
 
         # Prepare members list
@@ -64,19 +127,28 @@ class HomeReportView(APIView):
                 "last_name": member_data.user.last_name,
                 "phone_number": member_data.user.phone_number,
                 "ecopacket_count": member_data.ecopacket_count,
+                "monthly_ecopacket_count": member_data.monthly_ecopacket_count,
                 "joined_at": member_data.joined_at,
                 "is_admin": member_data.is_admin,
             }
             members_list.append(member_info)
 
+        # Get region warning data
+        region_warning = home.check_region_limit_warning()
+
         # Prepare response data
         response_data = {
             "home_id": home.id,
             "home_name": home.name,
+            "region_name": home.region.name,
             "member_count": len(members_list),
             "total_ecopackets": sum(
                 member["ecopacket_count"] for member in members_list
             ),
+            "monthly_ecopackets": sum(
+                member["monthly_ecopacket_count"] for member in members_list
+            ),
+            "region_warning": region_warning,
             "members": members_list,
         }
 
@@ -95,13 +167,15 @@ class HomeListCreateView(generics.ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == "POST":
             return HomeCreateSerializer
-        return HomeSerializer
+        return HomeListSerializer
 
     def get_queryset(self):
         # Return homes where user is a member
-        return Home.objects.filter(
-            memberships__user=self.request.user, is_active=True
-        ).distinct()
+        return (
+            Home.objects.filter(memberships__user=self.request.user, is_active=True)
+            .select_related("region")
+            .distinct()
+        )
 
 
 class HomeDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -114,7 +188,81 @@ class HomeDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         # Only allow access to homes where user is a member
-        return Home.objects.filter(memberships__user=self.request.user, is_active=True)
+        return Home.objects.filter(
+            memberships__user=self.request.user, is_active=True
+        ).select_related("region")
+
+
+class HomeWarningView(APIView):
+    """
+    GET /api/home/warning/
+
+    Foydalanuvchi uyining hudud limit ogohlantirishini olish
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            membership = HomeMembership.objects.select_related(
+                "home", "home__region"
+            ).get(user=request.user)
+            home = membership.home
+        except HomeMembership.DoesNotExist:
+            return Response(
+                {"error": "Siz hech qanday uyga a'zo emassiz"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        warning_data = home.check_region_limit_warning()
+
+        response_data = {
+            "home_id": home.id,
+            "home_name": home.name,
+            "region_name": home.region.name,
+            **warning_data,
+        }
+
+        serializer = HomeWarningSerializer(response_data)
+        return Response(serializer.data)
+
+
+class RegionHomesWarningView(APIView):
+    """
+    GET /api/home/region-warnings/
+
+    Barcha hududlar va ularning limit holatlari
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        regions = Region.objects.filter(is_active=True)
+        warnings = []
+
+        for region in regions:
+            stats = region.get_monthly_waste_statistics()
+            usage_ratio = (
+                stats["total_scans"] / stats["limit"] if stats["limit"] > 0 else 0
+            )
+
+            warning_level = "normal"
+            if usage_ratio >= 1.0:
+                warning_level = "critical"
+            elif usage_ratio >= 0.8:
+                warning_level = "warning"
+
+            warnings.append(
+                {
+                    "region_id": region.id,
+                    "region_name": region.name,
+                    "region_code": region.code,
+                    "warning_level": warning_level,
+                    "stats": stats,
+                }
+            )
+
+        return Response(warnings)
 
 
 class JoinHomeView(APIView):
@@ -136,6 +284,7 @@ class JoinHomeView(APIView):
                     "message": f"Siz '{membership.home.name}' uyiga muvaffaqiyatli qo'shildingiz",
                     "home_id": membership.home.id,
                     "home_name": membership.home.name,
+                    "region_name": membership.home.region.name,
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -216,20 +365,40 @@ def my_home_status(request):
     Foydalanuvchining uy holati haqida ma'lumot
     """
     try:
-        membership = HomeMembership.objects.select_related("home").get(
+        membership = HomeMembership.objects.select_related("home", "home__region").get(
             user=request.user
         )
 
-        user_ecopacket_count = EcoPacketQrCode.objects.filter(user=request.user).count()
+        # Current month ecopacket count
+        now = timezone.now()
+        user_monthly_ecopacket_count = EcoPacketQrCode.objects.filter(
+            user=request.user,
+            scannered_at__year=now.year,
+            scannered_at__month=now.month,
+            scannered_at__isnull=False,
+        ).count()
+
+        # Total ecopacket count
+        user_total_ecopacket_count = EcoPacketQrCode.objects.filter(
+            user=request.user, scannered_at__isnull=False
+        ).count()
+
+        # Region warning
+        region_warning = membership.home.check_region_limit_warning()
 
         return Response(
             {
                 "has_home": True,
                 "home_id": membership.home.id,
                 "home_name": membership.home.name,
+                "region_id": membership.home.region.id,
+                "region_name": membership.home.region.name,
+                "region_code": membership.home.region.code,
                 "is_admin": membership.is_admin,
                 "joined_at": membership.joined_at,
-                "my_ecopacket_count": user_ecopacket_count,
+                "my_monthly_ecopacket_count": user_monthly_ecopacket_count,
+                "my_total_ecopacket_count": user_total_ecopacket_count,
+                "region_warning": region_warning,
                 "invitation_code": (
                     membership.home.invitation_code if membership.is_admin else None
                 ),
@@ -237,6 +406,24 @@ def my_home_status(request):
         )
 
     except HomeMembership.DoesNotExist:
-        user_ecopacket_count = EcoPacketQrCode.objects.filter(user=request.user).count()
+        # Current month ecopacket count
+        now = timezone.now()
+        user_monthly_ecopacket_count = EcoPacketQrCode.objects.filter(
+            user=request.user,
+            scannered_at__year=now.year,
+            scannered_at__month=now.month,
+            scannered_at__isnull=False,
+        ).count()
 
-        return Response({"has_home": False, "my_ecopacket_count": user_ecopacket_count})
+        # Total ecopacket count
+        user_total_ecopacket_count = EcoPacketQrCode.objects.filter(
+            user=request.user, scannered_at__isnull=False
+        ).count()
+
+        return Response(
+            {
+                "has_home": False,
+                "my_monthly_ecopacket_count": user_monthly_ecopacket_count,
+                "my_total_ecopacket_count": user_total_ecopacket_count,
+            }
+        )
