@@ -140,7 +140,7 @@ class HomeReportView(APIView):
         response_data = {
             "home_id": home.id,
             "home_name": home.name,
-            "region_name": home.region.name,
+            "region_name": home.region.name if home.region else None,
             "member_count": len(members_list),
             "total_ecopackets": sum(
                 member["ecopacket_count"] for member in members_list
