@@ -118,7 +118,6 @@ class Home(models.Model):
         related_name="homes",
         help_text="Uy tegishli bo'lgan hudud",
         verbose_name="Hudud",
-        
     )
 
     # Invitation code for joining the home
@@ -134,7 +133,7 @@ class Home(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.name} - {self.region.name}"
+        return f"{self.name} - {self.region.name if self.region else 'Hudud topilmadi'}"
 
     def save(self, *args, **kwargs):
         if not self.invitation_code:
@@ -189,6 +188,23 @@ class Home(models.Model):
             year = timezone.now().year
         if not month:
             month = timezone.now().month
+
+        # Check if region is None and return default values
+        if not self.region:
+            return {
+                "has_warning": False,
+                "is_critical": False,
+                "region_stats": {
+                    "total_scans": 0,
+                    "limit": 0,
+                    "remaining": 0,
+                    "is_exceeded": False,
+                    "usage_percentage": 0,
+                },
+                "home_contribution": 0,
+                "home_percentage": 0,
+                "warning_message": "",
+            }
 
         region_stats = self.region.get_monthly_waste_statistics(year, month)
         home_contribution = self.get_monthly_waste_count(year, month)
