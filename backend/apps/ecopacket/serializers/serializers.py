@@ -1,6 +1,6 @@
 # from drf_extra_fields.geo_fields import PointField
 from rest_framework import serializers
-from .models import Box, LifeCycle, EcoPacketQrCode
+from ..models import Box, LifeCycle, EcoPacketQrCode
 from apps.account.serializers import UserEarningSerializer
 from apps.packet.serializers import CategorySerializer
 from apps.packet.models import Category

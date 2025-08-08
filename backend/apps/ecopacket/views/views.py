@@ -14,7 +14,7 @@ from apps.ecopacket.models import EcoPacketQrCode, Box, LifeCycle
 from apps.account.models import RoleOptions
 
 from apps.account.models import User
-from apps.ecopacket.serializers import (
+from apps.ecopacket.serializers.serializers import (
     BoxSerializer,
     LifeCycleSerializer,
     EcoPacketQrCodeSerializer,
