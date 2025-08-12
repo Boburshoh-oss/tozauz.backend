@@ -12,6 +12,7 @@ class Box(models.Model):
     location = models.CharField(max_length=255, blank=True, null=True)
     datetime_of_delivery = models.DateTimeField(blank=True, null=True)
     unloading_price = models.PositiveBigIntegerField(default=0)
+    fandomat = models.BooleanField(default=False)
     containers_count = models.PositiveIntegerField(default=0)
     qr_code = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -88,3 +89,17 @@ class EcoPacketQrCode(models.Model):
             return self.life_cycle.box
 
         return None
+
+
+class FlaskQrCode(models.Model):
+    bar_code = models.CharField(max_length=50)
+
+    category = models.ForeignKey(
+        "packet.Category", on_delete=models.SET_NULL, null=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.bar_code
+

@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from apps.ecopacket.models import Box
-from apps.ecopacket.serializers import AgentBoxSerializer
+from apps.ecopacket.serializers.serializers import AgentBoxSerializer
 class AgentBoxRetrieveView(generics.RetrieveAPIView):
    queryset = Box.objects.all()
    serializer_class = AgentBoxSerializer

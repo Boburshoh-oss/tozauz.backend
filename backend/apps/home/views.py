@@ -187,6 +187,10 @@ class HomeDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = HomeSerializer
 
     def get_queryset(self):
+        # Skip filtering for Swagger schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return Home.objects.none()
+            
         # Only allow access to homes where user is a member
         return Home.objects.filter(
             memberships__user=self.request.user, is_active=True
