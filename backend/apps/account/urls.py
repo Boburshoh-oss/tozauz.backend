@@ -18,6 +18,7 @@ from .views import (
     ForgotPasswordView,
     VerifyForgotPasswordOTPView,
     UserProfileUpdateView,
+    CheckPhoneNumberView,
 )
 from .views import AppVersionViewSet
 
@@ -44,6 +45,7 @@ urlpatterns2 = [
     path('forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
     path('verify-forgot-password-otp/', VerifyForgotPasswordOTPView.as_view(), name='verify_forgot_password_otp'),
     path('profile/update/', UserProfileUpdateView.as_view(), name='profile-update'),
+    path('check-phone/', CheckPhoneNumberView.as_view(), name='check-phone-number'),
 ]
 
 urlpatterns += urlpatterns2

@@ -11,6 +11,7 @@ from apps.ecopacket.views import (
     BoxOrderAPIView,
     IOTManualView,
     IOTManualMultipleView,
+    IOTManualSingleView,
     BoxLocationAPIView,
     BoxListView
 )
@@ -30,6 +31,7 @@ urlpatterns = [
     path("iot-qr-code-scan/", IOTView.as_view()),
     path("iot-qr-code-manual-scan/", IOTManualView.as_view()),
     path("iot-qr-code-multiple-scan/", IOTManualMultipleView.as_view()),
+    path("iot-qr-code-single-scan/", IOTManualSingleView.as_view()),
     path("mobile-qr-code-scan/", QrCodeScanerView.as_view()),
     path("iot-location-state/", IOTLocationStateView.as_view()),
     path("", include(router.urls)),
