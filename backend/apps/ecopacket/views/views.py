@@ -628,6 +628,163 @@ class IOTManualMultipleView(APIView):
         )
 
 
+class IOTManualSingleView(APIView):
+    """
+    IOT uchun bitta QR kodini qayta ishlash API'si.
+    
+    Bu API bitta EcoPacket QR kodini qayta ishlash imkonini beradi.
+    QR kod uchun kategoriyaga qarab pul miqdori hisoblanadi va 
+    foydalanuvchi hamda seller (mavjud bo'lsa) hisoblariga taqsimlanadi.
+    """
+    
+    def post(self, request, format=None):
+        """
+        Bitta EcoPacket QR kodini qayta ishlash.
+
+        Args:
+            request data:
+            {
+                "qr_code": "string",            # Majburiy. EcoPacket QR kod
+                "sim_module": "string",         # Majburiy. Box SIM moduli
+                "phone_number": "string"        # Majburiy. Foydalanuvchi telefon raqami
+            }
+
+        Returns:
+            {
+                "success": true,                # Muvaffaqiyatli bajarildi
+                "amount": float,                # Hisoblangan summa
+                "qr_code": "string",            # Qayta ishlangan QR kod
+                "filter_type": "string"         # Kategoriya filter type'i
+            }
+
+        Raises:
+            400 Bad Request:
+                - qr_code kiritilmagan
+            404 Not Found:
+                - Box topilmadi
+                - Foydalanuvchi topilmadi
+                - QR kod topilmadi
+                - Kategoriya topilmadi
+            409 Conflict:
+                - QR kod avval ishlatilgan
+        """
+        qr_code = request.data.get("qr_code")
+        sim_module = request.data.get("sim_module")
+        phone_number = request.data.get("phone_number")
+
+        if not qr_code:
+            return Response(
+                {"error": "qr_code is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            box = Box.objects.get(sim_module=sim_module)
+        except Box.DoesNotExist:
+            return Response(
+                {"error": "Box doesn't exist!"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        try:
+            user = User.objects.get(phone_number=phone_number)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Phone number doesn't exist!"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        try:
+            ecopacket_qr = EcoPacketQrCode.objects.get(qr_code=qr_code)
+        except EcoPacketQrCode.DoesNotExist:
+            return Response(
+                {"error": "QR code not found!"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if ecopacket_qr.scannered_at is not None:
+            return Response(
+                {"error": "This QR code has already been used"},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        # QR kodini qayta ishlash
+        last_lifecycle = box.lifecycle.last()
+        ecopacket_qr.scannered_at = timezone.now()
+        ecopacket_qr.life_cycle = last_lifecycle
+        ecopacket_qr.user = user
+        ecopacket_qr.save()
+
+        ecopakcet_money = ecopacket_qr.category.summa
+        ecopakcet_catergory = ecopacket_qr.category
+        client_bank_account = user.bankaccount
+
+        # Kategoriya ignore_agent=True bo'lsa, hamma pul foydalanuvchiga beriladi
+        if ecopakcet_catergory.ignore_agent:
+            # Seller ulushini hisoblamay, hammasi foydalanuvchiga boradi
+            client_bank_account.capital += ecopakcet_money
+            
+            # Foydalanuvchi uchun daromad yozib qo'yiladi
+            Earning.objects.create(
+                bank_account=client_bank_account,
+                amount=ecopakcet_money,
+                tarrif=ecopakcet_catergory.name,
+                box=box,
+            )
+        else:
+            # Agar ignore_agent=False bo'lsa, odatiy hisob-kitob
+            # seller ulushini hisoblash
+            seller_percentage = box.seller_percentage
+            if box.seller is not None:
+                seller_share = ecopakcet_money * seller_percentage / 100
+                client_share = ecopakcet_money - seller_share
+                
+                # Seller hisobiga o'tkazish
+                bank_account_seller = box.seller.bankaccount
+                bank_account_seller.capital += seller_share
+                bank_account_seller.save()
+                
+                Earning.objects.create(
+                    bank_account=bank_account_seller,
+                    amount=seller_share,
+                    tarrif=ecopakcet_catergory.name,
+                    box=box,
+                )
+                
+                # Box da seller ulushini saqlash
+                box.seller_share += seller_share
+                box.save()
+
+                # Client hisobiga client ulushini o'tkazish
+                client_bank_account.capital += client_share
+                
+                Earning.objects.create(
+                    bank_account=client_bank_account,
+                    amount=client_share,
+                    tarrif=ecopakcet_catergory.name,
+                    box=box,
+                )
+            else:
+                # Seller bo'lmasa hamma summa clientga
+                client_bank_account.capital += ecopakcet_money
+                
+                Earning.objects.create(
+                    bank_account=client_bank_account,
+                    amount=ecopakcet_money,
+                    tarrif=ecopakcet_catergory.name,
+                    box=box,
+                )
+
+        client_bank_account.save()
+
+        return Response({
+            "success": True,
+            "amount": ecopakcet_money,
+            "qr_code": qr_code,
+            "filter_type": ecopakcet_catergory.filter_type
+        }, status=status.HTTP_202_ACCEPTED)
+
+
 class QrCodeScanerView(APIView):
     permission_classes = [IsAuthenticated]
 

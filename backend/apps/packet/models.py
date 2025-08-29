@@ -3,11 +3,31 @@ from apps.utils import get_uid
 
 # Create your models here.
 
+class FilterType(models.TextChoices):
+    # -aluminum
+    # -plastic
+    # -glass
+    # //Package
+    # -yellow
+    # -black
+    # -red
+    ALUMINUM = "aluminum", "Aluminum"
+    PLASTIC = "plastic", "Plastic"
+    GLASS = "glass", "Glass"
+    YELLOW = "yellow", "Yellow"
+    BLACK = "black", "Black"
+    RED = "red", "Red"
+
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
     summa = models.PositiveIntegerField()
     ignore_agent = models.BooleanField(default=False)
+    filter_type = models.CharField(
+        max_length=20,
+        choices=FilterType.choices,
+        default=FilterType.BLACK
+    )
 
     def __str__(self) -> str:
         return self.name

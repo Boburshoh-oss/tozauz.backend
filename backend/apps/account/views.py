@@ -459,3 +459,65 @@ class UserProfileUpdateView(views.APIView):
 class AppVersionViewSet(viewsets.ModelViewSet):
     queryset = AppVersion.objects.all()
     serializer_class = AppVersionSerializer
+
+
+class CheckPhoneNumberView(views.APIView):
+    """
+    Telefon raqam orqali foydalanuvchining ro'yxatdan o'tgan yoki o'tmaganligini tekshiruvchi API.
+    """
+    
+    def post(self, request, format=None):
+        """
+        Telefon raqamni tekshirish.
+
+        Args:
+            request data:
+            {
+                "phone_number": "string"        # Majburiy. Telefon raqami
+            }
+
+        Returns:
+            {
+                "phone_number": "string",       # Tekshirilgan telefon raqami
+                "is_registered": boolean,       # Ro'yxatdan o'tgan yoki yo'q
+                "user_info": {                  # Agar ro'yxatdan o'tgan bo'lsa
+                    "id": int,
+                    "first_name": "string",
+                    "last_name": "string",
+                    "role": "string"
+                }
+            }
+
+        Raises:
+            400 Bad Request:
+                - phone_number kiritilmagan
+        """
+        phone_number = request.data.get("phone_number")
+        
+        if not phone_number:
+            return Response(
+                {"error": "phone_number is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        
+        try:
+            user = User.objects.get(phone_number=phone_number)
+            # Foydalanuvchi topildi
+            return Response({
+                "phone_number": phone_number,
+                "is_registered": True,
+                "user_info": {
+                    "id": user.id,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "role": user.role
+                }
+            }, status=status.HTTP_200_OK)
+            
+        except User.DoesNotExist:
+            # Foydalanuvchi topilmadi
+            return Response({
+                "phone_number": phone_number,
+                "is_registered": False,
+                "user_info": None
+            }, status=status.HTTP_200_OK)
