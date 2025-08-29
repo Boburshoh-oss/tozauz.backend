@@ -13,10 +13,8 @@ urlpatterns = [
     path('manual/', FlaskQrManualMultipleView.as_view(), name='flask-qr-manual-multiple'),
     path('manual/single/', FlaskQrManualSingleView.as_view(), name='flask-qr-manual-single'),
     path('universal/', UniversalQrManualSingleView.as_view(), name='universal-qr-manual'),
-]
-
-urlpatterns = [
-    path('', include(router.urls)),
     path('flask-qr/manual/', FlaskQrManualMultipleView.as_view(), name='flask-qr-manual')
 ]
+
+
 
