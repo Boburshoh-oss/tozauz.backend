@@ -1,7 +1,11 @@
 from django.contrib import admin
 # from django.contrib.gis.admin import OSMGeoAdmin
-from .models import LifeCycle, Box, EcoPacketQrCode
+from .models import LifeCycle, Box, EcoPacketQrCode, FlaskQrCode
 # Register your models here.
+
+@admin.register(FlaskQrCode)
+class FlaskQrCodeAdmin(admin.ModelAdmin):
+    list_display = ('bar_code', 'created_at')
 
 
 @admin.register(LifeCycle)
