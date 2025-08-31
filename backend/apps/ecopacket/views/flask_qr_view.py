@@ -579,3 +579,102 @@ class UniversalQrManualSingleView(APIView):
             )
 
 
+class UniversalQrCheckView(APIView):
+    """
+    QR kod yoki barcodeni bazada mavjudligini tekshirish API'si.
+    
+    Bu API QR kod yoki barcodeni bazada mavjudligini tekshiradi va 
+    topilganda uning ma'lumotlarini qaytaradi.
+    Hech qanday operatsiya bajarmaydi, faqat ma'lumot beradi.
+    """
+    
+    def get(self, request, format=None):
+        """
+        QR kod yoki barcodeni bazada tekshirish.
+
+        Query Parameters:
+            qr_code (string): Tekshiriladigan QR kod yoki barcode
+
+        Returns:
+            {
+                "exists": true,                 # QR kod mavjudligi
+                "qr_type": "string",           # QR kod tipi ("ecopacket" yoki "flask")
+                "data": {                      # QR kod ma'lumotlari
+                    "qr_code": "string",       # QR kod/barcode
+                    "category": {
+                        "name": "string",
+                        "summa": float,
+                        "filter_type": "string",
+                        "ignore_agent": boolean
+                    },
+                    "is_used": boolean         # Faqat EcoPacket uchun
+                }
+            }
+
+        Raises:
+            400 Bad Request:
+                - qr_code kiritilmagan
+            404 Not Found:
+                - QR kod topilmadi
+        """
+        qr_code = request.query_params.get("qr_code")
+
+        if not qr_code:
+            return Response(
+                {"error": "qr_code parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Avval EcoPacket QR kodini tekshiramiz
+        ecopacket_qr = EcoPacketQrCode.objects.filter(qr_code=qr_code).first()
+        flask_qr = FlaskQrCode.objects.filter(bar_code=qr_code).first()
+
+        if ecopacket_qr:
+            # EcoPacket QR kod topildi
+            category = ecopacket_qr.category
+            return Response({
+                "exists": True,
+                "qr_type": "ecopacket",
+                "data": {
+                    "qr_code": qr_code,
+                    "category": {
+                        "name": category.name,
+                        "summa": category.summa,
+                        "filter_type": category.filter_type,
+                        "ignore_agent": category.ignore_agent
+                    },
+                    "is_used": ecopacket_qr.scannered_at is not None
+                }
+            }, status=status.HTTP_200_OK)
+
+        elif flask_qr:
+            # Flask QR kod topildi
+            category = flask_qr.category
+            if not category:
+                return Response(
+                    {"error": "Category not found for this barcode"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+            
+            return Response({
+                "exists": True,
+                "qr_type": "flask",
+                "data": {
+                    "qr_code": qr_code,
+                    "category": {
+                        "name": category.name,
+                        "summa": category.summa,
+                        "filter_type": category.filter_type,
+                        "ignore_agent": category.ignore_agent
+                    }
+                }
+            }, status=status.HTTP_200_OK)
+
+        else:
+            # QR kod topilmadi
+            return Response({
+                "exists": False,
+                "message": "QR code not found in any system"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+
