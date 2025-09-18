@@ -489,7 +489,7 @@ class UniversalQrManualSingleView(APIView):
         elif flask_qr:
             # Flask QR kod logikasi
             try:
-                box = Box.objects.get(sim_module=sim_module, fandomat=True)
+                box = Box.objects.get(sim_module=sim_module)
             except Box.DoesNotExist:
                 return Response(
                     {"error": "Fandomat box doesn't exist!"},
