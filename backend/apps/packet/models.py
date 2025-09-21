@@ -17,6 +17,7 @@ class FilterType(models.TextChoices):
     YELLOW = "yellow", "Yellow"
     BLACK = "black", "Black"
     RED = "red", "Red"
+    WHITE = "white", "White"
 
 
 class Category(models.Model):
