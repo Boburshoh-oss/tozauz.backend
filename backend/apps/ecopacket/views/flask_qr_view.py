@@ -666,7 +666,8 @@ class UniversalQrCheckView(APIView):
                         "summa": category.summa,
                         "filter_type": category.filter_type,
                         "ignore_agent": category.ignore_agent
-                    }
+                    },
+                    "is_used": False  # Flask QR kodlar uchun doimo False
                 }
             }, status=status.HTTP_200_OK)
 
