@@ -29,6 +29,7 @@ services:
       - .:/code
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:16.2
@@ -41,15 +42,20 @@ services:
     ports:
       - "5435:5432"
 
-  # redis:
-  #   restart: unless-stopped
-  #   image: redis:7.2.4
-  #   ports:
-  #     - "6379:6379"
-  #   expose:
-  #     - 6379  
+  redis:
+    restart: unless-stopped
+    image: redis:7.2.4
+    ports:
+      - "6379:6379"
+    expose:
+      - 6379
+    volumes:
+      - ./devops/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - redis_data:/data
+    command: redis-server /usr/local/etc/redis/redis.conf  
 
 volumes:
   postgres_data:
   static_volume:
   media_volume:
+  redis_data:
