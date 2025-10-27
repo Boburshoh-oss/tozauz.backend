@@ -146,6 +146,9 @@ class EmployeeQrCodeScanerView(APIView):
 class CategoryModelViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     queryset = Category.objects.all().order_by("id")
+    filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
+    filterset_fields = ["filter_type", "ignore_agent"]
+    
 
 
 class PacketListAPIView(generics.ListAPIView):
