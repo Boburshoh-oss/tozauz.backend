@@ -92,10 +92,10 @@ class EcoPacketQrCode(models.Model):
 
 
 class FlaskQrCode(models.Model):
-    bar_code = models.CharField(max_length=50)
+    bar_code = models.CharField(max_length=50,unique=True)
 
-    category = models.ForeignKey(
-        "packet.Category", on_delete=models.SET_NULL, null=True
+    category = models.OneToOneField(
+        "packet.Category", on_delete=models.SET_NULL, null=True, blank=True
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
