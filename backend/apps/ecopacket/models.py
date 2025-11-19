@@ -99,7 +99,7 @@ class FlaskQrCode(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
-#    image = models.ImageField(upload_to="flask_qr_codes/", blank=True, null=True)
+    image = models.ImageField(upload_to="flask_qr_codes/", blank=True, null=True)
     def __str__(self) -> str:
         return self.bar_code
 
