@@ -7,14 +7,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecopacket', '0008_remove_duplicate_barcodes'),
-        ('packet', '0004_alter_category_filter_type'),
+        ("ecopacket", "0008_remove_duplicate_barcodes"),
+        ("packet", "0004_alter_category_filter_type"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='flaskqrcode',
-            name='category',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='packet.category'),
+            model_name="flaskqrcode",
+            name="category",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="packet.category",
+            ),
         ),
     ]
