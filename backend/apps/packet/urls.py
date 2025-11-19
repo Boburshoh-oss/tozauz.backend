@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import (create_packet_qr_code,
+from .views import (CategoryModelViewSet2, create_packet_qr_code,
                     EmployeeQrCodeScanerView,
                     CategoryModelViewSet,
                     PacketListAPIView,
@@ -9,6 +9,7 @@ from rest_framework import routers
 router = routers.DefaultRouter()
 
 router.register(r'categories', CategoryModelViewSet)
+router.register(r'categories-v2', CategoryModelViewSet2)
 
 urlpatterns = [
     path('create-packet-qr-codes/', create_packet_qr_code,

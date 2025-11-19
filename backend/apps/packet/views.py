@@ -149,8 +149,14 @@ class CategoryModelViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
     search_fields = ["name"]
     filterset_fields = ["filter_type", "ignore_agent"]
-    
 
+class CategoryModelViewSet2(viewsets.ModelViewSet):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all().order_by("id")
+    filter_backends = [filters.DjangoFilterBackend, rf_filters.SearchFilter]
+    search_fields = ["name"]
+    filterset_fields = ["filter_type", "ignore_agent"]
+    pagination_class = MyPagination
 
 class PacketListAPIView(generics.ListAPIView):
     pagination_class = MyPagination
