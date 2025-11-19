@@ -20,7 +20,7 @@ from apps.ecopacket.views.flask_qr_viewset import (
 
 router = DefaultRouter()
 router.register("flask-qr-codes", FlaskQrCodeViewSet)
-router.register("flask-qr-codes-v2", FlaskQrCodeViewSetV2)
+router.register("flask-qr-codes-v2", FlaskQrCodeViewSetV2, basename="flask-qr-codes-v2")
 
 urlpatterns = [
     path("", include(router.urls)),

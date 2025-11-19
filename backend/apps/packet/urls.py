@@ -9,7 +9,7 @@ from rest_framework import routers
 router = routers.DefaultRouter()
 
 router.register(r'categories', CategoryModelViewSet)
-router.register(r'categories-v2', CategoryModelViewSet2)
+router.register(r'categories-v2', CategoryModelViewSet2, basename='categories-v2')
 
 urlpatterns = [
     path('create-packet-qr-codes/', create_packet_qr_code,
