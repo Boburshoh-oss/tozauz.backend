@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecopacket', '0007_remove_flaskqrcode_scannered_at_and_more'),
+        ('ecopacket', '0010_flaskqrcode_image'),
     ]
 
     operations = [

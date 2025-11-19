@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecopacket', '0008_alter_flaskqrcode_bar_code'),
+        ('ecopacket', '0008_remove_duplicate_barcodes'),
         ('packet', '0004_alter_category_filter_type'),
     ]
 
