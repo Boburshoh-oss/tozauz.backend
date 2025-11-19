@@ -1,5 +1,6 @@
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated
+from apps.utils.pagination import MyPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import F
 from apps.ecopacket.models import FlaskQrCode
@@ -19,6 +20,28 @@ class FlaskQrCodeViewSet(viewsets.ModelViewSet):
     search_fields = ["bar_code"]
     ordering_fields = ["created_at"]
     ordering = ["-created_at"]  # Default ordering
+
+    def get_queryset(self):
+        return (
+            FlaskQrCode.objects.select_related("category")
+            .annotate(category_name=F("category__name"))
+            .all()
+        )
+
+class FlaskQrCodeViewSetV2(viewsets.ModelViewSet):
+    queryset = FlaskQrCode.objects.all()
+    serializer_class = FlaskQrCodeSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    ]
+    filterset_fields = ["category"]
+    search_fields = ["bar_code"]
+    ordering_fields = ["created_at"]
+    ordering = ["-created_at"]  # Default ordering
+    pagination_class = MyPagination
 
     def get_queryset(self):
         return (
