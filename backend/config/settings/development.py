@@ -21,9 +21,9 @@ if DEBUG:
     MIDDLEWARE += [
         "debug_toolbar.middleware.DebugToolbarMiddleware",
     ]
-    INSTALLED_APPS += [
-        "debug_toolbar",
-    ]
+    # INSTALLED_APPS += [
+    #     "debug_toolbar",
+    # ]
     import socket
 
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
