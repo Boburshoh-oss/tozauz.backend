@@ -7,5 +7,5 @@ class FlaskQrCodeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FlaskQrCode
-        fields = ["id", "bar_code", "category", "created_at", "category_name"]
+        fields = ["id", "bar_code", "category", "created_at", "category_name","image"]
         read_only_fields = ["created_at"]
