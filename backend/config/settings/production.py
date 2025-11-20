@@ -1,6 +1,7 @@
 import os
 from config.settings.base import *
 from decouple import config
+
 DEBUG = bool(config("DEBUG"))
 DATABASES = {
     "default": {
@@ -16,6 +17,9 @@ DATABASES = {
 
 STATIC_URL = "static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "../", "staticfiles")
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "../", "media")
 
 # CRONJOBS = [
 #     ('* * * * *', 'django.core.management.call_command', ['user-check'])
