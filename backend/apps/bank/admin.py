@@ -15,7 +15,7 @@ class EarningAdmin(admin.ModelAdmin):
     list_filter = ["tarrif", "box", "is_penalty"]
     raw_id_fields = ["packet"]
 
-
+@admin.register(QrCheckLog)
 class QrCheckLogAdmin(admin.ModelAdmin):
     list_display = ["qr_code", "request_time", "ip_address", "qr_type", "exists"]
     list_filter = ["qr_type", "exists", "request_time"]
