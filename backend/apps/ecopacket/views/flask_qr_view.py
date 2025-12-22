@@ -400,6 +400,16 @@ class UniversalQrManualSingleView(APIView):
         ecopacket_qr = EcoPacketQrCode.objects.filter(qr_code=qr_code).first()
         flask_qr = FlaskQrCode.objects.filter(bar_code=qr_code).first()
 
+        # Agar topilmasa va qr_code 13 ta belgidan uzunroq bo'lsa, oxirgi 13 ta belgini sinab ko'ramiz
+        if not ecopacket_qr and not flask_qr and len(qr_code) > 13:
+            qr_code_trimmed = qr_code[-13:]
+            ecopacket_qr = EcoPacketQrCode.objects.filter(
+                qr_code=qr_code_trimmed
+            ).first()
+            flask_qr = FlaskQrCode.objects.filter(bar_code=qr_code_trimmed).first()
+            if ecopacket_qr or flask_qr:
+                qr_code = qr_code_trimmed  # Topilgan qr_code ni ishlatamiz
+
         if ecopacket_qr:
             # EcoPacket QR kod logikasi
             try:
@@ -637,6 +647,16 @@ class UniversalQrCheckView(APIView):
         # Avval EcoPacket QR kodini tekshiramiz
         ecopacket_qr = EcoPacketQrCode.objects.filter(qr_code=qr_code).first()
         flask_qr = FlaskQrCode.objects.filter(bar_code=qr_code).first()
+
+        # Agar topilmasa va qr_code 13 ta belgidan uzunroq bo'lsa, oxirgi 13 ta belgini sinab ko'ramiz
+        if not ecopacket_qr and not flask_qr and len(qr_code) > 13:
+            qr_code_trimmed = qr_code[-13:]
+            ecopacket_qr = EcoPacketQrCode.objects.filter(
+                qr_code=qr_code_trimmed
+            ).first()
+            flask_qr = FlaskQrCode.objects.filter(bar_code=qr_code_trimmed).first()
+            if ecopacket_qr or flask_qr:
+                qr_code = qr_code_trimmed  # Topilgan qr_code ni ishlatamiz
 
         # Helper function to get client IP
         def get_client_ip(request):
