@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Count
+
 # Create your models here.
 
 
@@ -25,10 +26,9 @@ class Earning(models.Model):
     is_penalty = models.BooleanField(default=False)
     penalty_amount = models.PositiveBigIntegerField(default=0)
     reason = models.TextField(blank=True, default="")
+
     def __str__(self) -> str:
         return f"{self.bank_account.user} {self.amount} {self.tarrif}"
-    
-
 
 
 class PayOut(models.Model):
@@ -60,9 +60,10 @@ class PayMe(models.Model):
     card_name = models.CharField(max_length=55, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     payed = models.BooleanField(default=False)
-    
+
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.amount}"
+
 
 class ApplicationStatus(models.TextChoices):
     PENDING = "pending", "Pending"
@@ -71,23 +72,74 @@ class ApplicationStatus(models.TextChoices):
     IN_WAY = "in_way", "In Way"
     DELIVERED = "delivered", "Delivered"
 
+
 class PaymentType(models.TextChoices):
     BANK_ACCOUNT = "bank_account", "Bank Account"
     INVOICE = "invoice", "Invoice"
     CARD = "card", "Card"
 
+
 class Application(models.Model):
-    agent = models.ForeignKey("account.user", on_delete=models.SET_NULL, null=True, blank=True,related_name="application_agent")
-    box = models.ForeignKey("ecopacket.box", on_delete=models.SET_NULL, null=True, blank=True)
-    employee = models.ForeignKey("account.user", on_delete=models.SET_NULL, null=True, blank=True,related_name="application_employee")
+    agent = models.ForeignKey(
+        "account.user",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="application_agent",
+    )
+    box = models.ForeignKey(
+        "ecopacket.box", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    employee = models.ForeignKey(
+        "account.user",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="application_employee",
+    )
     amount = models.PositiveBigIntegerField()
     rejected_reason = models.TextField(blank=True, default="")
-    rejected_by = models.ForeignKey("account.user", on_delete=models.SET_NULL, null=True, blank=True,related_name="application_rejected_by")
+    rejected_by = models.ForeignKey(
+        "account.user",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="application_rejected_by",
+    )
     comment = models.TextField(blank=True, default="")
-    payment_type = models.CharField(max_length=200, choices=PaymentType.choices, default=PaymentType.BANK_ACCOUNT)
+    payment_type = models.CharField(
+        max_length=200, choices=PaymentType.choices, default=PaymentType.BANK_ACCOUNT
+    )
     containers_count = models.PositiveBigIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=200, choices=ApplicationStatus.choices, default=ApplicationStatus.PENDING)
+    status = models.CharField(
+        max_length=200,
+        choices=ApplicationStatus.choices,
+        default=ApplicationStatus.PENDING,
+    )
+
     def __str__(self) -> str:
         return f"{self.agent.first_name} {self.amount}"
+
+
+class QrCheckLog(models.Model):
+    """QR kod tekshirish so'rovlarini saqlash uchun model"""
+
+    qr_code = models.CharField(max_length=255)
+    request_time = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(null=True, blank=True)
+    qr_type = models.CharField(
+        max_length=50, null=True, blank=True
+    )  # ecopacket, flask, not_found
+    exists = models.BooleanField(default=False)
+    response_data = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-request_time"]
+        verbose_name = "QR Check Log"
+        verbose_name_plural = "QR Check Logs"
+
+    def __str__(self) -> str:
+        return f"{self.qr_code} - {self.request_time}"

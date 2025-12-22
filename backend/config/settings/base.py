@@ -176,3 +176,6 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
+
+# QR Check Logging
+ENABLE_QR_CHECK_LOGGING = env.bool("ENABLE_QR_CHECK_LOGGING", default=False)
