@@ -1,3 +1,6 @@
+include .env
+export
+
 .PHONY: help backup restore backup-list
 
 help:
@@ -8,8 +11,8 @@ help:
 
 backup:
 	@echo "Creating database backup..."
-	@docker compose -f docker-compose.prod.yml exec -T db pg_dump -U ${DB_USERNAME} ${DB_NAME} > backup_$(shell date +%Y-%m-%d_%H-%M-%S).sql
-	@echo "Backup created: backup_$(shell date +%Y-%m-%d_%H-%M-%S).sql"
+	@docker compose -f docker-compose.prod.yml exec -T db pg_dump -U $${POSTGRES_USER:-postgres} $${POSTGRES_DB:-postgres} > backup_$$(date +%Y-%m-%d_%H-%M-%S).sql
+	@echo "Backup created successfully!"
 
 restore:
 	@if [ -z "$(FILE)" ]; then \
@@ -17,7 +20,7 @@ restore:
 		exit 1; \
 	fi
 	@echo "Restoring database from $(FILE)..."
-	@docker compose -f docker-compose.prod.yml exec -T db psql -U ${DB_USERNAME} ${DB_NAME} < $(FILE)
+	@docker compose -f docker-compose.prod.yml exec -T db psql -U $${POSTGRES_USER:-postgres} $${POSTGRES_DB:-postgres} < $(FILE)
 	@echo "Database restored successfully from $(FILE)"
 
 backup-list:
