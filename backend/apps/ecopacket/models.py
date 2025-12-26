@@ -20,7 +20,15 @@ class Box(models.Model):
         "packet.Category", on_delete=models.SET_NULL, null=True
     )
     is_active = models.BooleanField(default=True)
-    
+
+    # Fandomat uchun cashalok (koshilok/wallet)
+    balance = models.DecimalField(
+        max_digits=20,
+        decimal_places=2,
+        default=0.00,
+        help_text="Fandomat cashalok balansi. Flask QR kod scan qilinganda bu balansdan pul yechiladi.",
+    )
+
     seller = models.ForeignKey(
         to="account.User",
         on_delete=models.SET_NULL,
@@ -92,7 +100,7 @@ class EcoPacketQrCode(models.Model):
 
 
 class FlaskQrCode(models.Model):
-    bar_code = models.CharField(max_length=50,unique=True)
+    bar_code = models.CharField(max_length=50, unique=True)
 
     category = models.OneToOneField(
         "packet.Category", on_delete=models.SET_NULL, null=True, blank=True
@@ -100,6 +108,6 @@ class FlaskQrCode(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to="flask_qr_codes/", blank=True, null=True)
+
     def __str__(self) -> str:
         return self.bar_code
-

@@ -11,5 +11,6 @@ urlpatterns = [
     path("packet/", include("apps.packet.urls")),
     path("bank/", include("apps.bank.urls")),
     path("home/", include("apps.home.urls")),
+    path("payme/", include("apps.payme.urls")),
     path("dashboard/", DashboardView.as_view()),
 ]

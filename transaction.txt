@@ -1,0 +1,124 @@
+Описание методов transactions протокола Subscribe API
+
+Добавление карты
+CARDS
+X-auth:ID
+PARAMS
+card Параметры карты
+number – String - номер карты
+expire – String - Срок окончания действия карты
+save – Boolean - false 
+
+REQUEST
+{
+    "id": 123,
+    "method": "cards.create",
+    "params": {
+        "card": { "number": "8600069195406311", "expire": "0399"},
+        "save": false
+    }
+}
+
+RESPONSE
+
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "card": {
+            "number": "860006******6311",
+            "expire": "03/99",
+            "token": "67c9428fc7d99b6cdc2764da_gs7YPWcttjgdnBD7D6xcc1amW6IRe3S8Jr3D6vZhMc8eXV7Mxwvp2izhxb0xaox2nwzaFfTBff9UnSJp8OP0Dxh0rCDbSjdifbesrvRuVXgPDzPwbiijOQPacvTccVDjd4UD9do0g1IAjpUpVfq2U9ewnObRR2jXtC3AiW8dRu13Cz86bUI32yOry94rB6oD3Ojf9z607zQ741iFOvEHhKvvArPe80j3Uvbcn4DyJAxwnm00gJXMiaDPdCUWQ6fv0Kv17VszM3nkfjH3abUdC2HymB2MR7cqa5OgrDdKiX3niqn9PFm4UNomdMNjor4p82vfg0XAVJO6wejSG7z29DkZNoHw6dHDjbg74jSi8qso3mc8eam8yrrXfpxfm9wQVVoAJA",
+            "recurrent": false,
+            "verify": false,
+            "type": "22618"
+        }
+    }
+}
+
+Создание транзакции
+CREATE
+X-auth:ID:KEY
+PARAMS
+account – object - объект account, в нем передаются реквизиты платежа, указанные в настройках кассы
+amount – number - сумма пополнения в тиинах
+token – string - токен карты полученный из CARDS
+
+REQUEST
+{
+  "id": 2,
+  "method": "transactions.create",
+  "params": {
+    "account": {
+      "id": "String"
+     },
+    "amount": 1000,
+    "token": "67c9428fc7d99b6cdc2764da_gs7YPWcttjgdnBD7D6xcc1amW6IRe3S8Jr3D6vZhMc8eXV7Mxwvp2izhxb0xaox2nwzaFfTBff9UnSJp8OP0Dxh0rCDbSjdifbesrvRuVXgPDzPwbiijOQPacvTccVDjd4UD9do0g1IAjpUpVfq2U9ewnObRR2jXtC3AiW8dRu13Cz86bUI32yOry94rB6oD3Ojf9z607zQ741iFOvEHhKvvArPe80j3Uvbcn4DyJAxwnm00gJXMiaDPdCUWQ6fv0Kv17VszM3nkfjH3abUdC2HymB2MR7cqa5OgrDdKiX3niqn9PFm4UNomdMNjor4p82vfg0XAVJO6wejSG7z29DkZNoHw6dHDjbg74jSi8qso3mc8eam8yrrXfpxfm9wQVVoAJA "
+   }
+}
+
+RESPONSE
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "receipt": {
+      "_id": "650d603f8f2c81305b2caf51",
+      "create_time": 1695375423848,
+      "pay_time": 0,
+      "cancel_time": 0,
+      "state": 0,
+………………………
+Запрос на завершение транзакции
+COMPLETE
+X-auth:ID:KEY
+PARAMS
+id – string – значение чека полученный из CREATE ( _id)
+token – string - токен карты полученный из CARDS
+
+REQUEST
+{
+  "id": 2,
+  "method": "transactions.complete",
+  "params": {
+    "id": "650d603f8f2c81305b2caf51",  
+    "token": "67c9428fc7d99b6cdc2764da_gs7YPWcttjgdnBD7D6xcc1amW6IRe3S8Jr3D6vZhMc8eXV7Mxwvp2izhxb0xaox2nwzaFfTBff9UnSJp8OP0Dxh0rCDbSjdifbesrvRuVXgPDzPwbiijOQPacvTccVDjd4UD9do0g1IAjpUpVfq2U9ewnObRR2jXtC3AiW8dRu13Cz86bUI32yOry94rB6oD3Ojf9z607zQ741iFOvEHhKvvArPe80j3Uvbcn4DyJAxwnm00gJXMiaDPdCUWQ6fv0Kv17VszM3nkfjH3abUdC2HymB2MR7cqa5OgrDdKiX3niqn9PFm4UNomdMNjor4p82vfg0XAVJO6wejSG7z29DkZNoHw6dHDjbg74jSi8qso3mc8eam8yrrXfpxfm9wQVVoAJA "
+   }
+}
+RESPONSE
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "receipt": {
+      "_id": "650d603f8f2c81305b2caf51",
+      "create_time": 1695375423848,
+      "pay_time": 1695375423948,
+      "cancel_time": 0,
+      "state": 4,
+……………….
+
+Запрос на остаток средств на кассе
+GETBALANCE
+X-auth ID:KEY
+PARAMS
+merchant_id – string – ID кассы для A2C
+REQUEST
+{
+    "id": 123,
+    "method": "accounts.getBalance",
+    "params": {
+        "merchant_id": ""
+    }
+}
+
+RESPONSE
+balance – в тийинах
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "balance": 8670
+    }
+}
+

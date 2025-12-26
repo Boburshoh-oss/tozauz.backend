@@ -1,0 +1,1229 @@
+Методы Subscribe APIcards.create
+cards.create
+Параметры запроса
+
+Имя	Тип	Описание
+id	Integer	Идентификатор запроса.
+card	Object	Параметры карты.
+number	String	Номер карты.
+expire	String	Срок окончания действия карты.
+account	Object	Объект Account. Параметр не обязательный.
+save	Boolean	Вид токена. Необязательный параметр. Параметр включается или отключается в зависимости от бизнес-логики приложения . Если флаг true токен можно использовать для дальнейших платежей; если флаг false токеном можно использовать только один раз. Одноразовый токен после оплаты удаляется.
+customer	String	Любой идентификатор пользователя (номер телефона, uid, email)
+Формат запроса
+
+{
+    card: {
+        number String,
+        expire: String
+    },
+    account: Object,
+    save: Boolean
+}
+
+Пример запроса
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "cards.create",
+    "params": {
+        "card": { "number": "8600069195406311", "expire": "0399"},
+        "save": true
+    }
+}
+
+Параметры ответа
+
+Имя	Тип	Описание
+id	Integer	Идентификатор ответа — соответствует идентификатору запроса.
+number	String	Неполный номер карты. Строка может храниться на сервере мерчанта.
+expire	String	Срок окончания действия карты.
+token	String	Токен карты.
+recurrent	Boolean	Флаг. Флаг определяет доступность карты для последующих платежей.
+verify	Boolean	Флаг. Если флаг true карта проверена способом OTP (one time password).
+Формат ответа
+
+{
+    card: {
+        number: String,
+        expire: String,
+        token: String,
+        recurrent: Boolean,
+        verify: Boolean
+    }
+}
+
+Пример ответа:
+
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "card": {
+            "number": "860006******6311",
+            "expire": "03/99",
+            "token": "NTg0YTg0ZDYyYWJiNWNhYTMxMDc5OTE0X1VnYU02ME92IUttWHVHRThJODRJNWE0Xl9EYUBPQCZjNSlPRlpLIWNWRz1PNFp6VkIpZU0kQjJkayoyVUVtUuKElmt4JTJYWj9VQGNAQyVqT1pOQ3VXZ2NyajBEMSYkYj0kVj9NXikrJE5HNiN3K25pKHRQOEVwOGpOcUYxQ2dtemk9dDUwKDNATjd2XythbibihJYoJispJUtuREhlaClraGlJWTlLMihrLStlRjd6MFI3VCgjVDlpYjQ1ZThaMiojPVNTZylYJlFWSjlEZGFuSjZDNDJLdlhXP3YmV1B2dkRDa3g5X2l4N28oU0pOVEpSeXZKYnkjK0h3ViZfdmlhUHMp",
+            "recurrent": true,
+            "verify": false
+        }
+    }
+}
+
+
+
+
+
+Методы Subscribe APIcards.get_verify_code
+cards.get_verify_code
+Параметры запроса
+
+Имя	Тип	Описание
+id	Integer	Идентификатор запроса.
+token	String	Токен карты.
+Формат запроса
+
+{
+    token: String
+}
+
+Пример запроса:
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "cards.get_verify_code",
+    "params": {
+        "token": "NTg0YTg0ZDYyYWJiNWNhYTMxMDc5OTE0X1VnYU02ME92IUttWHVHRThJODRJNWE0Xl9EYUBPQCZjNSlPRlpLIWNWRz1PNFp6VkIpZU0kQjJkayoyVUVtUuKElmt4JTJYWj9VQGNAQyVqT1pOQ3VXZ2NyajBEMSYkYj0kVj9NXikrJE5HNiN3K25pKHRQOEVwOGpOcUYxQ2dtemk9dDUwKDNATjd2XythbibihJYoJispJUtuREhlaClraGlJWTlLMihrLStlRjd6MFI3VCgjVDlpYjQ1ZThaMiojPVNTZylYJlFWSjlEZGFuSjZDNDJLdlhXP3YmV1B2dkRDa3g5X2l4N28oU0pOVEpSeXZKYnkjK0h3ViZfdmlhUHMp"
+    }
+}
+
+
+Параметры ответа
+
+Имя	Тип	Описание
+id	Integer	Идентификатор ответа — соответствует идентификатору запроса.
+sent	Boolean	Флаг результата отправки.
+phone	String	Неполный номер телефона, на который было отправлено смс с кодом.
+wait	Number	Период времени, в течении которого OTP (One Time Password) валиден для авторизации.
+Формат ответа:
+
+{
+    sent: true,
+    phone: String,
+    wait: Number
+}
+
+Пример ответа:
+
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "sent": true,
+        "phone": "99890*****31",
+        "wait": 60000
+    }
+}
+
+
+
+Методы Subscribe APIcards.verify
+cards.verify
+Параметры запроса
+
+Имя	Тип	Описание
+id	Integer	Идентификатор запроса.
+token	String	Токен карты.
+code	String	Код для верификации.
+Формат запроса:
+
+{
+    token: String,
+    code: String
+}
+
+Пример запроса:
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "cards.verify",
+    "params": {
+        "token": "NTg0YTg0ZDYyYWJiNWNhYTMxMDc5OTE0X1VnYU02ME92IUttWHVHRThJODRJNWE0Xl9EYUBPQCZjNSlPRlpLIWNWRz1PNFp6VkIpZU0kQjJkayoyVUVtUuKElmt4JTJYWj9VQGNAQyVqT1pOQ3VXZ2NyajBEMSYkYj0kVj9NXikrJE5HNiN3K25pKHRQOEVwOGpOcUYxQ2dtemk9dDUwKDNATjd2XythbibihJYoJispJUtuREhlaClraGlJWTlLMihrLStlRjd6MFI3VCgjVDlpYjQ1ZThaMiojPVNTZylYJlFWSjlEZGFuSjZDNDJLdlhXP3YmV1B2dkRDa3g5X2l4N28oU0pOVEpSeXZKYnkjK0h3ViZfdmlhUHMp",
+        "code": "666666"
+    }
+}
+
+
+Пример ответа:
+
+{
+  "jsonrpc": "2.0",
+  "id": 123,
+  "result": {
+    "card": {
+      "number": "860006******6311",
+      "expire": "03/99",
+      "token": "NTg0YTgxZWYyYWJiNWNhYTMxMDc5OTExXyVwOTY4TzI3MTJRQ28lWmsoREEyRClYOCtxZ18kVWRLRm0xP3FucVUzJChZazhFV3I1dmtrQiZUaFU5MzZRdSlGbUJPSEh2K1IoWU0lYSg3ZEYlK1QhTUV4P3pUU+KElkMkXjNuIUR6U19pdjY4b3Ffbkt3ajImZTRhZll0dUptNjBVMUF4KXJKJD0qTlNeQmJ5X2Q3bXZNRnZ2UXhfU25TS0dpcGc9V1doUEZxKSM5R0dJYjA9U2dGX2ReZ3lATeKElj9mZWZJS3MzKVp5MjFeOVY5cE8jZWh6cHZLeWZXKSF2PVBfVVU4ei1Gbj82JkI3YjhuRCFWa1omaDB4JEliQm8h",
+      "recurrent": true,
+      "verify": true
+    }
+  }
+}
+
+
+Методы Subscribe APIcards.check
+cards.check
+Параметры запроса
+
+Имя	Тип	Описание
+id	Integer	Идентификатор запроса.
+token	String	Токен карты.
+Формат запроса:
+
+{
+    token: String
+}
+
+Пример запроса:
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "cards.check",
+    "params": {
+        "token": "NTg1Yjc4OWMyYWJiNWNhYTMxMDc5YTE0X3hCJjc/M0NPejR4Jks5JmIxK2QkNCFHJXUqRyplIUB4MHpKVnUxOXZuRHVXK3h3XmVudS1hJFhON01ISSZBUV4jciQ4UD1YdFM4R0F0SmIkK3dfRlXihJYmI2F1MSpYNGNUVFViZkRtekZDNnU3XyElcERtdjRKXmtibWdFYjVpIVF0VW9NZWgzbyN5ZWhGRTdOQkBGU0JhS2ooR1dHZV5pWlJWZCVOekR2VHlJSmh5aSNxdVVXXnp2QUQmanVwb0AxbU1XcEMrcStPRUZQR1ZUTVllVTBeSGNEZkc/OD09JWleVEtqYUE4Y08rJloqVURLcG1rdiZEWCNJUk09dC1KKQ=="
+    }
+}
+
+
+Параметры ответа
+
+Имя	Тип	Описание
+id	Integer	Идентификатор ответа — соответствует идентификатору запроса.
+number	String	Неполный номер карты. Строка может храниться на сервере мерчанта.
+expire	String	Срок окончания действия карты.
+token	String	Токен карты.
+recurrent	Boolean	Флаг, определяющий доступ для последующих платежей с карты.
+verify	Boolean	Флаг. Если флаг true карта проверена способом OTP (one time password)
+Формат ответа
+
+{
+    card: {
+        number: String,
+        expire: String,
+        token: String,
+        recurrent: Boolean,
+        verify: Boolean
+    }
+}
+
+Пример ответа:
+
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "card": {
+          "number": "860006******6311",
+          "expire": "03/99",
+            "token": "NTg1Yjc4OWMyYWJiNWNhYTMxMDc5YTE0X3hCJjc/M0NPejR4Jks5JmIxK2QkNCFHJXUqRyplIUB4MHpKVnUxOXZuRHVXK3h3XmVudS1hJFhON01ISSZBUV4jciQ4UD1YdFM4R0F0SmIkK3dfRlXihJYmI2F1MSpYNGNUVFViZkRtekZDNnU3XyElcERtdjRKXmtibWdFYjVpIVF0VW9NZWgzbyN5ZWhGRTdOQkBGU0JhS2ooR1dHZV5pWlJWZCVOekR2VHlJSmh5aSNxdVVXXnp2QUQmanVwb0AxbU1XcEMrcStPRUZQR1ZUTVllVTBeSGNEZkc/OD09JWleVEtqYUE4Y08rJloqVURLcG1rdiZEWCNJUk09dC1KKQ==",
+            "recurrent": true,
+            "verify": true
+        }
+    }
+}
+
+
+
+Методы Subscribe APIcards.remove
+cards.remove
+Параметры запроса
+
+Параметр	Тип	Описание
+id	Integer	Идентификатор запроса.
+token	String	Токен карты.
+Формат запроса:
+
+{
+    token: String
+}
+
+Пример запроса:
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "cards.remove",
+    "params": {
+        "token": "NTg1Yjc4OWMyYWJiNWNhYTMxMDc5YTE0X3hCJjc/M0NPejR4Jks5JmIxK2QkNCFHJXUqRyplIUB4MHpKVnUxOXZuRHVXK3h3XmVudS1hJFhON01ISSZBUV4jciQ4UD1YdFM4R0F0SmIkK3dfRlXihJYmI2F1MSpYNGNUVFViZkRtekZDNnU3XyElcERtdjRKXmtibWdFYjVpIVF0VW9NZWgzbyN5ZWhGRTdOQkBGU0JhS2ooR1dHZV5pWlJWZCVOekR2VHlJSmh5aSNxdVVXXnp2QUQmanVwb0AxbU1XcEMrcStPRUZQR1ZUTVllVTBeSGNEZkc/OD09JWleVEtqYUE4Y08rJloqVURLcG1rdiZEWCNJUk09dC1KKQ=="
+    }
+}
+
+
+Формат ответа:
+
+{
+    success: Boolean
+}
+
+Пример ответа:
+
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "success": true
+    }
+}
+
+
+
+Методы Subscribe APIreceipts.create
+receipts.create
+Параметры запроса
+
+Имя	Тип	Описание
+id	Integer	Идентификатор запроса
+amount	Number	Сумма платежа в тийинах
+account	Object	Объект Account
+description	String	Описание платежа, необязательный параметр
+detail	Object	Объект детализации платежа, необязательный параметр
+Формат запроса
+
+{
+    amount: Number,
+    account: Object,
+    description: String,
+    detail: Object //ниже приведён пример объекта детализаци
+}
+
+
+Пример объекта детализации
+
+{
+    "receipt_type": 0, //тип фискального чека
+    "shipping" : { //доставка, необязательное поле
+          "title" : "Доставка до ттз-4 28/23", "price" : 500000
+    },
+    "items" : [ //товарная позиция, необязательное поле 
+            { 
+                    "discount":10000, //Скидка с учетом количества товаров или услуг в тийинах
+                    "title": "Помидоры", //нааименование товара или услуги
+                    "price": 505000, //цена за единицу товара или услуги, сумма указана в тийинах
+                    "count": 2, //кол-во товаров или услуг
+                    "code": "00702001001000001", // код *ИКПУ обязательное поле
+                    "units": 241092, //значение изменится в зависимости от вида товара
+                    "vat_percent": 15, //обязательное поле, процент уплачиваемого НДС для данного товара или услуги
+                    "package_code": "123456" //Код упаковки для конкретного товара или услуги, содержится на сайте в деталях найденного ИКПУ
+            }
+    ]
+}
+
+
+*ИКПУ - это идентификационный код продукции и услуг.
+
+Имя	Тип	Описание	Обязательное поле
+receipt_type	Number	Продажа/Возврат = 0	да
+shipping	Object	Доставка	нет
+items	Array	Товарная позиция	да
+Параметры массива items
+
+Имя	Тип	Описание	Обязательное поле
+discount	Number	Скидка с учетом количества товаров или услуг в тийинах	нет
+title	String	Название продукта	да
+price	Number	Цена за единицу товара или услугу в тийинах	да
+count	Number	Количество товаров или услуг	да
+code	String	ИКПУ (идентификационный код продукции и услуг)	да
+units	Number	Код единицы измерения	нет
+package_code	String	Код упаковки продукта	да
+vat_percent	Number	Процент уплачиваемого НДС для данного товара	да
+Пример запроса
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+    "id": 4,
+    "method": "receipts.create",
+    "params": {
+        "amount": 500000,
+        "account": {
+            "order_id": "test"
+        },
+        "detail": {
+            "receipt_type": 0,
+            "shipping": {
+                "title": "Доставка до ттз-4 28/23",
+                "price": 500000
+            },
+            "items": [
+                {
+                    "discount":10000, //Скидка с учетом количества товаров или услуг в тийинах
+                    "title": "Помидоры",
+                    "price": 505000,
+                    "count": 2,
+                    "code": "00702001001000001",
+                    "units": 241092,
+                    "vat_percent": 15,
+                    "package_code": "123456"
+                }
+            ]
+        }
+    }
+}
+
+Формат ответа
+
+{
+    result: receipt
+}
+
+Пример ответа
+
+{
+    "jsonrpc": "2.0",
+    "id": 4,
+    "result": {
+        "receipt": {
+            "_id": "62da73b0803aced907a52b46",
+            "create_time": 1658483632482,
+            "pay_time": 0,
+            "cancel_time": 0,
+            "state": 0,
+            "type": 2,
+            "external": false,
+            "operation": -1,
+            "category": null,
+            "error": null,
+            "description": "",
+            "detail": {
+                "discount": {
+                    "title": "Скидка 5%",
+                    "price": 10000
+                },
+                "shipping": {
+                    "title": "Доставка до ттз-4 28/23",
+                    "price": 500000
+                },
+                "items": [
+                    {
+                        "title": "Помидоры",
+                        "price": 505000,
+                        "count": 2,
+                        "code": "00702001001000001",
+                        "units": 241092,
+                        "vat_percent": 15,
+                        "package_code": "123456"
+                    }
+                ]
+            },
+            "amount": 500000,
+            "currency": 860,
+            "commission": 0,
+            "account": [
+                {
+                    "name": "order_id",
+                    "title": "Номер заказа",
+                    "value": "test",
+                    "main": true
+                },
+                {
+                    "name": "transaction",
+                    "title": "Номер чека",
+                    "value": "80",
+                    "main": false
+                }
+            ],
+            "card": null,
+            "merchant": {
+                "_id": "62d52ce6ca96effd0777a771",
+                "name": "test",
+                "organization": "ЧП «test test»",
+                "address": "",
+                "business_id": "62d52c4bca96effd0777a770",
+                "epos": {
+                    "merchantId": "106600000050000",
+                    "terminalId": "20660000"
+                },
+                "date": 1658137830827,
+                "logo": null,
+                "type": "Интернет",
+                "terms": null
+            },
+            "meta": {
+                "source": "subscribe",
+                "owner": "62d52ce6ca96effd0777a771"
+            },
+            "processing_id": null
+        }
+    }
+}
+
+
+
+
+Методы Subscribe APIreceipts.pay
+receipts.pay
+Параметры запроса
+
+Имя	Тип	Описание
+id	String	ID Чека.
+token	String	Токен карты.
+payer	Object	Объект “payer” — необязательный. Содержит дополнительную информацию о плательщике. Используется для системы антифрода.
+Формат запроса
+
+id: String,
+token: String,
+payer: {
+    id: String,
+    phone: String,
+    email: String,
+    name: String,
+    ip: String
+}
+
+Пример запроса
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "receipts.pay",
+    "params": {
+        "id": "2e0b1bc1f1eb50d487ba268d",
+        "token": "NTg1Yjc4OWMyYWJiNWNhYTMxMDc5YTE0X3hCJjc/M0NPejR4Jks5JmIxK2QkNCFHJXUqRyplIUB4MHpKVnUxOXZuRHVXK3h3XmVudS1hJFhON01ISSZBUV4jciQ4UD1YdFM4R0F0SmIkK3dfRlXihJYmI2F1MSpYNGNUVFViZkRtekZDNnU3XyElcERtdjRKXmtibWdFYjVpIVF0VW9NZWgzbyN5ZWhGRTdOQkBGU0JhS2ooR1dHZV5pWlJWZCVOekR2VHlJSmh5aSNxdVVXXnp2QUQmanVwb0AxbU1XcEMrcStPRUZQR1ZUTVllVTBeSGNEZkc/OD09JWleVEtqYUE4Y08rJloqVURLcG1rdiZEWCNJUk09dC1KKQ==",
+        "payer": {
+            "phone": "998901304527"
+        }
+    }
+}
+
+
+Формат ответа
+
+{
+    result: receipt
+}
+
+Пример ответа
+
+{
+  "jsonrpc": "2.0",
+  "id": null,
+  "result": {
+    "receipt": {
+      "_id": "2e0b1bc1f1eb50d487ba268d",
+      "create_time": 1481113810044,
+      "pay_time": 1481113810265,
+      "cancel_time": 0,
+      "state": 4,
+      "type": 1,
+      "external": false,
+      "operation": -1,
+      "category": null,
+      "error": null,
+      "description": "",
+      "detail": null,
+      "amount": 3500,
+      "commission": 0,
+      "account": [
+        {
+          "name": "order_id",
+          "title": "Код заказа",
+          "value": "5"
+        }
+      ],
+      "card": {
+        "number": "860006******6311",
+        "expire": "0399"
+      },
+      "merchant": {
+        "_id": "100fe486b33784292111b7dc",
+        "name": "Online Shop LLC",
+        "organization": "ЧП «Online Shop»",
+        "address": "",
+        "epos": {
+          "merchantId": "106600000050000",
+          "terminalId": "20660000"
+        },
+        "date": 1480582278779,
+        "logo": null,
+        "type": "Shop",
+        "terms": null,
+        "payer": {
+                    "phone": "998912345678"
+         }
+      },
+      "meta": null
+    }
+  }
+}
+
+
+Методы Subscribe APIreceipts.send
+receipts.send
+Метод используется для отправки чека на оплату в SMS-сообщении.
+
+Параметры запроса
+
+Параметр	Тип	Описание
+id	String	ID Чека
+phone	String	Номер телефона получателя инвойса
+Формат запроса
+
+{
+    id: String,
+    phone: string
+}
+
+Пример запроса
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "receipts.send",
+    "params": {
+        "id": "2e0b1bc1f1eb50d487ba268d",
+        "phone": "998901304527"
+    }
+}
+
+Формат ответа
+
+{ 
+  "result": {
+    "success":  boolean
+  }
+}
+
+Пример ответа
+
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "success": true
+  }
+}
+
+Предыдущая страница
+
+
+
+Методы Subscribe APIreceipts.check
+receipts.check
+Параметры запроса
+
+Параметр	Тип	Описание
+id	String	ID Чека
+Формат запроса
+
+{
+    id: String
+}
+
+Пример запроса
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "receipts.check",
+    "params": {
+        "id": "2e0b1bc1f1eb50d487ba268d"
+    }
+}
+
+Параметры ответа
+
+Параметр	Тип	Описание
+state	Number	Состояние чека.
+Формат ответа
+
+{
+    state: Number
+}
+
+Пример ответа:
+
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "state": 4
+    }
+}
+
+
+receipts.get
+Параметры запроса
+
+Имя	Тип	Описание
+id	String	ID Чека
+Формат запроса
+
+{
+    id: String
+}
+
+Пример запроса
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "receipts.get",
+    "params": {
+        "id": "2e0b1bc1f1eb50d487ba268d"
+    }
+}
+
+Пример ответа
+
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "receipt": {
+            "_id": "2e0b1bc1f1eb50d487ba268d",
+            "create_time": 1482823890336,
+            "pay_time": 1482823890564,
+            "cancel_time": 0,
+            "state": 4,
+            "type": 1,
+            "external": false,
+            "operation": -1,
+            "category": null,
+            "error": null,
+            "description": "",
+            "detail": null,
+            "amount": 2000,
+            "commission": 0,
+            "account": [
+                {
+                    "name": "order_id",
+                    "title": "Код заказа",
+                    "value": "124"
+                }
+            ],
+            "card": null,
+            "merchant": {
+                "_id": "100fe486b33784292111b7dc",
+                "name": "Online Shop LLC",
+                "organization": "ЧП «Online Shop»",
+                "address": "",
+                "epos": {
+                    "merchantId": "106600000050000",
+                    "terminalId": "20660000"
+                },
+                "date": 1480582278779,
+                "logo": null,
+                "type": "Shop",
+                "terms": null,
+                "payer": {
+                    "phone": "998912345678"
+                }
+            },
+            "meta": null
+        }
+    }
+}
+
+
+Методы Subscribe APIreceipts.get_all
+receipts.get_all
+Параметры запроса
+
+Имя	Тип	Описание
+id	Integer	Идентификатор запроса.
+count	Integer	Количество чеков. Максимальное значение - 50
+from	timestamp	Дата начала
+to	timestamp	Дата окончания
+offset	Integer	Количество последующих пропускаемых чеков. Пропускает от начала даты
+Формат запроса
+
+{
+    "id": Integer,
+    "method": "receipts.get_all",
+    "params": {
+        "count": Integer
+        "from": timestamp,
+        "to": timestamp,
+        "offset": Integer
+    }
+}
+
+Пример запроса
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:mjES8ycLucnvygt4dPwerK2vj45Eensn3ZPr
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "receipts.get_all",
+    "params": {
+        "count": 2,
+        "from": 1636398000000,
+        "to": 1636398000000,
+        "offset": 0
+    }
+}
+
+Пример ответа:
+
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": [
+        {
+            "_id": "618a5b9f1045eb4efde669a4",
+            "create_time": 1636457473995,
+            "pay_time": 1636457474283,
+            "cancel_time": 0,
+            "state": 4,
+            "type": 2,
+            "external": false,
+            "operation": -1,
+            "category": null,
+            "error": null,
+            "description": "",
+            "detail": null,
+            "amount": 100000,
+            "currency": 860,
+            "commission": 0,
+            "account": [
+                {
+                    "name": "loan_id",
+                    "title": {
+                        "ru": "Логин",
+                        "uz": "Login",
+                        "en": "Login"
+                    },
+                    "value": "2",
+                    "main": true
+                },
+                {
+                    "name": "transaction",
+                    "title": {
+                        "ru": "Номер чека",
+                        "uz": "Chek raqami"
+                    },
+                    "value": 1544,
+                    "main": false
+                }
+            ],
+            "card": {
+                "number": "8600069195406311",
+                "expire": "9903"
+            },
+            "merchant": {
+                "_id": "5e730e8e0b852a417aa49ceb",
+                "name": "test",
+                "organization": "ЧП «test test»",
+                "address": "",
+                "business_id": "5e730e740b852a417aa49cea",
+                "epos": {
+                    "merchantId": "106600000050000",
+                    "terminalId": "20660000"
+                },
+                "date": 1584598670296,
+                "logo": null,
+                "type": {
+                    "ru": "Internet",
+                    "uz": "Internet"
+                },
+                "terms": null
+            },
+            "meta": {
+                "source": "subscribe",
+                "owner": "5e730e8e0b852a417aa49ceb"
+            },
+            "processing_id": 0
+        },
+        {
+            "_id": "618a5a881045eb4efde669a3",
+            "create_time": 1636457352583,
+            "pay_time": 1636457352898,
+            "cancel_time": 0,
+            "state": 4,
+            "type": 2,
+            "external": false,
+            "operation": -1,
+            "category": null,
+            "error": null,
+            "description": "",
+            "detail": null,
+            "amount": 100000,
+            "currency": 860,
+            "commission": 0,
+            "account": [
+                {
+                    "name": "loan_id",
+                    "title": {
+                        "ru": "Логин",
+                        "uz": "Login",
+                        "en": "Login"
+                    },
+                    "value": "1",
+                    "main": true
+                },
+                {
+                    "name": "transaction",
+                    "title": {
+                        "ru": "Номер чека",
+                        "uz": "Chek raqami"
+                    },
+                    "value": 1543,
+                    "main": false
+                }
+            ],
+            "card": {
+                "number": "8600069195406311",
+                "expire": "9903"
+            },
+            "merchant": {
+                "_id": "5e730e8e0b852a417aa49ceb",
+                "name": "test",
+                "organization": "ЧП «test test»",
+                "address": "",
+                "business_id": "5e730e740b852a417aa49cea",
+                "epos": {
+                    "merchantId": "106600000050000",
+                    "terminalId": "20660000"
+                },
+                "date": 1584598670296,
+                "logo": null,
+                "type": {
+                    "ru": "Internet",
+                    "uz": "Internet"
+                },
+                "terms": null
+            },
+            "meta": {
+                "source": "subscribe",
+                "owner": "5e730e8e0b852a417aa49ceb"
+            },
+            "processing_id": 0
+        }
+    ]
+}
+
+
+receipts.set_fiscal_data
+Передача фискального чека в Payme
+
+Параметры запроса
+
+Имя	Тип	Описание	Обязательное поле
+id	Integer	Идентификатор запроса.	Да
+params.id	String	Уникальный id чека в БД Payme	Да
+fiscal_data.status_code	Integer	Код статуса, ниже приведен список кодов	Нет
+fiscal_data.message	String	Детальная информация об ошибке (если произошла ошибка при регистрации чека в ОФД)	Нет
+fiscal_data.terminal_id	String	Номер Виртуального Фискального Модуля	Нет
+fiscal_data.receipt_id	Integer	Уникальный порядковый номер платежа для Виртуального Фискального Модуля	Да
+fiscal_data.date	String	Дата регистрации чека на стороне ОФД	Нет
+fiscal_data.fiscal_sign	String	Фискальный Признак чека платежа	Нет
+fiscal_data.qr_code_url	String	URL адрес фискального чека	Да
+Формат запроса
+
+{
+    "id": Integer,
+    "method": "receipts.set_fiscal_data",
+    "params": {
+        "id": String,
+        "fiscal_data": {
+            "status_code": Integer,
+            "message": String,
+            "terminal_id": String,
+            "receipt_id": Integer,
+            "date": String,
+            "fiscal_sign": String,
+            "qr_code_url": String,
+        }
+    }
+}
+
+Пример запроса
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:mjES8ycLucnvygt4dPwerK2vj45Eensn3ZPr
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "receipts.set_fiscal_data",
+    "params": {
+        "id": "2e0b1bc1f1eb50d487ba268d",
+        "fiscal_data": {
+            "status_code": 0;          
+            "message": "accepted";     
+            "terminal_id": "EP000000000025"; 
+            "receipt_id": 121;              
+            "date": "20220706221021";             
+            "fiscal_sign": "800031554082";   
+            "qr_code_url": "fiscal receipt url";
+        }
+    }
+}
+
+Пример ответа:
+
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "success": true
+    }
+}
+
+
+
+Методы Subscribe APIХолдирование
+Холдирование
+Для работы с холдирование вам необходимо реализовать протокол Subscribe API с методами создания токена карты, с которой будут сниматься средства.
+
+Для создания платежа с холдированием необходимо указать дополнительный флаг "hold: true" в методе receipts.create.
+
+Пример запроса
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "receipts.create",
+    "params": {
+    "account": {
+            "order_id": 106
+        },
+        "amount": 2500,
+        "hold": true,
+    }
+}
+
+В методе receipts.pay флаг hold: true также необходим
+
+Пример запроса
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+    "id": 1596783866930,
+    "method": "receipts.pay",
+    "params": {
+        "id": "{{ProdReceiptId}}", // id транзакции
+        "token": "{{ProdCardToken}}", //токен карты
+        "hold": true
+    }
+}
+
+Пример ответа
+
+{
+    "jsonrpc": "2.0",
+    "id": 123,
+    "result": {
+        "receipt": {
+            "_id": "624c0c2b0ac8b463e47422c7",
+            "create_time": 1649150518480,
+            "pay_time": 0,
+            "cancel_time": 0,
+            "state": 5, //state 5 - средства захолдированы
+            "type": 1,
+            "external": false,
+            "operation": -1,
+            "category": null,
+            "error": null,
+            "description": "",
+            "detail": null,
+            "amount": 100,
+            "currency": 860,
+            "commission": 0,
+            "account": [
+                {
+                    "name": "order_id",
+                    "title": "order_id",
+                    "value": "5905",
+                    "main": true
+                },
+                {
+                    "name": "xEntityTaxpayerID",
+                    "title": "ИНН юр.лица",
+                    "value": "309085172"
+                }
+            ],
+            "sensitive_data": [],
+            "card": {
+                "number": "626247**********",
+                "expire": "2205"
+            },
+            "merchant": {
+                "_id": "623c4fe9bd1c329a32de808e",
+                "name": "Наименовагние компании ",
+                "organization": "ООО «Наименовагние компании»",
+                "address": "",
+                "business_id": "61b19ee2204c85a50a879ae1",
+                "epos": {
+                    "merchantId": "",
+                    "terminalId": ""
+                },
+                "date": 1648119785244,
+                "logo": "https://cdn.paycom.uz/merchants/8bca7f164642da3c6287122159986bebb9f98c0e.png",
+                "type": "Другие услуги здоровья и фармацевтики",
+                "terms": null
+            },
+            "meta": {
+                "source": "subscribe",
+                "owner": "623c4fe9bd1c329a32de808e"
+            },
+            "processing_id": 0
+        }
+    }
+}
+
+Для снятия холдированных средств используется метод receipts.confirm_hold
+
+Пример запроса
+
+POST /api HTTP/1.1
+Host: checkout.test.paycom.uz
+X-Auth: 100fe486b33784292111b7dc:Rw712wMJspZBczFvrG09?bHkSNxnD4PY0n1C
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+    "id": 123,
+    "method": "receipts.confirm_hold",
+    "params": {
+        "id": "624c0c2b0ac8b463e47422c7"
+    }
+}
+
+Пример ответа
+
+{
+    "jsonrpc": "2.0",
+    "id": 9,
+    "result": {
+        "receipt": {
+            "_id": "624c0c2b0ac8b463e47422c7",
+            "create_time": 1649151033299,
+            "pay_time": 1649151041276,
+            "cancel_time": 0,
+            "state": 4, //state 4 - холд подтвержден, чек оплачен
+            "type": 1,
+            "external": false,
+            "operation": -1,
+            "category": null,
+            "error": null,
+            "description": "",
+            "detail": null,
+            "amount": 100,
+            "currency": 860,
+            "commission": 0,
+            "account": [
+                {
+                    "name": "order_id",
+                    "title": "order_id",
+                    "value": "5905",
+                    "main": true
+                },
+                {
+                    "name": "xEntityTaxpayerID",
+                    "title": "ИНН юр.лица",
+                    "value": "*********"
+                }
+            ],
+            "sensitive_data": [],
+            "card": {
+                "number": "860031**********",
+                "expire": "2609"
+            },
+            "merchant": {
+                "_id": "623c4fe9bd1c329a32de808e",
+                "name": "Наименовагние компании ",
+                "organization": "ООО «Наименовагние компании»",
+                "address": "",
+                "business_id": "61b19ee2204c85a50a879ae1",
+                "epos": {
+                    "merchantId": "",
+                    "terminalId": ""
+                },
+                "date": 1648119785244,
+                "logo": "https://cdn.paycom.uz/merchants/8bca7f164642da3c6287122159986bebb9f98c0e.png",
+                "type": "Другие услуги здоровья и фармацевтики",
+                "terms": null
+            },
+            "meta": {
+                "source": "subscribe",
+                "owner": "623c4fe9bd1c329a32de808e"
+            },
+            "processing_id": 0
+        }
+    }
+}
+
+Состояние чека можно узнать тут
+
+Для отмены холдирования используется метод receipts.cancel
+
+Процессинг UZCARD отменяет холдирование по истечению 30 дней с момента холдирования
+
+Процессинг HUMO имеет ограничение подтвреждения/отмены холдирования в течении 30 дней. По истечению 30 дней холдирование можно только подтвердить.
+
+Для работы холдирования средств необходимо предупредить технического специалиста Payme Business. В противном случае холдирование на кассе работать не будет.
+
+Протестировать холдирование средств можно только в боевом режиме.

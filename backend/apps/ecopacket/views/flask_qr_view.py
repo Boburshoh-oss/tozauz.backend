@@ -118,9 +118,25 @@ class FlaskQrManualMultipleView(APIView):
                 # Pul hisob-kitobi
                 money_amount = category.summa
 
+                # Fandomat bo'lsa va balansi yetarli emasligini tekshirish
+                if box.fandomat:
+                    if box.balance < money_amount:
+                        processed_barcodes["error"].append(
+                            {
+                                "bar_code": bar_code,
+                                "error": f"Insufficient balance in fandomat. Required: {money_amount}, Available: {box.balance}",
+                            }
+                        )
+                        continue
+
                 # Kategoriya ignore_agent=True bo'lsa, hamma pul foydalanuvchiga beriladi
                 if category.ignore_agent:
                     client_bank_account.capital += money_amount
+
+                    # Fandomat bo'lsa balansdan pul yechish
+                    if box.fandomat:
+                        box.balance -= money_amount
+                        box.save()
 
                     # Foydalanuvchi uchun daromad yozib qo'yiladi
                     Earning.objects.create(
@@ -136,6 +152,10 @@ class FlaskQrManualMultipleView(APIView):
                     if box.seller is not None:
                         seller_share = money_amount * seller_percentage / 100
                         client_share = money_amount - seller_share
+
+                        # Fandomat bo'lsa balansdan pul yechish
+                        if box.fandomat:
+                            box.balance -= money_amount
 
                         # Seller hisobiga o'tkazish
                         bank_account_seller = box.seller.bankaccount
@@ -165,6 +185,11 @@ class FlaskQrManualMultipleView(APIView):
                     else:
                         # Seller bo'lmasa hamma summa clientga
                         client_bank_account.capital += money_amount
+
+                        # Fandomat bo'lsa balansdan pul yechish
+                        if box.fandomat:
+                            box.balance -= money_amount
+                            box.save()
 
                         Earning.objects.create(
                             bank_account=client_bank_account,
@@ -280,9 +305,25 @@ class FlaskQrManualSingleView(APIView):
         client_bank_account = user.bankaccount
         money_amount = category.summa
 
+        # Fandomat bo'lsa va balansi yetarli emasligini tekshirish
+        if box.fandomat and box.balance < money_amount:
+            return Response(
+                {
+                    "error": "Insufficient balance in fandomat",
+                    "required": float(money_amount),
+                    "available": float(box.balance),
+                },
+                status=status.HTTP_402_PAYMENT_REQUIRED,
+            )
+
         # Kategoriya ignore_agent=True bo'lsa, hamma pul foydalanuvchiga beriladi
         if category.ignore_agent:
             client_bank_account.capital += money_amount
+
+            # Fandomat bo'lsa balansdan pul yechish
+            if box.fandomat:
+                box.balance -= money_amount
+                box.save()
 
             # Foydalanuvchi uchun daromad yozib qo'yiladi
             Earning.objects.create(
@@ -298,6 +339,10 @@ class FlaskQrManualSingleView(APIView):
             if box.seller is not None:
                 seller_share = money_amount * seller_percentage / 100
                 client_share = money_amount - seller_share
+
+                # Fandomat bo'lsa balansdan pul yechish
+                if box.fandomat:
+                    box.balance -= money_amount
 
                 # Seller hisobiga o'tkazish
                 bank_account_seller = box.seller.bankaccount
@@ -327,6 +372,11 @@ class FlaskQrManualSingleView(APIView):
             else:
                 # Seller bo'lmasa hamma summa clientga
                 client_bank_account.capital += money_amount
+
+                # Fandomat bo'lsa balansdan pul yechish
+                if box.fandomat:
+                    box.balance -= money_amount
+                    box.save()
 
                 Earning.objects.create(
                     bank_account=client_bank_account,
@@ -524,9 +574,25 @@ class UniversalQrManualSingleView(APIView):
             client_bank_account = user.bankaccount
             money_amount = category.summa
 
+            # Fandomat bo'lsa va balansi yetarli emasligini tekshirish
+            if box.fandomat and box.balance < money_amount:
+                return Response(
+                    {
+                        "error": "Insufficient balance in fandomat",
+                        "required": float(money_amount),
+                        "available": float(box.balance),
+                    },
+                    status=status.HTTP_402_PAYMENT_REQUIRED,
+                )
+
             # Kategoriya ignore_agent=True bo'lsa, hamma pul foydalanuvchiga beriladi
             if category.ignore_agent:
                 client_bank_account.capital += money_amount
+
+                # Fandomat bo'lsa balansdan pul yechish
+                if box.fandomat:
+                    box.balance -= money_amount
+                    box.save()
 
                 Earning.objects.create(
                     bank_account=client_bank_account,
@@ -540,6 +606,10 @@ class UniversalQrManualSingleView(APIView):
                 if box.seller is not None:
                     seller_share = money_amount * seller_percentage / 100
                     client_share = money_amount - seller_share
+
+                    # Fandomat bo'lsa balansdan pul yechish
+                    if box.fandomat:
+                        box.balance -= money_amount
 
                     # Seller hisobiga o'tkazish
                     bank_account_seller = box.seller.bankaccount
@@ -569,6 +639,11 @@ class UniversalQrManualSingleView(APIView):
                 else:
                     # Seller bo'lmasa hamma summa clientga
                     client_bank_account.capital += money_amount
+
+                    # Fandomat bo'lsa balansdan pul yechish
+                    if box.fandomat:
+                        box.balance -= money_amount
+                        box.save()
 
                     Earning.objects.create(
                         bank_account=client_bank_account,

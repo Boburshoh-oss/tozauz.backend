@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "apps.ecopacket",
     "apps.packet",
     "apps.home",
+    "apps.payme",
 ]
 # CORS_ORIGIN_WHITELIST = (
 # 'http://localhost:3000',  # for localhost (REACT Default)
@@ -179,3 +180,8 @@ INTERNAL_IPS = [
 
 # QR Check Logging
 ENABLE_QR_CHECK_LOGGING = env.bool("ENABLE_QR_CHECK_LOGGING", default=False)
+
+# Payme Settings
+PAYME_MERCHANT_ID = env.str("PAYME_MERCHANT_ID", default="")
+PAYME_MERCHANT_KEY = env.str("PAYME_MERCHANT_KEY", default="")
+PAYME_TEST_MODE = env.bool("PAYME_TEST_MODE", default=True)
